@@ -398,7 +398,6 @@ function dzlang(){
 		    endYear: currYear + 10 
 		};
 
-		$("#appDate").mobiscroll($.extend(opt['date'], opt['default']));
 		var optDateTime = $.extend(opt['datetime'], opt['default']);
 		var optTime = $.extend(opt['time'], opt['default']);
 		$("#rushreplyfrom").mobiscroll(optDateTime).datetime(optDateTime);
