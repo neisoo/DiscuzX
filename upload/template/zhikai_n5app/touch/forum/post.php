@@ -4,6 +4,8 @@
 $n5app = init_n5app();
 function init_n5app(){
 	global $_G;
+	loadcache('plugin');
+	$n5app = $_G['cache']['plugin']['zhikai_n5appgl']; 
 	$n5app['lang'] = dzlang();
 	return $n5app;
 }
