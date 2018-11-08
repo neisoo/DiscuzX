@@ -1,0 +1,374 @@
+<!--{block file}-->
+<link href="source/plugin/zhikai_n5video/static/css/style.css" rel="stylesheet" />
+<script type="text/javascript"src="source/plugin/zhikai_n5video/static/js/jquery.min.js"></script>
+<style>
+.zhikai-up{
+    position: relative;
+    display: block;
+    margin: 20px 10px;
+}
+.zhikai-ups{
+    margin:10px 0px;
+	height: 35px;
+}
+.zhikai-file{
+    margin: 10px 0px;
+    background: #fff;
+    padding: 5px 5px;
+    border-bottom: 1px solid #ededed;
+}
+.bnt{
+    margin: 5px 5px;
+    padding: 1px 15px;
+    background:#FF9800;
+    color: #fff;
+    display: inline-block;
+    margin-top: 10px;
+    border-radius: 15px;
+    font-size: 14px;
+}
+.explain{
+    float: right;
+    display: block;
+    width: 49%;
+    position: relative;
+}
+.explain .txt{
+    line-height: 20px;
+    color: #9E9E9E;
+    font-size: 13px;
+    margin: 5px 0px;
+}
+.explain .txt span{
+    font-size: 12px;
+}
+.setting{
+    display: inline-block;
+    position: relative;
+    width: 100%;
+	margin: 5px 0px;
+}
+.setting .ction{
+    color: #888;
+    font-size: 14px;
+    margin-right: 10px;
+	line-height: 30px;
+}
+.setting .ction span{
+    margin-right: 5px;
+}
+.zhikai-file .pw{
+    width: 50%;
+    max-height:100px;
+    display: inline-block;
+    -webkit-box-orient: vertical;
+    -webkit-box-pack: center;
+    -webkit-box-align: center;
+    text-align: center;
+}
+.notice{
+    text-align: inherit;
+    font-size: 13px;
+    color: #a5a5a5;
+    background: #fbf3de;
+    padding: 10px 15px;
+    border: 1px dashed #f3de9f;
+    margin: 5px;
+    border-radius: 3px;
+}
+.zhikai-button{
+    background: #8BC34A !important;
+	color: #fff !important;
+	width: 40% !important;
+	float: none;
+	margin: 0 auto;
+}
+</style>
+<div class="zhikai-up cl">
+	<div id="zhikai-video" class="cl"></div>
+	<div class="zhikai-ups cl"></div>
+	<div class="zhikai-bar zhikai-in cl"></div>
+</div>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/up.js" charset="{CHARSET}"></script>
+<script type="text/javascript">
+    var jq = jQuery.noConflict();
+	var imges = typeof imges == 'undefined' ? 'jpg, jpeg, gif, png' : imges;
+	var lang_msg = {
+		'-1' : '{lang zhikai_n5video:lang_001}',
+		'0' : '{lang zhikai_n5video:lang_002}',
+		'1' : '{lang zhikai_n5video:lang_003}',
+		'2' : '{lang zhikai_n5video:lang_004}',
+		'3' : '{lang zhikai_n5video:lang_005}',
+		'4' : '{lang zhikai_n5video:lang_006}',
+		'5' : '{lang zhikai_n5video:lang_007}',
+		'6' : '{lang zhikai_n5video:lang_008}',
+		'7' : '{lang zhikai_n5video:lang_009}('+ imges +')',
+		'8' : '{lang zhikai_n5video:lang_010}',
+		'9' : '{lang zhikai_n5video:lang_011}',
+		'10' : '{lang zhikai_n5video:lang_012}',
+		'11' : '{lang zhikai_n5video:lang_013}',
+		'-5' : '{lang zhikai_n5video:lang_014}'
+	};
+
+	jq.zhikai({
+		updom: '.zhikai-ups',
+		upid: 'upflis',
+		barid: '.zhikai-bar',
+		upstr: '{lang zhikai_n5video:lang_048}',
+		shardsize :"{$config['shardsize']}",
+		upfinished: '{lang zhikai_n5video:lang_021}',
+		upurl: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
+		errtype: '{lang zhikai_n5video:lang_022}',
+		upcallback : function(data){
+		   up_success(data);
+		}
+	});
+
+	function up_success(data){
+	  if (data.indexOf('DISCUZUPLOAD') > -1){
+			var arr = data.split('|');
+			if(arr[1] == 0){
+			    Up_Preview(arr);
+			}else if(lang_msg[arr[1]] != undefined ){
+				var sizelimit = '';
+				if(arr[8] == 'ban') {
+					sizelimit = '{lang uploadpicatttypeban}';
+				} else if(arr[8] == 'perday') {
+					sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+				} else if(arr[8] > 0) {
+					sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+				}
+				popup.open(lang_msg[arr[1]] + sizelimit, 'alert');
+			}
+	   }else{
+			if (data)
+			popup.open(lang_msg[data], 'alert');
+	   }
+       return false;
+	};
+
+	function JudgeImg(v,arr){
+	    var type = 0;
+		for(var i = 0;i < arr.length; i++) {
+		   if(v.toString() == arr[i].toString()){
+		      type = 1;
+		   }
+		}
+		return type;
+	};
+
+	function scrollToEnd(){
+		var h = jq(document).height() - jq(window).height();
+		jq(document).scrollTop(h);
+	};
+
+	function Up_Preview(arr){
+	    var Dom ='',cover='';
+	    var isimg = ['jpg','jpeg','gif','png','bmp'],
+			isvdo = JSON.parse('$video'),
+			isMP3 = JSON.parse('$voice'),
+			file ='', attachurl = '{$attachurl}' + arr[4];
+		if(JudgeImg(arr[7],isvdo) == 1){
+		    insertAttach(arr[2],'');
+			<!--{if $config['cover_open']}-->
+			cover = '<div class="bnt z" onclick="up_fmig('+ arr[2] +')" >{lang zhikai_n5video:lang_023}</div>';
+			<!--{/if}-->
+			file ='<div id="video_'+ arr[2] +'" class="pw"></div>';
+		}else if(JudgeImg(arr[7],isMP3) == 1){
+		    insertAttach(arr[2],'');
+			file ='<div id="file_'+ arr[2] +'" class="pw"><audio src="'+ attachurl +'" controls="controls" '+
+			      'autoplay="autoplay" style="width: 100%;height:55px;" /></audio></div>';
+		}else if(JudgeImg(arr[7],isimg) == 1){
+		    insertAttach(arr[2],1);
+			file ='<div id="file_'+ arr[2] +'" class="pw"><img src="'+ attachurl +'" style="width:120px;height:105px;" /></div>';
+		}else {
+			file ='<div id="file_'+ arr[2] +'" class="pw" style="line-height:80px;">'+
+			'<img src="'+ FileType(arr[7]) +'" border="0" class="vm">&nbsp;{lang zhikai_n5video:lang_024}</div>';
+		}
+		var Dom ='<div class="zhikai-file" id="del_'+ arr[2] +'">'+ file
+		    +    '<div class="explain">'
+		    +    '<div class="txt">{lang zhikai_n5video:lang_025}<span>'+ arr[5] +'</span> </div>'
+			+	 '<div class="txt">{lang zhikai_n5video:lang_026}<span>'+ File_Size(arr[6]) +'</span></div>'
+			+	 cover
+			+	 '<div class="bnt y" onclick="insertAttach('+ arr[2] +','+ JudgeImg(arr[7],isimg) +')" >{lang zhikai_n5video:lang_027}</div>'
+			+	 '<div class="dels bnt y" aid="'+ arr[2] +'">{lang zhikai_n5video:lang_028}</div>'
+			+	 '</div>'
+			+	 '<div class="setting">'
+			+		'<div class="ction atds z"><span>{lang zhikai_n5video:lang_029}</span><input type="text" name="attachnew['+ arr[2] +'][description]" '
+			+		'class="px" value="" size="6" style="width:80px;height:21px;border:0;border-bottom: 1px solid #ddd;border-radius:0;"/></div>'
+					<!--{if $_G['group']['allowsetattachperm']}-->
+			+		'<div class="ction attv z">'
+			+		   '<span>{lang zhikai_n5video:lang_030}</span>'
+						<!--{if $_G['cache']['groupreadaccess']}-->
+			+			'<select class="ps" name="attachnew['+ arr[2] +'][readperm]" id="readperm" tabindex="1"'
+			+			        'style="width:75px;color:#888;height:23px;border:1px solid #ddd;border-radius:0;">'
+			+					'<option value="">{lang zhikai_n5video:lang_031}</option>'
+							<!--{loop $_G['cache']['groupreadaccess'] $val}-->
+			+					'<option value="$val[readaccess]">$val[grouptitle]</option>'
+							<!--{/loop}-->
+			+					'<option value="255">{lang zhikai_n5video:lang_032}</option>'
+			+			'</select>'
+						<!--{/if}-->
+			+		'</div>'
+					<!--{/if}-->
+					<!--{if $_G['group']['maxprice']}-->
+			+		'<div class="ction attpr y">'
+			+			'<span>$_G[setting][extcredits][$_G[setting][creditstransextra][1]][title]</span>'
+			+			'<input type="text" name="attachnew['+ arr[2] +'][price]" class="px" value="" '
+			+			'size="1" style="width:30px;height:21px;border:0;border-bottom: 1px solid #ddd;border-radius:0;"/>'
+			+		'</div>'
+					<!--{/if}-->
+			+		'</div>'
+			+	    '</div>';
+		jq('#zhikai-video').append(Dom);
+		scrollToEnd();
+		if(JudgeImg(arr[7],isvdo) == 1){
+			var videoObject = {
+				container: '#video_' + arr[2],
+				variable: 'player',
+				flashplayer:false,
+				video:attachurl,
+				autoplay:true,
+				loop:true
+			};
+			var player = new ckplayer(videoObject);
+		}
+	};
+
+	function up_fmig(e){
+		var Vobj = document.getElementById("video_"+ e +"");
+		var Vobjs = Vobj.getElementsByTagName("video");
+		var scale = 0.4;
+		var canvas = document.createElement("canvas");
+		canvas.width = Vobjs[0].videoWidth * scale;
+		canvas.height = Vobjs[0].videoHeight * scale;
+		canvas.getContext('2d').drawImage(Vobjs[0], 0, 0, canvas.width, canvas.height);
+		var urls = canvas.toDataURL("image/png");
+        if(e && urls){
+			jq.ajax({
+				type:'POST',
+				url:'plugin.php?id=zhikai_n5video&act=add&uid=$_G[uid]&formhash={FORMHASH}',
+				data:{aid:e, url:urls}
+			})
+			.success(function(s){
+				if(s == 'succeed'){
+					popup.open('{lang zhikai_n5video:lang_033}', 'alert');
+				}else if(s == 'error'){
+				    popup.open('{lang zhikai_n5video:lang_034}', 'alert');
+				}else{
+				    popup.open('{lang zhikai_n5video:lang_034}', 'alert');
+				}
+			})
+			.error(function(){
+				popup.open('{lang networkerror}', 'alert');
+			});
+			return false;
+		}
+	};
+
+	function delCover(aid){
+		if(aid){
+			jq.ajax({
+				type:'GET',
+				url:'plugin.php?id=zhikai_n5video&act=del&uid=$_G[uid]&aid='+ aid +'&formhash={FORMHASH}'
+			})
+			.success(function(s){
+				if(s == 'succeed'){
+					popup.open('{lang zhikai_n5video:lang_035}', 'alert');
+				}else if(s == 'error'){
+				    popup.open('{lang zhikai_n5video:lang_043}', 'alert');
+				}
+			})
+		}
+	}
+
+	function insertAttach(aid,isimg){
+		var txt = '';
+		if (isimg == 1){
+			txt = '[attachimg]' + aid + '[/attachimg]';
+		}else{
+			txt = '[attach]' + aid + '[/attach]';
+		}
+		var v = jq('#needmessage').val();
+		if(v.indexOf(aid) != -1){
+			popup.open('{lang zhikai_n5video:lang_036}', 'alert');
+		}else{
+		    jq('#needmessage').val(v + txt);
+		}
+	};
+
+	jq(document).on('click', '.dels', function(){
+		var obj = jq(this);
+		jq.ajax({
+			type:'GET',
+			url:'forum.php?mod=ajax&action=deleteattach&inajax=yes&aids[]=' + obj.attr('aid'),
+		})
+		.success(function(s){
+			var _val = jq('#needmessage').val();
+			jq('#needmessage').val(_val.replace('[attach]' + obj.attr('aid') + '[/attach]','').replace('[attachimg]' + obj.attr('aid') + '[/attachimg]',''));
+			jq('#del_'+obj.attr('aid')).remove();
+			<!--{if $config['cover_open']}-->
+			delCover(obj.attr('aid'));
+			<!--{/if}-->
+		})
+		.error(function(){
+			popup.open('{lang networkerror}', 'alert');
+		});
+		return false;
+	});
+
+	function File_Size(size){
+		if(size < 30)return 0;
+		return size = size > 1024
+			? size / 1024  > 1024
+			? size / (1024 * 1024) > 1024
+			? (size / (1024 * 1024 * 1024)).toFixed(2) + 'GB'
+			: (size / (1024 * 1024)).toFixed(2) + 'MB'
+			: (size / 1024).toFixed(2) + 'KB'
+			: size + 'B';
+	};
+
+	function FileType(types){
+		var types = types.toLowerCase();
+		switch (types){
+			case 'mp4':
+			  types = 'av.gif';
+			  break;
+			case 'mp3':
+			   types = 'file-music.png';
+			  break;
+			case 1:
+			   types = 'image.gif';
+			  break;
+			case 'rtf':
+			  types = 'file-word.png'
+			  break;
+			case 'zip':
+			   types = 'zip.gif';
+			  break;
+			case 'rar':
+			   types = 'rar.gif';
+			  break;
+			case 'pdf':
+			   types = 'pdf.gif';
+			  break;
+			case 'xlsx':
+			   types = 'msoffice.gif';
+			  break;
+			case 'svf':
+			   types = 'flash.gif';
+			  break;
+			case 'htm':
+			   types = 'html.gif';
+			  break;
+			case 'txt':
+			   types = 'text.gif';
+			  break;
+			default:
+			   types = 'unknown.gif';
+			   break;
+		}
+		return 'static/image/filetype/'+ types;
+	};
+</script>
+<!--{/block}-->

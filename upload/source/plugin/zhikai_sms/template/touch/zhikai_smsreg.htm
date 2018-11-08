@@ -1,0 +1,162 @@
+<!--{block return}-->
+<link type="text/css" rel="stylesheet" href="source/plugin/zhikai_sms/static/css/style.css" />
+<div class="zhikai-pop animated">
+	<div class="pop-rad animated bounceInRight">
+		<header class="zhikai-header">
+			<div id="zhikai-back" onclick="regoperate();"></div>
+			<h1>{lang zhikai_sms:langtsms043}&nbsp;&nbsp;&nbsp;</h1>
+		</header>
+		<div class="zhikai-wrap">
+			<form method="post" autocomplete="off" id="smsregisterform" class="cl" action="plugin.php?id=zhikai_sms&motion=register">
+			<div style="margin: 20px 20px 0 20px;" class="zhikai-form">
+				<input type="hidden" name="smsregsubmit" value="yes" />
+				<input type="hidden" name="formhash" value="{FORMHASH}" />
+				<input type="hidden" name="referer" value="$dreferer" />
+				<input type="hidden" name="send_type" value="1" />
+				<div class="zhikai-form-items cl">
+					<div class="zhikai-form-items-title zhikaiec-sj z"></div>
+					<div class="zhikai-smsdlxm z">
+						<input type="text" id="phone" name="phone" class="zhikai-input zhikai-input-clear" maxlength="15" placeholder="{lang zhikai_sms:langtsms029}" />
+					</div>
+				</div>
+				<div class="zhikai-form-items cl">
+					<div class="zhikai-form-items-title zhikaiec-yzm z"></div>
+					<div class="zhikai-smsdlxm z">
+						<input type="number" id="code" name="code" class="zhikai-input" name="yzm" value="" placeholder="{lang zhikai_sms:langtsms030}"/>
+						<div class="zhikai_smsyzm">
+							<input class="reg-bts" type="button" name="subcode" id="subcode" onclick="subsend(this);" value="{lang zhikai_sms:langtsms006}">
+						</div>
+					</div>
+				</div>
+				<div class="zhikai-form-items cl">
+					<div class="zhikai-form-items-title zhikaiec-yhm z"></div>
+					<div class="zhikai-smsdlxm z">
+						<input type="text" id="username" name="username" class="zhikai-input zhikai-input-clear" maxlength="15" placeholder="{lang zhikai_sms:langtsms044}" />
+					</div>
+				</div>
+				<div class="zhikai-form-items cl">
+					<div class="zhikai-form-items-title zhikaiec-mm z"></div>
+					<div class="zhikai-smsdlxm z">
+						<input type="password" id="password1" name="password1" class="zhikai-input zhikai-input-clear" placeholder="{lang zhikai_sms:langtsms046}" />
+					</div>
+				</div>
+				<div class="zhikai-form-items cl">
+					<div class="zhikai-form-items-title zhikaiec-mm z"></div>
+					<div class="zhikai-smsdlxm z">
+						<input type="password" id="password2" name="password2" class="zhikai-input zhikai-input-clear" placeholder="{lang zhikai_sms:langtsms045}" />
+					</div>
+				</div>
+				<!--{if $config['seccode_open'] && $config['regseccode']}-->
+				<div class="zhikai-form-items zhikai-seccheck cl">
+					<div class="zhikai-form-items-title zhikaiec-yzm z" style="line-height:33px;"></div>
+					<div class="zhikai-smsdlxm z">
+						<!--{eval $seccodecheck = 1;}-->
+						<!--{subtemplate common/seccheck}-->
+					</div>
+				</div>
+				<!--{/if}-->
+				<!--{if $_G['setting']['bbrules'] && $_G['setting']['bbrulestxt']}-->
+				<div class="zhikai-form-radios" style="padding:8px 10px;">
+					<input type="checkbox" class="pc" name="smsagreebbrule" value="$bbrulehash" id="smsagreebbrule" checked="checked" /> 
+					<label for="smsagreebbrule">{lang zhikai_sms:langtsms050}<a href="javascript:;" onclick="showBBRule()" style="color:#41c2fc;">&nbsp;{lang zhikai_sms:langtsms051}</a></label>
+				</div>
+				<!--{/if}-->
+			</div>
+			<div class="zhikai-smsztan cl">
+				<button type="button" name="smsregsubmit" value="true" onclick="demand(this);return false;" class="zhikai-smsbutton zhikai-smsbutton-large zhikai-primary">{lang zhikai_sms:langtsms022}</button>
+			</div>
+			<div class="zhikai-smszcqt cl">
+				<a href="javascript:regoperate();" class="z">{lang zhikai_sms:langtsms052}</a>
+				<a href="plugin.php?id=zhikai_sms:getpass&amp" class="y">{lang zhikai_sms:langtsms016}</a>
+			</div>
+			</form>
+		</div>
+	</div>
+</div>
+<script type="text/javascript" src="source/plugin/zhikai_sms/static/js/jquery.min.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_sms/static/js/zhikai.js"></script>
+<script type="text/javascript">
+var zhikai = jQuery.noConflict();
+function regoperate(){
+    if(zhikai('.zhikai-pop').css('display')== 'block'){
+		zhikai('.pop-rad').removeClass('bounceInRight');
+		zhikai('.zhikai-pop').addClass('bounceOutRight');
+		//zhikai('.zhikai-pop').hide(); 
+	
+	}else{
+	    zhikai('.pop-rad').addClass('bounceInRight');
+	    zhikai('.zhikai-pop').removeClass('bounceOutRight');
+	    //zhikai('.zhikai-pop').show();
+	}
+}
+
+function showBBRule(){
+	 zks.confirm('<p class="zhikai-center-tit">{lang zhikai_sms:langtsms051}</p>$bbrulestxt', ['{lang zhikai_sms:langtsms027}','{lang zhikai_sms:langtsms026}'], function(){
+		document.getElementById("smsagreebbrule").checked = true;
+	},function(){
+	    document.getElementById("smsagreebbrule").checked = false;
+	});
+};
+
+function demand(Obj){
+	var formobj = zhikai(Obj.form);
+	zhikai.ajax({
+		type : 'POST',
+		url:formobj.attr('action') + '&handlekey='+ formobj.attr('id'),
+		data:formobj.serialize(),
+		dataType : 'json'
+	})
+	.success(function(s) {
+        console.log(s);
+        if(s.succeed){
+            zks.iconToast(s.succeed);
+			var urls = "{$_G['siteurl']}";
+			window.setTimeout(function(){window.location.href = urls;},3000);
+		}else if(s.error){
+		    zks.toast(s.error);
+		}
+	})
+	.error(function() {
+	    zks.toast('{lang zhikai_sms:langtsms012}');
+	});
+	return false;
+}
+
+function subsend(Obj){
+	var countsec = "{$config['codetime']}"; 
+	var phone = zhikai('#phone').val();
+	zhikai.ajax({
+		type : 'GET',
+		url : 'plugin.php?id=zhikai_sms&motion=smssend&phone='+ phone +'&send_type=1&formhash={FORMHASH}',
+		dataType : 'json'
+	})
+	.success(function(s) {
+        console.log(s);
+        if(s.succeed == 'ok'){
+            zhikai('#subcode').attr('disabled',true);
+		}else if(s.error){
+			zks.toast(s.error);
+			clearInterval(sendtime);
+			return false;
+		}
+	})
+	.error(function() {
+       zks.toast('{lang zhikai_sms:langtsms012}');
+       return false;
+	});
+	sendtime = setInterval(function(){
+		if (countsec == 0) {  
+			zhikai(Obj).val('{lang zhikai_sms:langtsms013}'); 
+			zhikai('#subcode').attr('disabled',false);
+			countsec = 60; 
+			clearInterval(sendtime);
+			return;
+		} else {
+            zhikai('#subcode').attr('disabled',true);
+			zhikai(Obj).val('{lang zhikai_sms:langtsms014}' + countsec + '{lang zhikai_sms:langtsms015}'); 
+			countsec--; 
+		}
+	},1000);
+}
+</script>
+<!--{/block}-->

@@ -1,0 +1,49 @@
+{if $checkUser['status']}
+	<p class="pbm bbda xi1">{lang zhikai_wxlogin:tlang02} <strong>{$_G['username']}</strong> {lang zhikai_wxlogin:tlang03}</p>
+    <br />
+    <h2>
+    <a href="javascript:;" onclick="display('unbind');" class="xi2">{lang zhikai_wxlogin:tlang04}</a>
+    </h2>
+    
+    <div id="unbind" style="display:none;">
+    <form id="wechatform" method="post" autocomplete="off" action="home.php?mod=spacecp&ac=plugin&id=zhikai_wxlogin:wechat">
+    <input type="hidden" name="formhash" value="{FORMHASH}" />
+    <p class="mtm mbm">
+    {lang zhikai_wxlogin:tlang04}
+    </p>
+    <button type="submit" name="unbindsubmit" value="yes" class="pn pnc"><strong>{lang zhikai_wxlogin:tlang05}</strong></button>
+    </form>
+    </div>
+{elseif !$checkUser['status'] && $checkUser}
+	<p class="pbm bbda xi1">{lang zhikai_wxlogin:tlang02} <strong>{$_G['username']}</strong> {lang zhikai_wxlogin:tlang03}{lang zhikai_wxlogin:tlang06}</p>
+    <br />
+    <h2>
+    <a href="javascript:;" onclick="display('unbind');" class="xi2">{lang zhikai_wxlogin:tlang07}</a>
+    </h2>
+    
+    <div id="unbind" style="display:none;">
+    <form id="wechatform" method="post" autocomplete="off" action="home.php?mod=spacecp&ac=plugin&id=zhikai_wxlogin:wechat">
+    <input type="hidden" name="formhash" value="{FORMHASH}" />
+    <p class="mtm mbm">
+    {lang zhikai_wxlogin:tlang08}</p>
+    <p class="mtm mbm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{lang zhikai_wxlogin:tlang09}<input type="text" name="username" id="username" class="px" value="" tabindex="1"></p>
+    <p class="mtm mbm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{lang zhikai_wxlogin:tlang10}<input type="text" name="email" id="email" class="px" value="" tabindex="1" required="required"></p>
+    <p class="mtm mbm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{lang zhikai_wxlogin:tlang11}<input type="password" name="password" id="password" class="px" value="" tabindex="1" required="required"></p>
+    <p class="mtm mbm">{lang zhikai_wxlogin:tlang12}<input type="password" name="password1" id="password" class="px" value="" tabindex="1" required="required"></p>
+    <button type="submit" name="editsubmit" value="yes" class="pn pnc"><strong>{lang zhikai_wxlogin:tlang13}</strong></button>
+    </form>
+    </div>
+{else}
+	<div class="mtw bm2 cl">
+		<div class="bm2_b bw0 hm" style="padding-top: 70px;">
+			<a href="javascript:;" onclick="showWindow('zhikai_wxlogin', 'plugin.php?id=zhikai_wxlogin&amp;mod=qrcode');return false;"><img align="absmiddle" src="source/plugin/zhikai_wxlogin/static/image/wechat_bind.png"></a>
+			<p class="mtn xg1">{lang zhikai_wxlogin:tlang14}...</p>
+		</div>
+		<div class="bm2_b bm2_b_y bw0">
+			<dl class="xld">
+				{lang zhikai_wxlogin:tlang15}
+				<dd class="xg1">{lang zhikai_wxlogin:tlang16}{$total}{lang zhikai_wxlogin:tlang17}</dd>
+			</dl>
+		</div>
+	</div>
+{/if}

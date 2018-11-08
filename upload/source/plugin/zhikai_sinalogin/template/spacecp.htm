@@ -1,0 +1,31 @@
+
+{if !$bindinfo}
+<div class="mtw bm2 cl">
+<div class="bm2_b bw0 hm" style="padding-top: 70px;">
+<a href="plugin.php?id=zhikai_sinalogin"><img src="source/plugin/zhikai_sinalogin/static/img/loginbtn.png"></a>
+<p class="mtn xg1">{lang zhikai_sinalogin:xbiBB6}</p>
+</div>
+<div class="bm2_b bm2_b_y bw0" style="padding-top: 50px;">
+<dl class="xld">
+{lang zhikai_sinalogin:bIPp6z}
+</dl>
+</div>
+</div>
+{else}
+<p class="pbm bbda xi1">{lang zhikai_sinalogin:pk3x77} <strong>{$_G['username']}</strong> {lang zhikai_sinalogin:dRyA7k}</p>
+<h2>
+<a href="javascript:;" onclick="display('unbind');" class="xi2">{lang zhikai_sinalogin:v7wA8k}</a>
+</h2>
+
+<div id="unbind" style="display:none;">
+<form action="home.php?mod=spacecp&ac=plugin&id=zhikai_sinalogin:spacecp" method="post" autocomplete="off">
+<input type="hidden" name="formhash" value="{FORMHASH}">
+<p class="mtm mbm">
+{lang zhikai_sinalogin:vbXsa8}
+</p>
+<div>
+<button type="submit" name="unbind" value="yes" class="pn pnc"><strong>{lang zhikai_sinalogin:jvDsIa}</strong></button>
+</div>
+</form>
+</div>
+{/if}

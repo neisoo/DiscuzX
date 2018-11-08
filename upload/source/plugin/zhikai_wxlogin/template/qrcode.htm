@@ -1,0 +1,39 @@
+<!--{template common/header}-->
+<div class="fwinmask">
+	<h3 style="cursor: move;" class="flb">
+		<em>{lang zhikai_wxlogin:tlang01}</em>
+		<span style="float:right;margin-right:10px;">
+		<a href="javascript:void(0);" class="flbc" onclick="clearInterval(checkUser);hideWindow('zhikai_wxlogin')" title="Close">Close</a>
+		</span>
+	</h3>
+	<div class="c" style="width:265px; padding:10px;">
+         <img src="data:image/png;base64,{$qrcode}" />
+    </div>
+    <script type="text/javascript">
+		var checkUser = setInterval("zhikai_wxlogin()", 3000);
+		function zhikai_wxlogin(){
+			var zhikai = new Ajax();
+			var op = '';
+			var checkUrl = 'plugin.php?id=zhikai_wxlogin&mod=check&hash={$hash}';
+			zhikai.get(checkUrl , function(res,zhikai) {
+				if (res == '1' || res == '2' || res == '3' || res == '4') {
+					clearInterval(checkUser);
+					if(res == '1'){
+						document.getElementById("zhikai_wxlogin").style.display = "none";
+						hideWindow('zhikai_wxlogin');
+						op = 'bindsuccess';
+					}else if(res == '2'){
+						op = 'loginsuccess';	
+					}else if(res == '3'){
+						op = 'error';
+					}else if(res == '4'){
+						op = 'binderror';
+					}
+					showWindow('zhikai_wxlogin', 'plugin.php?id=zhikai_wxlogin&mod=tip&op='+op);
+				}
+			});
+		}
+
+	</script>
+</div>
+<!--{template common/footer}-->

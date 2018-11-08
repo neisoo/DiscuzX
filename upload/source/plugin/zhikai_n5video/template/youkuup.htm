@@ -1,0 +1,244 @@
+<!--{template common/header}-->
+<style>
+.container {
+    position: relative;
+    font-size: 15px;
+	border-top: 1px dashed #CDCDCD;
+    color: #888;
+    width: 100%;
+    overflow: hidden;
+}
+.container .row {
+    position: relative;
+    overflow: hidden;
+    padding: 5px 5px;
+}
+.container .row  h1{
+    width: 100%;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-box-pack: center;
+    -webkit-box-align: center;
+    text-align: center;
+    padding: 10px 0px;
+    color: #FF9800;
+    font-size: 18px;
+}
+.container .row  p{
+    line-height: 22px;
+    height: 23px;
+    font-size: 14px;
+    color: #999;
+}
+.container .progress {
+    height: 20px;
+    overflow: hidden;
+    background-color: #8BC34A;
+    margin-top: 10px;
+    border-radius: 0px 10px 10px 0px;
+    line-height: 22px;
+}
+.container .progress .bar {
+    float: left;
+    width: 0px;
+    height: 100%;
+    text-align: center;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    background-color: #FF9800;
+    border-radius: 0px 10px 10px 0px;
+}
+.progress-extended{
+    position: relative;
+    overflow: hidden;
+    margin: 5px 0px;
+    font-size: 14px;
+    color: #999;
+}
+.progress-extended span{
+    padding: 0px 3px;
+}
+.btn-primary {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 35px;
+    border: 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    display: block;
+    font-size: 15px;
+    height: 30px;
+    line-height: 30px;
+    outline: 0;
+    overflow: hidden;
+    position: relative;
+    text-align: center;
+    color: #656B79;
+    background-color: #F6F8F9;
+    box-shadow: 0 0 1px #B8BBBF;
+    padding: 0px 25px;
+    background: #8BC34A !important;
+    color: #FFFFFF !important;
+}
+.container .wells {
+    border-top: 1px dashed #CDCDCD;
+    font-size: 14px;
+    color: #999;
+    line-height: 20px;
+    padding-top: 10px;
+}
+.control-group{
+    padding: 10px 10px;
+    border-bottom: 1px solid #F3F4F5;
+    position: relative;
+    display: -webkit-flex;
+    display: flex;
+}
+.control-label{
+    width: 22%;
+    line-height: 22px;
+    height: 22px;
+    flex-shrink: 0;
+}
+.controls{
+    border: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 0;
+    border: 0;
+    background: #FFF;
+    width: 100%;
+    display: block;
+    padding: 0px;
+}
+.form-actions{
+    text-align: center;
+    display: -webkit-box;
+    width: 100%;
+    -webkit-box-sizing: border-box;
+    -webkit-box-pack: end;
+    margin-top: 10px;
+}
+.zhikai-buttonp{
+    color: #fff !important;
+    border-radius: 50px;
+    background: #8BC34A;
+    height: 30px;
+    line-height: 30px;
+    padding: 1px 5px;
+    min-width: 35px;
+    display: inline-block;
+    font-size: 15px;
+    position: relative;
+    text-align: center;
+    width: 45%;
+}
+</style>
+<div class="tm_c" style="width: 430px;">
+	<h3 class="flb">
+		<em id="return_apply">{lang zhikai_n5video:lang_045}</em>
+		<span><a href="javascript:;" class="flbc" onclick="hideWindow('zhikai_n5video_up');return false;"></a></span>
+	</h3>
+	<div id="youku-upload" class="p_opt">
+		<div class="container cl">
+			<form class="well form-horizontal" name="video-upload" id="video-upload">
+				<div class="control-group">
+					<label class="control-label" for="spanSWFUploadButton">{lang zhikai_n5video:lang_049}</label>
+					<div id="uploadControl" class="controls zhikai-buttonp"></div>
+				</div>
+				<div class="control-group">
+					   <label class="control-label" for="input01">{lang zhikai_n5video:lang_050}</label>
+					  <div class="controls">
+						  <input type="text" class="input-xlarge" id="input01" name="title">
+					  </div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="textarea">{lang zhikai_n5video:lang_051}</label>
+					<div class="controls">
+						<textarea class="input-xlarge" id="textarea" rows="3" name="description"></textarea>
+					</div>
+				</div>
+			   <div class="control-group" style="display:none">
+				   <label class="control-label" for="input02">{lang zhikai_n5video:lang_052}</label>
+				   <div class="controls">
+					  <input type="hidden" class="input-xlarge" id="input02" name="tags" value="{lang zhikai_n5video:lang_063}">
+					  <span class="help-inline"></span>
+				  </div>
+			   </div> 
+			   <div class="control-group">
+					<label class="control-label" for="category-node">{lang zhikai_n5video:lang_053}</label>
+					<div class="controls">
+						<select id="category-node" name="category" ></select>
+					 </div>
+				</div>
+				<div class="control-group" style="display:none">
+					<label class="control-label">{lang zhikai_n5video:lang_054}</label>
+					<div class="controls">
+						<label class="radio inline">
+							<input type="radio" name="copyright_type" id="copyright_type2" value="original" checked="">{lang zhikai_n5video:lang_055}
+						</label>
+						<label class="radio inline">
+						   <input type="radio" name="copyright_type" id="copyright_type1" value="reproduced">{lang zhikai_n5video:lang_056}
+						</label>
+					</div>
+				</div>
+				<div class="control-group" style="display:none">
+				   <label class="control-label">{lang zhikai_n5video:lang_057}</label>
+					  <div class="controls">
+						 <label class="radio inline">
+						   <input type="radio" name="public_type" id="public_type1" value="all" checked="">{lang zhikai_n5video:lang_058}
+						 </label>
+						 <label class="radio inline">
+						   <input type="radio" name="public_type" id="public_type2" value="friend">{lang zhikai_n5video:lang_059}
+						 </label>
+						 <label class="radio inline">
+							<input type="radio" name="public_type" id="public_type3" value="password">{lang zhikai_n5video:lang_060}
+						 </label>
+						 <label class="radio inline" style="display:none" id="passwrod">
+							<input type="text" class="input "name="watch_password">
+						 </label>
+					 </div>
+				</div>
+				<div class="form-actions"> 
+					<button type="submit" class="btn-primary" id="btn-upload-start">
+					<i class="icon-upload icon-white"></i>
+					<strong>{lang zhikai_n5video:lang_061}</strong>
+					</button>
+				</div>
+			</form>
+			<div class="row cl" >
+				<div class="span5" id="upload-status-wraper" >
+				</div>
+			</div>
+			<div class="wells">
+			<p>{lang zhikai_n5video:lang_062}wmv,avi,dat,asf,rm,rmvb,ram,mpg,mpeg,3gp,mov,mp4,m4v,dvix,dv,dat,mkv,flv,vob,ram,qt,divx,cpk,fli,flc,mod¡£</p>
+			</div>
+		</div>
+		<div id="complete"></div>
+		<div id="login" style="width:100%;height:100%;position:fixed;z-index:999;left:0px;top:0px;overflow:hidden;display:none;"></div>
+	</div>
+</div>
+<script type="text/javascript" reload="1">
+	var USE_STREAM_UPLOAD = true;
+	jQuery(document).ready(function(){
+		var param = {
+				client_id:"{$config['client_id']}",
+				access_token:"{$youku_refresh['access_token']}",
+				completeCallback:"uploadComplete"
+		};
+		youkuUploadInit(param);
+	});
+	function uploadComplete(data){
+		var upload_video = '[zhikai_youku=swf,500,375]http://player.youku.com/player.php/sid/'+data.videoid+'/v.swf[/zhikai_youku]';
+		checkFocus();
+		insertText(upload_video);
+		uploadagain();
+		hideWindow('zhikai_n5video_up');
+	}
+	function upmsg(msg){
+        showPrompt(null, null, '<div><i style="font-size:15px;">'+ msg +'</i></div>', 3000,"popuptext");return false;
+	}
+</script>
+<!--{template common/footer}-->

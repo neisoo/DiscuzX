@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="ISO-8859-1"?>
+<root>
+	<item id="Title"><![CDATA[Discuz! Plugin]]></item>
+	<item id="Version"><![CDATA[X2.5,X3,X3.1,X3.2,,X3.3,X3.4,F1.0]]></item>
+	<item id="Time"><![CDATA[2018-01-20 13:54]]></item>
+	<item id="From"><![CDATA[www.dashulai.com]]></item>
+	<item id="Data">
+		<item id="plugin">
+			<item id="available"><![CDATA[1]]></item>
+			<item id="adminid"><![CDATA[1]]></item>
+			<item id="name"><![CDATA[志凱微信登陸]]></item>
+			<item id="identifier"><![CDATA[zhikai_wxlogin]]></item>
+			<item id="description"><![CDATA[]]></item>
+			<item id="datatables"><![CDATA[]]></item>
+			<item id="directory"><![CDATA[zhikai_wxlogin/]]></item>
+			<item id="copyright"><![CDATA[大叔来社区Dashulai.com]]></item>
+			<item id="version"><![CDATA[2.1]]></item>
+			<item id="__modules">
+				<item id="0">
+					<item id="name"><![CDATA[mobile]]></item>
+					<item id="param"><![CDATA[]]></item>
+					<item id="menu"><![CDATA[]]></item>
+					<item id="url"><![CDATA[]]></item>
+					<item id="type"><![CDATA[28]]></item>
+					<item id="adminid"><![CDATA[0]]></item>
+					<item id="displayorder"><![CDATA[0]]></item>
+					<item id="navtitle"><![CDATA[]]></item>
+					<item id="navicon"><![CDATA[]]></item>
+					<item id="navsubname"><![CDATA[]]></item>
+					<item id="navsuburl"><![CDATA[]]></item>
+				</item>
+				<item id="1">
+					<item id="name"><![CDATA[hook]]></item>
+					<item id="param"><![CDATA[]]></item>
+					<item id="menu"><![CDATA[]]></item>
+					<item id="url"><![CDATA[]]></item>
+					<item id="type"><![CDATA[11]]></item>
+					<item id="adminid"><![CDATA[0]]></item>
+					<item id="displayorder"><![CDATA[0]]></item>
+					<item id="navtitle"><![CDATA[]]></item>
+					<item id="navicon"><![CDATA[]]></item>
+					<item id="navsubname"><![CDATA[]]></item>
+					<item id="navsuburl"><![CDATA[]]></item>
+				</item>
+				<item id="2">
+					<item id="name"><![CDATA[wechat]]></item>
+					<item id="param"><![CDATA[]]></item>
+					<item id="menu"><![CDATA[微信綁定]]></item>
+					<item id="url"><![CDATA[]]></item>
+					<item id="type"><![CDATA[7]]></item>
+					<item id="adminid"><![CDATA[0]]></item>
+					<item id="displayorder"><![CDATA[0]]></item>
+					<item id="navtitle"><![CDATA[]]></item>
+					<item id="navicon"><![CDATA[]]></item>
+					<item id="navsubname"><![CDATA[]]></item>
+					<item id="navsuburl"><![CDATA[]]></item>
+				</item>
+			</item>
+		</item>
+		<item id="version"><![CDATA[X2.5,X3,X3.1,X3.2,,X3.3,X3.4,F1.0]]></item>
+		<item id="var">
+			<item id="0">
+				<item id="displayorder"><![CDATA[0]]></item>
+				<item id="title"><![CDATA[appid]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[appid]]></item>
+				<item id="type"><![CDATA[text]]></item>
+				<item id="value"><![CDATA[wxaaea66d3639f519a]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="1">
+				<item id="displayorder"><![CDATA[0]]></item>
+				<item id="title"><![CDATA[appsecret]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[appsecret]]></item>
+				<item id="type"><![CDATA[text]]></item>
+				<item id="value"><![CDATA[5cfb68ab782e8479716161e3f58a2d4a]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+		</item>
+		<item id="language">
+			<item id="scriptlang">
+				<item id="slang01"><![CDATA[只需一步，快速開始]]></item>
+				<item id="slang02"><![CDATA[解除微信帳號綁定成功\]]></item>
+				<item id="slang03"><![CDATA[用戶已經存在]]></item>
+				<item id="slang04"><![CDATA[請填寫密碼]]></item>
+				<item id="slang05"><![CDATA[兩次密碼不一致]]></item>
+				<item id="slang06"><![CDATA[郵箱已被注冊]]></item>
+				<item id="slang07"><![CDATA[郵箱不正確]]></item>
+				<item id="slang08"><![CDATA[郵箱已注冊]]></item>
+				<item id="slang09"><![CDATA[修改完成]]></item>
+				<item id="slang10"><![CDATA[參數錯誤！]]></item>
+				<item id="slang11"><![CDATA[授權失敗，請重試]]></item>
+				<item id="slang12"><![CDATA[用戶不存在，請重試]]></item>
+				<item id="slang13"><![CDATA[登陸成功\]]></item>
+				<item id="slang14"><![CDATA[您已綁定過帳號，請先解綁後重新綁定！]]></item>
+				<item id="slang15"><![CDATA[未定義操作]]></item>
+				<item id="slang16"><![CDATA[綁定帳號成功\！]]></item>
+				<item id="slang17"><![CDATA[登陸成功\！]]></item>
+				<item id="slang18"><![CDATA[操作失敗]]></item>
+				<item id="slang19"><![CDATA[綁定失敗]]></item>
+				<item id="slang20"><![CDATA[請使用微信瀏覽器訪問！]]></item>
+			</item>
+			<item id="templatelang">
+				<item id="tlang01"><![CDATA[微信掃描二維碼登陸]]></item>
+				<item id="tlang02"><![CDATA[您已將本站帳號]]></item>
+				<item id="tlang03"><![CDATA[與微信綁定]]></item>
+				<item id="tlang04"><![CDATA[解除已綁定帳號？]]></item>
+				<item id="tlang05"><![CDATA[確認解除]]></item>
+				<item id="tlang06"><![CDATA[與微信綁定，如果您想解綁，請先設置密碼和郵箱]]></item>
+				<item id="tlang07"><![CDATA[更改用戶名和密碼？]]></item>
+				<item id="tlang08"><![CDATA[您只有一次修改機會，請慎重修改]]></item>
+				<item id="tlang09"><![CDATA[帳號︰]]></item>
+				<item id="tlang10"><![CDATA[郵箱︰]]></item>
+				<item id="tlang11"><![CDATA[密碼︰]]></item>
+				<item id="tlang12"><![CDATA[重復密碼︰]]></item>
+				<item id="tlang13"><![CDATA[確認更改]]></item>
+				<item id="tlang14"><![CDATA[使用微信帳號綁定本站，您可以]]></item>
+				<item id="tlang15"><![CDATA[<h2 class="xi1 xs2">用微信帳號輕松登錄</h2><dt>無需記住本站的帳號和密碼，隨時使用微信帳號密碼輕松登錄</dt>]]></item>
+				<item id="tlang16"><![CDATA[當前已有]]></item>
+				<item id="tlang17"><![CDATA[名會員綁定了微信帳號]]></item>
+			</item>
+		</item>
+		<item id="installfile"><![CDATA[install.php]]></item>
+		<item id="uninstallfile"><![CDATA[uninstall.php]]></item>
+	</item>
+</root>

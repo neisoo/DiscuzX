@@ -1,0 +1,408 @@
+﻿<?xml version="1.0" encoding="ISO-8859-1"?>
+<root>
+	<item id="Title"><![CDATA[Discuz! Plugin]]></item>
+	<item id="Version"><![CDATA[X3,X3.1,X3.2,X3.3,X3.4,F1.0,L1.0]]></item>
+	<item id="Time"><![CDATA[2018-04-26 15:28]]></item>
+	<item id="From"><![CDATA[www.dashulai.com]]></item>
+	<item id="Data">
+		<item id="plugin">
+			<item id="available"><![CDATA[1]]></item>
+			<item id="adminid"><![CDATA[0]]></item>
+			<item id="name"><![CDATA[NVBING5手机视频]]></item>
+			<item id="identifier"><![CDATA[zhikai_n5video]]></item>
+			<item id="description"><![CDATA[]]></item>
+			<item id="datatables"><![CDATA[]]></item>
+			<item id="directory"><![CDATA[zhikai_n5video/]]></item>
+			<item id="copyright"><![CDATA[大叔来社区Dashulai.com]]></item>
+			<item id="version"><![CDATA[2.0]]></item>
+			<item id="__modules">
+				<item id="0">
+					<item id="name"><![CDATA[zhikai_n5video_hook]]></item>
+					<item id="param"><![CDATA[]]></item>
+					<item id="menu"><![CDATA[]]></item>
+					<item id="url"><![CDATA[]]></item>
+					<item id="type"><![CDATA[28]]></item>
+					<item id="adminid"><![CDATA[0]]></item>
+					<item id="displayorder"><![CDATA[1]]></item>
+					<item id="navtitle"><![CDATA[]]></item>
+					<item id="navicon"><![CDATA[]]></item>
+					<item id="navsubname"><![CDATA[]]></item>
+					<item id="navsuburl"><![CDATA[]]></item>
+				</item>
+				<item id="1">
+					<item id="name"><![CDATA[zhikai_n5video_hook]]></item>
+					<item id="param"><![CDATA[]]></item>
+					<item id="menu"><![CDATA[]]></item>
+					<item id="url"><![CDATA[]]></item>
+					<item id="type"><![CDATA[11]]></item>
+					<item id="adminid"><![CDATA[0]]></item>
+					<item id="displayorder"><![CDATA[2]]></item>
+					<item id="navtitle"><![CDATA[]]></item>
+					<item id="navicon"><![CDATA[]]></item>
+					<item id="navsubname"><![CDATA[]]></item>
+					<item id="navsuburl"><![CDATA[]]></item>
+				</item>
+				<item id="2">
+					<item id="name"><![CDATA[app_other]]></item>
+					<item id="param"><![CDATA[]]></item>
+					<item id="menu"><![CDATA[<b style="color:red">更多应用</b>]]></item>
+					<item id="url"><![CDATA[]]></item>
+					<item id="type"><![CDATA[3]]></item>
+					<item id="adminid"><![CDATA[0]]></item>
+					<item id="displayorder"><![CDATA[3]]></item>
+					<item id="navtitle"><![CDATA[]]></item>
+					<item id="navicon"><![CDATA[]]></item>
+					<item id="navsubname"><![CDATA[]]></item>
+					<item id="navsuburl"><![CDATA[]]></item>
+				</item>
+			</item>
+		</item>
+		<item id="version"><![CDATA[X3,X3.1,X3.2,X3.3,X3.4,F1.0,L1.0]]></item>
+		<item id="var">
+			<item id="0">
+				<item id="displayorder"><![CDATA[1]]></item>
+				<item id="title"><![CDATA[选择上传方式]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[youkuup_open]]></item>
+				<item id="type"><![CDATA[select]]></item>
+				<item id="value"><![CDATA[2]]></item>
+				<item id="extra"><![CDATA[1=上传服务器
+2=上传优酷云]]></item>
+			</item>
+			<item id="1">
+				<item id="displayorder"><![CDATA[2]]></item>
+				<item id="title"><![CDATA[优酷client_id]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[client_id]]></item>
+				<item id="type"><![CDATA[text]]></item>
+				<item id="value"><![CDATA[]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="2">
+				<item id="displayorder"><![CDATA[3]]></item>
+				<item id="title"><![CDATA[优酷client_secret]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[client_secret]]></item>
+				<item id="type"><![CDATA[text]]></item>
+				<item id="value"><![CDATA[]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="3">
+				<item id="displayorder"><![CDATA[4]]></item>
+				<item id="title"><![CDATA[Access_token]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[Access_token]]></item>
+				<item id="type"><![CDATA[text]]></item>
+				<item id="value"><![CDATA[]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="4">
+				<item id="displayorder"><![CDATA[5]]></item>
+				<item id="title"><![CDATA[refresh_token]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[refresh_token]]></item>
+				<item id="type"><![CDATA[text]]></item>
+				<item id="value"><![CDATA[]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="5">
+				<item id="displayorder"><![CDATA[6]]></item>
+				<item id="title"><![CDATA[允许上传用户组]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[forum_upus]]></item>
+				<item id="type"><![CDATA[groups]]></item>
+				<item id="extra"><![CDATA[]]></item>
+				<item id="__value">
+					<item id="0"><![CDATA[10]]></item>
+					<item id="1"><![CDATA[11]]></item>
+					<item id="2"><![CDATA[12]]></item>
+					<item id="3"><![CDATA[13]]></item>
+					<item id="4"><![CDATA[14]]></item>
+					<item id="5"><![CDATA[15]]></item>
+					<item id="6"><![CDATA[16]]></item>
+					<item id="7"><![CDATA[17]]></item>
+					<item id="8"><![CDATA[18]]></item>
+					<item id="9"><![CDATA[19]]></item>
+					<item id="10"><![CDATA[1]]></item>
+					<item id="11"><![CDATA[2]]></item>
+					<item id="12"><![CDATA[3]]></item>
+				</item>
+			</item>
+			<item id="6">
+				<item id="displayorder"><![CDATA[7]]></item>
+				<item id="title"><![CDATA[允许上传板块]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[forum_open]]></item>
+				<item id="type"><![CDATA[forums]]></item>
+				<item id="extra"><![CDATA[]]></item>
+				<item id="__value">
+					<item id="0"><![CDATA[]]></item>
+					<item id="1"><![CDATA[73]]></item>
+					<item id="2"><![CDATA[2]]></item>
+					<item id="3"><![CDATA[70]]></item>
+					<item id="4"><![CDATA[68]]></item>
+					<item id="5"><![CDATA[69]]></item>
+					<item id="6"><![CDATA[67]]></item>
+					<item id="7"><![CDATA[38]]></item>
+					<item id="8"><![CDATA[39]]></item>
+					<item id="9"><![CDATA[45]]></item>
+					<item id="10"><![CDATA[46]]></item>
+					<item id="11"><![CDATA[48]]></item>
+					<item id="12"><![CDATA[40]]></item>
+					<item id="13"><![CDATA[41]]></item>
+					<item id="14"><![CDATA[42]]></item>
+					<item id="15"><![CDATA[43]]></item>
+					<item id="16"><![CDATA[44]]></item>
+				</item>
+			</item>
+			<item id="7">
+				<item id="displayorder"><![CDATA[8]]></item>
+				<item id="title"><![CDATA[切片上传大小限制]]></item>
+				<item id="description"><![CDATA[文件切片上传大小限制,单位M，默认2M；不要超过服务器大小限制]]></item>
+				<item id="variable"><![CDATA[shardsize]]></item>
+				<item id="type"><![CDATA[text]]></item>
+				<item id="value"><![CDATA[2]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="8">
+				<item id="displayorder"><![CDATA[9]]></item>
+				<item id="title"><![CDATA[允许媒体播放板块]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[forum_media]]></item>
+				<item id="type"><![CDATA[forums]]></item>
+				<item id="extra"><![CDATA[]]></item>
+				<item id="__value">
+					<item id="0"><![CDATA[2]]></item>
+					<item id="1"><![CDATA[70]]></item>
+					<item id="2"><![CDATA[68]]></item>
+					<item id="3"><![CDATA[69]]></item>
+					<item id="4"><![CDATA[67]]></item>
+					<item id="5"><![CDATA[38]]></item>
+					<item id="6"><![CDATA[39]]></item>
+					<item id="7"><![CDATA[45]]></item>
+					<item id="8"><![CDATA[46]]></item>
+					<item id="9"><![CDATA[48]]></item>
+					<item id="10"><![CDATA[40]]></item>
+					<item id="11"><![CDATA[41]]></item>
+					<item id="12"><![CDATA[42]]></item>
+					<item id="13"><![CDATA[43]]></item>
+					<item id="14"><![CDATA[44]]></item>
+				</item>
+			</item>
+			<item id="9">
+				<item id="displayorder"><![CDATA[10]]></item>
+				<item id="title"><![CDATA[开启列表页媒体播放]]></item>
+				<item id="description"><![CDATA[此功能仅支持NVBING5APP]]></item>
+				<item id="variable"><![CDATA[media_open]]></item>
+				<item id="type"><![CDATA[radio]]></item>
+				<item id="value"><![CDATA[1]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="10">
+				<item id="displayorder"><![CDATA[11]]></item>
+				<item id="title"><![CDATA[手机版列表页媒体数量]]></item>
+				<item id="description"><![CDATA[列表页显示数量控制：一个帖子存在多个视频或音频时，限制显示数量；]]></item>
+				<item id="variable"><![CDATA[current_show]]></item>
+				<item id="type"><![CDATA[number]]></item>
+				<item id="value"><![CDATA[1]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="11">
+				<item id="displayorder"><![CDATA[12]]></item>
+				<item id="title"><![CDATA[手机版列表页摘要屏蔽]]></item>
+				<item id="description"><![CDATA[不支持屏蔽图片附件]]></item>
+				<item id="variable"><![CDATA[subject_show]]></item>
+				<item id="type"><![CDATA[radio]]></item>
+				<item id="value"><![CDATA[0]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="12">
+				<item id="displayorder"><![CDATA[13]]></item>
+				<item id="title"><![CDATA[附件视频播放格式]]></item>
+				<item id="description"><![CDATA[播放视频目前只支持MP4，MOV，MOV需在移动端上播放有效]]></item>
+				<item id="variable"><![CDATA[video_bmp]]></item>
+				<item id="type"><![CDATA[text]]></item>
+				<item id="value"><![CDATA[mp4|mov]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="13">
+				<item id="displayorder"><![CDATA[14]]></item>
+				<item id="title"><![CDATA[附件音频播放格式]]></item>
+				<item id="description"><![CDATA[播放音频目前只支持mp3|wav|aac|ogg]]></item>
+				<item id="variable"><![CDATA[voice_bmp]]></item>
+				<item id="type"><![CDATA[text]]></item>
+				<item id="value"><![CDATA[mp3|wav|aac|ogg]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="14">
+				<item id="displayorder"><![CDATA[15]]></item>
+				<item id="title"><![CDATA[内容页视频宽度]]></item>
+				<item id="description"><![CDATA[参数设置：PC版|手机版，前面PC版后面手机版]]></item>
+				<item id="variable"><![CDATA[width]]></item>
+				<item id="type"><![CDATA[text]]></item>
+				<item id="value"><![CDATA[500px|100%]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="15">
+				<item id="displayorder"><![CDATA[16]]></item>
+				<item id="title"><![CDATA[内容页视频高度]]></item>
+				<item id="description"><![CDATA[参数设置：PC版|手机版，前面PC版后面手机版]]></item>
+				<item id="variable"><![CDATA[height]]></item>
+				<item id="type"><![CDATA[text]]></item>
+				<item id="value"><![CDATA[400px|250px]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="16">
+				<item id="displayorder"><![CDATA[17]]></item>
+				<item id="title"><![CDATA[媒体附件直接解析]]></item>
+				<item id="description"><![CDATA[如果设置开启，对设置了阅读权限或需积分购买查看的MP4, MP3媒体附件会直接解析播放]]></item>
+				<item id="variable"><![CDATA[media_analysis]]></item>
+				<item id="type"><![CDATA[radio]]></item>
+				<item id="value"><![CDATA[1]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="17">
+				<item id="displayorder"><![CDATA[18]]></item>
+				<item id="title"><![CDATA[允许设置视频封面]]></item>
+				<item id="description"><![CDATA[只支持上传的视频附件获取封面]]></item>
+				<item id="variable"><![CDATA[cover_open]]></item>
+				<item id="type"><![CDATA[radio]]></item>
+				<item id="value"><![CDATA[1]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="18">
+				<item id="displayorder"><![CDATA[19]]></item>
+				<item id="title"><![CDATA[默认视频封面url]]></item>
+				<item id="description"><![CDATA[只对上传的视频附件有效]]></item>
+				<item id="variable"><![CDATA[cover_init]]></item>
+				<item id="type"><![CDATA[text]]></item>
+				<item id="value"><![CDATA[source/plugin/zhikai_n5video/static/img/wdm.jpg]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="19">
+				<item id="displayorder"><![CDATA[20]]></item>
+				<item id="title"><![CDATA[开启导读列表视频]]></item>
+				<item id="description"><![CDATA[此功能仅支持NVBING5APP]]></item>
+				<item id="variable"><![CDATA[guide_open]]></item>
+				<item id="type"><![CDATA[radio]]></item>
+				<item id="value"><![CDATA[1]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="20">
+				<item id="displayorder"><![CDATA[21]]></item>
+				<item id="title"><![CDATA[解析网络图片IMG标签]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[img_parse]]></item>
+				<item id="type"><![CDATA[radio]]></item>
+				<item id="value"><![CDATA[1]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="21">
+				<item id="displayorder"><![CDATA[22]]></item>
+				<item id="title"><![CDATA[网络图片高度]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[imgh]]></item>
+				<item id="type"><![CDATA[text]]></item>
+				<item id="value"><![CDATA[120px]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="22">
+				<item id="displayorder"><![CDATA[23]]></item>
+				<item id="title"><![CDATA[网络图片宽度]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[imgw]]></item>
+				<item id="type"><![CDATA[text]]></item>
+				<item id="value"><![CDATA[100%]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="23">
+				<item id="displayorder"><![CDATA[24]]></item>
+				<item id="title"><![CDATA[圈子内容页视频解析]]></item>
+				<item id="description"><![CDATA[此功能仅支持NVBING5APP]]></item>
+				<item id="variable"><![CDATA[isgroup]]></item>
+				<item id="type"><![CDATA[radio]]></item>
+				<item id="value"><![CDATA[1]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+		</item>
+		<item id="language">
+			<item id="scriptlang">
+				<item id="lang_vdo001"><![CDATA[视频上传]]></item>
+				<item id="lang_vdo002"><![CDATA[阅读权限:]]></item>
+				<item id="lang_vdo003"><![CDATA[售价:]]></item>
+				<item id="lang_vdo004"><![CDATA[上传]]></item>
+				<item id="lang_vdo005"><![CDATA[更多操作请使电脑版]]></item>
+				<item id="lang_vdo006"><![CDATA[参数未设置]]></item>
+				<item id="lang_vdo007"><![CDATA[所在用户组无权上传]]></item>
+			</item>
+			<item id="templatelang">
+				<item id="lang_001"><![CDATA[内部服务器错误]]></item>
+				<item id="lang_002"><![CDATA[上传成功]]></item>
+				<item id="lang_003"><![CDATA[不支持此类扩展名]]></item>
+				<item id="lang_004"><![CDATA[服务器限制无法上传那么大的附件]]></item>
+				<item id="lang_005"><![CDATA[用户组限制无法上传那么大的附件]]></item>
+				<item id="lang_006"><![CDATA[不支持此类扩展名]]></item>
+				<item id="lang_007"><![CDATA[文件类型限制无法上传那么大的附件]]></item>
+				<item id="lang_008"><![CDATA[今日您已无法上传更多的附件]]></item>
+				<item id="lang_009"><![CDATA[请选择图片文件]]></item>
+				<item id="lang_010"><![CDATA[附件文件无法保存]]></item>
+				<item id="lang_011"><![CDATA[没有合法的文件被上传]]></item>
+				<item id="lang_012"><![CDATA[非法操作]]></item>
+				<item id="lang_013"><![CDATA[今日您已无法上传那么大的附件]]></item>
+				<item id="lang_014"><![CDATA[附件上传不完整]]></item>
+				<item id="lang_015"><![CDATA[未知来源]]></item>
+				<item id="lang_016"><![CDATA[小于]]></item>
+				<item id="lang_017"><![CDATA[大小不限制]]></item>
+				<item id="lang_018"><![CDATA[可用扩展名:]]></item>
+				<item id="lang_019"><![CDATA[附件出售最高收入上限为]]></item>
+				<item id="lang_020"><![CDATA[文件上传]]></item>
+				<item id="lang_021"><![CDATA[继续上传]]></item>
+				<item id="lang_022"><![CDATA[不支持该类型>>继续]]></item>
+				<item id="lang_023"><![CDATA[设封面]]></item>
+				<item id="lang_024"><![CDATA[无预览]]></item>
+				<item id="lang_025"><![CDATA[文件名：]]></item>
+				<item id="lang_026"><![CDATA[文件大小：]]></item>
+				<item id="lang_027"><![CDATA[插入]]></item>
+				<item id="lang_028"><![CDATA[删除]]></item>
+				<item id="lang_029"><![CDATA[描述]]></item>
+				<item id="lang_030"><![CDATA[阅读权限]]></item>
+				<item id="lang_031"><![CDATA[不限]]></item>
+				<item id="lang_032"><![CDATA[最高权限]]></item>
+				<item id="lang_033"><![CDATA[封面设置成功]]></item>
+				<item id="lang_034"><![CDATA[封面设置失败]]></item>
+				<item id="lang_035"><![CDATA[删除成功]]></item>
+				<item id="lang_036"><![CDATA[此附件已插入在编辑器中]]></item>
+				<item id="lang_037"><![CDATA[预览]]></item>
+				<item id="lang_038"><![CDATA[文件名/大小]]></item>
+				<item id="lang_039"><![CDATA[设置附件]]></item>
+				<item id="lang_040"><![CDATA[插入附件]]></item>
+				<item id="lang_041"><![CDATA[附件类型被禁止]]></item>
+				<item id="lang_042"><![CDATA[不能超过]]></item>
+				<item id="lang_043"><![CDATA[封面删除失败]]></item>
+				<item id="lang_044"><![CDATA[上传]]></item>
+				<item id="lang_045"><![CDATA[优酷云视频上传]]></item>
+				<item id="lang_046"><![CDATA[关闭]]></item>
+				<item id="lang_047"><![CDATA[+ 选择文件]]></item>
+				<item id="lang_048"><![CDATA[+ 视频上传]]></item>
+				<item id="lang_049"><![CDATA[选择文件：]]></item>
+				<item id="lang_050"><![CDATA[标题：]]></item>
+				<item id="lang_051"><![CDATA[简介：]]></item>
+				<item id="lang_052"><![CDATA[标签：]]></item>
+				<item id="lang_053"><![CDATA[类别：]]></item>
+				<item id="lang_054"><![CDATA[版权所有]]></item>
+				<item id="lang_055"><![CDATA[原创]]></item>
+				<item id="lang_056"><![CDATA[转载]]></item>
+				<item id="lang_057"><![CDATA[视频权限]]></item>
+				<item id="lang_058"><![CDATA[公开]]></item>
+				<item id="lang_059"><![CDATA[仅好友]]></item>
+				<item id="lang_060"><![CDATA[输入密码观看]]></item>
+				<item id="lang_061"><![CDATA[开始上传]]></item>
+				<item id="lang_062"><![CDATA[允许上传的视频格式为：]]></item>
+				<item id="lang_063"><![CDATA[视频]]></item>
+				<item id="lang_064"><![CDATA[新上传视频需要时间转码审核，请稍后查看即可！]]></item>
+			</item>
+		</item>
+		<item id="installfile"><![CDATA[install.php]]></item>
+		<item id="uninstallfile"><![CDATA[uninstall.php]]></item>
+	</item>
+</root>

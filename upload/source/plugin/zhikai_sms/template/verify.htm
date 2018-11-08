@@ -1,0 +1,163 @@
+<!--{template common/header}-->
+<style>
+.smsts{
+    width:75%;
+    margin: 0 auto;
+    text-align: center;
+    font-size: 16px;
+    display: block;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    height: auto;
+    color: #FF9800;
+}
+</style>
+<div>
+<!--{if $_GET['motion'] == 'bin'}-->
+	<h3 class="flb">
+		<em id="">{lang zhikai_sms:langtsms023}</em>
+		<!--{if $_GET['infloat']}-->
+		<span><a href="javascript:;" class="flbc" onclick="hideWindow('operateverify')" title="{lang close}">{lang close}</a></span>
+		<!--{/if}-->
+	</h3>
+	<div class="flb smsts">
+	   {$config['bin_txt']}
+    </div>
+	<form method="post" autocomplete="off" id="bin" class="cl" action="plugin.php?id=zhikai_sms&motion=bin&binsubmit=yes">
+		<div class="c cl">
+			<input type="hidden" name="formhash" value="{FORMHASH}" />
+			<input type="hidden" name="send_type" id="send_type" value="6" />
+			<div class="rfm">
+			<table>
+				<tr>
+					<th><span class="rq">*</span><label for="phone">{lang zhikai_sms:langtsms004}</label></th>
+					<td><input type="text" id="phone" name="phone" class="px" tabindex="1" value="" autocomplete="off" size="15" maxlength="15"/>
+					</td>
+				</tr>
+			</table>
+			</div>
+			<div class="rfm">
+			<table>
+				<tr>
+					<th><span class="rq">*</span><label for="code">{lang zhikai_sms:langtsms005}</label></th>
+					<td><input type="text" id="code" name="code" class="px" tabindex="1" value="" autocomplete="off" size="6" maxlength="6" style="width:100px;"/></td>
+					<td>&nbsp;&nbsp;&nbsp;<input class="pn" type="button" name="subcode" id="subcode" onclick="subsend(this);" style="width:100px;" value="{lang zhikai_sms:langtsms006}"></td>
+				</tr>
+			</table>
+			</div>
+			<div class="rfm mbw bw0">
+				<table>
+					<tr>
+						<th></th>
+						<td><button class="pn pnc" type="submit" name="binsubmit" value="yes" tabindex="100" onclick="demand(this);return false;"><span>{lang submit}</span></button></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</form>
+<!--{elseif $_GET['motion'] == 'verify'}-->
+	<h3 class="flb">
+		<em id="">{lang zhikai_sms:langtsms024}</em>
+		<!--{if $_GET['infloat']}-->
+		<span><a href="javascript:;" class="flbc" onclick="hideWindow('operateverify')" title="{lang close}">{lang close}</a></span>
+		<!--{/if}-->
+	</h3>
+	<form method="post" autocomplete="off" id="verify" class="cl" action="plugin.php?id=zhikai_sms&motion=verify&verifysubmit=yes">
+		<div class="c cl">
+			<input type="hidden" name="formhash" value="{FORMHASH}" />
+			<input type="hidden" name="send_type" id="send_type" value="2" />
+			<div class="rfm">
+			<table>
+				<tr>
+					<th><span class="rq">*</span><label for="phone">{lang zhikai_sms:langtsms004}</label></th>
+			        <td><input type="text" id="phone" name="phone" class="px" tabindex="1" value="{$phone}" autocomplete="off" size="15" maxlength="15" {if $phone}readonly="true"{/if}/>
+					</td>
+				</tr>
+			</table>
+			</div>
+			<div class="rfm">
+			<table>
+				<tr>
+					<th><span class="rq">*</span><label for="code">{lang zhikai_sms:langtsms005}</label></th>
+					<td><input type="text" id="code" name="code" class="px" tabindex="1" value="" autocomplete="off" size="6" maxlength="6" style="width:100px;"/></td>
+					<td>&nbsp;&nbsp;&nbsp;<input class="pn" type="button" name="subcode" id="subcode" onclick="subsend(this);" style="width:100px;" value="{lang zhikai_sms:langtsms006}"></td>
+				</tr>
+			</table>
+			</div>
+			<div class="rfm mbw bw0">
+				<table>
+					<tr>
+						<th></th>
+						<td><button class="pn pnc" type="submit" name="verifysubmit" value="yes" tabindex="100" onclick="demand(this);return false;"><span>{lang submit}</span></button></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</form>
+<!--{/if}-->
+</div>
+<script type="text/javascript">
+function demand(Obj){
+	var formobj = zhikai(Obj.form);
+	zhikai.ajax({
+		type : 'POST',
+		url:formobj.attr('action') + '&handlekey='+ formobj.attr('id'),
+		data:formobj.serialize(),
+		dataType : 'json'
+	})
+	.success(function(s) {
+        console.log(s);
+        if(s.succeed){
+			hideWindow('operateverify');
+			showPrompt(null, null, '<div><i style="font-size:15px;">'+ s.succeed +'</i></div>', 3000);
+			window.setTimeout(function(){window.location.reload();},3000);
+		}else if(s.error){
+		    showPrompt(null, null, '<div><i style="font-size:15px;">'+ s.error +'</i></div>', 3000,"popuptext");
+		}
+	})
+	.error(function() {
+	   showPrompt(null, null, '<div><i style="font-size:15px;">{lang zhikai_sms:langtsms012}</i></div>', 3000,"popuptext");
+	});
+	return false;
+}
+
+function subsend(Obj){
+	var countsec = "{$config['codetime']}"; 
+	var phone = zhikai('#phone').val();
+	var send_type = zhikai('#send_type').val();
+	zhikai.ajax({
+		type : 'GET',
+		url : 'plugin.php?id=zhikai_sms&motion=smssend&phone='+ phone +'&send_type='+ send_type +'&formhash={FORMHASH}',
+		dataType : 'json'
+	})
+	.success(function(s) {
+        console.log(s);
+        if(s.succeed == 'ok'){
+            zhikai('#subcode').attr('disabled',true);
+		}else if(s.error){
+		    showPrompt(null, null, '<div><i style="font-size:15px;">'+ s.error +'</i></div>', 3000,"popuptext");
+			clearInterval(sendtime);
+			return false;
+		}
+	})
+	.error(function() {
+	   showPrompt(null, null, '<div><i style="font-size:15px;">{lang zhikai_sms:langtsms012}</i></div>', 3000,"popuptext");
+       return false;
+	});
+
+	sendtime = setInterval(function(){
+		if (countsec == 0) {  
+			zhikai(Obj).val('{lang zhikai_sms:langtsms013}'); 
+			zhikai('#subcode').attr('disabled',false);
+			countsec = 60; 
+			clearInterval(sendtime);
+			return;
+		} else {
+            zhikai('#subcode').attr('disabled',true);
+			zhikai(Obj).val('{lang zhikai_sms:langtsms014}' + countsec + '{lang zhikai_sms:langtsms015}'); 
+			countsec--; 
+		}
+	},1000);
+}
+</script>
+<!--{template common/footer}-->

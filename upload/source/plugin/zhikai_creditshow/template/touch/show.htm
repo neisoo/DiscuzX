@@ -1,0 +1,61 @@
+<!--{block return}-->
+<link rel="stylesheet" type="text/css" href="source/plugin/zhikai_creditshow/template/font/iconfont.css">
+<style type="text/css">
+.zhikai_creditshow {position:fixed; width:100%;top:{$pvars['percent']}%; text-align:center; display:none;}
+.zhikai_creditshow_msg {background:$pvars['bg'];filter:alpha(Opacity={$pvars['transparent']});-moz-opacity:{$opacity};opacity:{$opacity};padding: 45px 30px 10px 30px;border-radius: 4px; display:none; z-index:999999; font-size: 16px;position: relative;}
+.zhikai_creditshow_msg i {position: absolute;top: 2px;left: 50%;margin-left: -16px;color: #fff;font-size: 32px;}
+</style>
+<div class="zhikai_creditshow">
+	<div class="zhikai_creditshow_msg"></div>
+</div>
+<script type="text/javascript">
+zhikai_creditshow();
+var discuz_uid = '{$_G[uid]}';
+function zhikai_creditshow(){
+	var notice = getcookie('creditnotice').split('D');
+	var basev = getcookie('creditbase').split('D');
+	var creditrule = decodeURI(getcookie('creditrule', 1)).replace(String.fromCharCode(9), ' ');
+	if(!discuz_uid || notice.length < 2 || notice[9] != discuz_uid) {
+		setcookie('creditnotice', '');
+		setcookie('creditrule', '');
+		return;
+	}
+	var creditnames = creditnotice.split(',');
+	var creditinfo = [];
+	var e;
+	for(var i = 0; i < creditnames.length; i++) {
+		e = creditnames[i].split('|');
+		creditinfo[e[0]] = [e[1], e[2]];
+	}
+	_creditShow(creditinfo, notice, basev, creditrule);
+}
+
+function _creditShow(creditinfo, notice, basev, creditrule) {
+	var msg = '';
+	if(creditrule){
+		msg += "<font color='{$pvars['color1']}' style='font-size: 12px;'>"+creditrule+"</font><br/> ";
+	}
+	for(i = 1; i <= 8; i++) {
+		if(notice[i] != '0'){
+			msg += '<font color="{$pvars['color2']}">'+creditinfo[i][0]+'</font> ';	
+		}
+		if(notice[i] > 0) {
+			msg += '<i class="nvbing5 n5jfts-xiaolian"></i><font color="{$pvars['color3']}">{if $pvars['bold']}<b>{/if}+'+notice[i]+'{if $pvars['bold']}</b>{/if}</font> ';	
+		} else if(notice[i] < 0) {
+			msg += '<style type="text/css">.zhikai_creditshow_msg {background:$pvars['jbg'];}</style><i class="nvbing5 n5jfts-kulian"></i><font color="{$pvars['color4']}">{if $pvars['bold']}<b>{/if}'+notice[i]+'{if $pvars['bold']}</b>{/if}</font> ';	
+		}
+		if(notice[i] != '0' && creditinfo[i][1]){
+			msg += '<font color="{$pvars['color2']}">'+creditinfo[i][1]+'</font> ';	
+		}
+	}
+	$('.zhikai_creditshow').show();
+	$('.zhikai_creditshow_msg').html(msg).fadeIn("slow").css('display','inline-block');
+	setcookie('creditnotice', '');
+	setcookie('creditbase', '');
+	setcookie('creditrule', '');
+	setTimeout(function () {
+		$('.zhikai_creditshow_msg').fadeOut("slow")
+	}, {$pvars['second']}000);
+}
+</script>
+<!--{/block}-->

@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="ISO-8859-1"?>
+<root>
+	<item id="Title"><![CDATA[Discuz! Plugin]]></item>
+	<item id="Version"><![CDATA[X3,X3.1,X3.2,X3.3,X3.4,L1.0,F1.0]]></item>
+	<item id="Time"><![CDATA[2018-06-30 20:29]]></item>
+	<item id="From"><![CDATA[www.dashulai.com]]></item>
+	<item id="Data">
+		<item id="plugin">
+			<item id="available"><![CDATA[1]]></item>
+			<item id="adminid"><![CDATA[0]]></item>
+			<item id="name"><![CDATA[NVBING5-微博登录]]></item>
+			<item id="identifier"><![CDATA[zhikai_sinalogin]]></item>
+			<item id="description"><![CDATA[]]></item>
+			<item id="datatables"><![CDATA[]]></item>
+			<item id="directory"><![CDATA[zhikai_sinalogin/]]></item>
+			<item id="copyright"><![CDATA[大叔来社区 Dashulai.com]]></item>
+			<item id="version"><![CDATA[1.0]]></item>
+			<item id="__modules">
+				<item id="0">
+					<item id="name"><![CDATA[hook]]></item>
+					<item id="param"><![CDATA[]]></item>
+					<item id="menu"><![CDATA[]]></item>
+					<item id="url"><![CDATA[]]></item>
+					<item id="type"><![CDATA[11]]></item>
+					<item id="adminid"><![CDATA[0]]></item>
+					<item id="displayorder"><![CDATA[0]]></item>
+					<item id="navtitle"><![CDATA[]]></item>
+					<item id="navicon"><![CDATA[]]></item>
+					<item id="navsubname"><![CDATA[]]></item>
+					<item id="navsuburl"><![CDATA[]]></item>
+				</item>
+				<item id="1">
+					<item id="name"><![CDATA[spacecp]]></item>
+					<item id="param"><![CDATA[]]></item>
+					<item id="menu"><![CDATA[新浪微博绑定]]></item>
+					<item id="url"><![CDATA[]]></item>
+					<item id="type"><![CDATA[7]]></item>
+					<item id="adminid"><![CDATA[0]]></item>
+					<item id="displayorder"><![CDATA[0]]></item>
+					<item id="navtitle"><![CDATA[]]></item>
+					<item id="navicon"><![CDATA[]]></item>
+					<item id="navsubname"><![CDATA[]]></item>
+					<item id="navsuburl"><![CDATA[]]></item>
+				</item>
+				<item id="2">
+					<item id="name"><![CDATA[mobile]]></item>
+					<item id="param"><![CDATA[]]></item>
+					<item id="menu"><![CDATA[]]></item>
+					<item id="url"><![CDATA[]]></item>
+					<item id="type"><![CDATA[28]]></item>
+					<item id="adminid"><![CDATA[0]]></item>
+					<item id="displayorder"><![CDATA[0]]></item>
+					<item id="navtitle"><![CDATA[]]></item>
+					<item id="navicon"><![CDATA[]]></item>
+					<item id="navsubname"><![CDATA[]]></item>
+					<item id="navsuburl"><![CDATA[]]></item>
+				</item>
+			</item>
+		</item>
+		<item id="version"><![CDATA[X3,X3.1,X3.2,X3.3,X3.4,L1.0,F1.0]]></item>
+		<item id="var">
+
+			<item id="0">
+				<item id="displayorder"><![CDATA[1]]></item>
+				<item id="title"><![CDATA[APP Key]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[appkey]]></item>
+				<item id="type"><![CDATA[text]]></item>
+				<item id="value"><![CDATA[]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="1">
+				<item id="displayorder"><![CDATA[2]]></item>
+				<item id="title"><![CDATA[App Secret]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[appsecret]]></item>
+				<item id="type"><![CDATA[text]]></item>
+				<item id="value"><![CDATA[]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="2">
+				<item id="displayorder"><![CDATA[3]]></item>
+				<item id="title"><![CDATA[手机版色调]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[color]]></item>
+				<item id="type"><![CDATA[color]]></item>
+				<item id="value"><![CDATA[#41c2fc]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+		</item>
+		<item id="language">
+			<item id="scriptlang">
+				<item id="AD4CKk"><![CDATA[解除绑定成功]]></item>
+				<item id="XE3YAi"><![CDATA[抱歉，当前存在网络问题或服务器繁忙，详细错误：connect_error_code_]]></item>
+				<item id="Lk0Ys8"><![CDATA[微博帐号已绑定]]></item>
+				<item id="D3iAEt"><![CDATA[绑定成功]]></item>
+				<item id="LEmEM3"><![CDATA[通过微博快捷登录成功]]></item>
+				<item id="bclU84"><![CDATA[两次密码不一致]]></item>
+				<item id="S54L8e"><![CDATA[密码长度小于6位]]></item>
+				<item id="Q4GCl8"><![CDATA[请输入正确的邮箱]]></item>
+				<item id="fZGc7a"><![CDATA[用户名不合法]]></item>
+				<item id="K7Ulk4"><![CDATA[包含不允许注册的词语]]></item>
+				<item id="w7Gg8E"><![CDATA[用户名已经存在]]></item>
+				<item id="g44CsC"><![CDATA[Email 格式有误]]></item>
+				<item id="Pmzl4u"><![CDATA[Email 不允许注册]]></item>
+				<item id="DZ7vva"><![CDATA[该 Email 已经被注册]]></item>
+				<item id="W1WBs2"><![CDATA[通过微博快捷绑定成功]]></item>
+				<item id="s26lW6"><![CDATA[用户不存在，或者被删除]]></item>
+				<item id="Wwmj8l"><![CDATA[密码错误，请重试]]></item>
+				<item id="Wwmj82"><![CDATA[新浪微博帐号登录]]></item>
+			</item>
+			<item id="templatelang">
+				<item id="acrVHC"><![CDATA[只需一步，快速开始]]></item>
+				<item id="rdrdmp"><![CDATA[将此主题同步到:]]></item>
+				<item id="r4VlLk"><![CDATA[新浪微博]]></item>
+				<item id="CK49Kl"><![CDATA[将此回复同步评论:]]></item>
+				<item id="TFhszC"><![CDATA[欢迎使用新浪微博帐号登录]]></item>
+				<item id="fscxJ4"><![CDATA[创建新帐号]]></item>
+				<item id="M9M68n"><![CDATA[已有本站帐号]]></item>
+				<item id="eOR5Pm"><![CDATA[用户名:]]></item>
+				<item id="OiznWF"><![CDATA[密码:]]></item>
+				<item id="StbbYT"><![CDATA[确认密码:]]></item>
+				<item id="IweYNY"><![CDATA[完成，继续浏览]]></item>
+				<item id="eloH8T"><![CDATA[答案:]]></item>
+				<item id="LBNioI"><![CDATA[绑定帐号]]></item>
+				<item id="PiWF9V"><![CDATA[安全提问:]]></item>
+				<item id="IMMgYD"><![CDATA[<option value='0'>安全提问(未设置请忽略)</option><option value='1'>母亲的名字</option><option value='2'>爷爷的名字</option><option value='3'>父亲出生的城市</option><option value='4'>您其中一位老师的名字</option><option value='5'>您个人计算机的型号</option><option value='6'>您最喜欢的餐馆名称</option><option value='7'>驾驶执照最后四位数字</option>]]></item>
+				<item id="xbiBB6"><![CDATA[点击按钮，立刻绑定新浪微博帐号]]></item>
+				<item id="bIPp6z"><![CDATA[<h2 class='xi1 xs2'>使用新浪微博帐号绑定本站，您可以...</h2><dt>用新浪微博帐号轻松登录</dt><dd class='xg1'>无需记住本站的帐号和密码，随时使用新浪微博帐号密码轻松登录</dd>]]></item>
+				<item id="pk3x77"><![CDATA[您已将本站帐号]]></item>
+				<item id="dRyA7k"><![CDATA[与新浪微博帐户绑定]]></item>
+				<item id="v7wA8k"><![CDATA[解除已绑定帐号？]]></item>
+				<item id="vbXsa8"><![CDATA[您确认要解除与本站帐号的绑定关系？]]></item>
+				<item id="jvDsIa"><![CDATA[确认解除]]></item>
+			</item>
+		</item>
+		<item id="installfile"><![CDATA[install.php]]></item>
+		<item id="uninstallfile"><![CDATA[uninstall.php]]></item>
+	</item>
+</root>

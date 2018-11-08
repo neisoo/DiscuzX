@@ -1,0 +1,196 @@
+{template common/header}
+<style>
+body {background:#f2f2f2!important;}
+.bg {padding-top: 0;}
+.sina_top { width:100%; background:{$_G['cache']['plugin']['zhikai_sinalogin']['color']}; height:120px; text-align:center; color:#fff;}
+.sina_top .sina_title {line-height:60px;  font-size:20px;}
+.sina_top span {height:26px; line-height:26px; font-size:14px;}
+.sina_main {width:92%;border:1px solid #f2f2f2; margin:-20px auto 10px; background:#fff;border-radius: 3px;}
+.loging_tit {padding:20px;    border-bottom: 2px solid #f2f2f2;padding-bottom: 0;margin-bottom: 20px; height: 31px;}
+.loging_tit .avt img {padding:2px; border:1px solid #efefef; border-radius:100%;}
+.loging_tit .tb {margin-left:10px;}
+.loging_tit .tb li {float:left; line-height:33px; height:33px; padding:0 15px;}
+.loging_tit .tb li.a {background:#f2f2f2;}
+.rfm {height: 30px;line-height: 30px; border-bottom: 1px dashed #efefef; margin-bottom: 10px;}
+.rfm th {width:60px;}
+.mbw {border-bottom:0;height: auto}
+.rfm .sina_submit {display:block;background:{$_G['cache']['plugin']['zhikai_sinalogin']['color']};width: 289px; color:#fff;margin: 10px auto;border-radius: 3px;font-size: 16px;padding: 10px 0;text-align: center;border:0}
+</style>
+<div class="sina_top">
+	<div class="sina_title"><strong>Hi</strong>,<strong>{$guest['screen_name']}</strong></div>
+	<span>{lang zhikai_sinalogin:TFhszC} {$_G[setting][bbname]}</span>
+</div>
+<div class="sina_main">
+	<div class="loging_tit cl">
+		<div class="z avt"><img src="{$guest['avatar']}" width="26" height="26"></div>
+		<div class="z">
+			<ul class="tb cl z">
+				<li id="connect_tab_1" class="a" onclick="connect_switch(1);this.blur();" >{lang zhikai_sinalogin:fscxJ4}</li>
+				<li id="connect_tab_2" class="" onclick="connect_switch(2);this.blur();" >{lang zhikai_sinalogin:M9M68n}</li>
+			</ul>
+		</div>
+	</div>
+    <div id="connect_div_1">
+    <form method="post" autocomplete="off" name="register" id="registerform" enctype="multipart/form-data" action="plugin.php?id=zhikai_sinalogin&mod=reg" style="display: block;">
+        <div id="layer_reg" class="bm_c">
+            <input type="hidden" name="regsubmit" value="yes">
+            <input type="hidden" name="formhash" value="{FORMHASH}">
+            <input type="hidden" name="openid" value="{$openid}">
+            <input type="hidden" name="referer" value="{$referer}">
+            <div class="">
+                <div id="reginfo_a">
+                    <div class="rfm">
+                        <table>
+                            <tr>
+                            <th><span class="rq">*</span><label for="username">{lang zhikai_sinalogin:eOR5Pm}</label></th>
+                            <td><input type="text" id="username" name="username" class="px" tabindex="1" value="{$guest['screen_name']}" autocomplete="off" size="25" maxlength="15" required=""></td>
+                            <td class="tipcol"></td>
+                            </tr>
+                        </table>
+                    </div>
+                
+                    <div class="rfm">
+                        <table>
+                            <tr>
+                                <th><span class="rq">*</span><label for="pwd1">{lang zhikai_sinalogin:OiznWF}</label></th>
+                                <td><input type="password" id="pwd1" name="pwd1" size="25" tabindex="1" class="px"></td>
+                                <td class="tipcol"></td>
+                            </tr>
+                        </table>
+                    </div>
+                
+                    <div class="rfm">
+                    	<table>
+                        <tr>
+                            <th><span class="rq">*</span><label for="pwd2">{lang zhikai_sinalogin:StbbYT}</label></th>
+                            <td><input type="password" id="pwd2" name="pwd2" size="25" tabindex="1" value="" class="px"></td>
+                            <td class="tipcol"></td>
+                        </tr>
+                    	</table>
+                    </div>
+                
+                    <div class="rfm">
+                        <table>
+                        	<tr>
+                                <th><span class="rq">*</span><label for="email">Email:</label></th>
+                                <td><input type="text" id="email" name="email" autocomplete="off" size="25" tabindex="1" class="px" value="" required=""></td>
+                                <td class="tipcol"></td>
+                        	</tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="layer_reginfo_b">
+            <div class="rfm mbw bw0">
+                <table width="100%">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span id="reginfo_a_btn">
+                                    <button class="sina_submit" id="registerformsubmit" type="submit" name="regsubmit" value="true" tabindex="1">
+                                        <span>{lang zhikai_sinalogin:IweYNY}</span></button>
+                                </span>
+                            </td>
+                            
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+	</form>
+    </div>
+    <div id="connect_div_2" style="display:none">
+    <form method="post" autocomplete="off" name="login" id="loginform_LpPtq" class="cl"  action="plugin.php?id=zhikai_sinalogin&mod=reg">
+        <div id="layer_reg" class="bm_c">
+            <input type="hidden" name="formhash" value="{FORMHASH}">
+            <input type="hidden" name="referer" value="{$referer}">
+            <input type="hidden" name="openid" value="{$openid}">
+            <div class="">
+                <div id="reginfo_a">
+                    <div class="rfm">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <th>
+                                        <label for="username">{lang zhikai_sinalogin:eOR5Pm}</label></th>
+                                    <td>
+                                        <input type="text" name="username" id="username" autocomplete="off" class="px" tabindex="1" value=""></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="rfm">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <th>
+                                        <label for="password3_LpPtq">{lang zhikai_sinalogin:OiznWF}</label></th>
+                                    <td>
+                                        <input type="password" id="password3_LpPtq" name="password" class="px" tabindex="1"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="rfm">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <th>{lang zhikai_sinalogin:PiWF9V}</th>
+                                    <td>
+                                        <select id="loginquestionid_LpPtq" class="ps" name="questionid" onchange="if($('#loginquestionid_LpPtq').val() > 0) $('#loginanswer_row_LpPtq').show(); else $('#loginanswer_row_LpPtq').hide()">{lang zhikai_sinalogin:IMMgYD}</select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="rfm" id="loginanswer_row_LpPtq" style="display:none">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <th>{lang zhikai_sinalogin:eloH8T}</th>
+                                    <td>
+                                        <input type="text" name="answer" id="loginanswer_LpPtq" autocomplete="off" class="px" tabindex="1"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="layer_reginfo_b">
+            <div class="rfm mbw bw0">
+                <table width="100%">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span id="reginfo_a_btn">
+                                    <button class="sina_submit" type="submit" name="loginsubmit" value="true" tabindex="1"><span>{lang zhikai_sinalogin:LBNioI}</span></button>
+                                </span>
+                            </td>
+                            
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+	</form>
+    </div>
+</div>
+<script type="text/javascript">
+function connect_switch(op){
+	var i=1;
+	for(i;i<=2;i++){
+		if(i==op){
+			$("#connect_tab_"+i).addClass("a");
+			$("#connect_div_"+i).show();
+		}else{
+			$("#connect_tab_"+i).removeClass("a");
+			$("#connect_div_"+i).hide();
+		}
+	}
+}
+</script>
+{template common/footer}

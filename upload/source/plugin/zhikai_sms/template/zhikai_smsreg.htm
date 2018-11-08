@@ -1,0 +1,198 @@
+<!--{block return}-->
+<style>
+.smsreg{
+    position: relative;
+    text-align: center;
+    margin: 30px auto 0px;
+    padding: 10px 50px;
+    width: 80%;
+}
+.smsreg ul {
+    padding: 0px 85px;
+}
+.smsreg ul li{
+    padding: 0px 3px;
+}
+</style>
+<div id="smsregtab">
+<div class="bm bw0 smsreg">
+	<ul class="tb cl">
+	<li class="tab1 a"><a href="javascript:zhikaitab(1);">{lang zhikai_sms:langtsms056}</a></li>
+	<li class="tab2 "><a href="javascript:zhikaitab(2);">{lang zhikai_sms:langtsms057}</a></li>
+	</ul>
+</div>
+<form method="post" autocomplete="off" name="smsregister" id="smsregisterform" enctype="multipart/form-data" action="plugin.php?id=zhikai_sms&motion=register">
+	<input type="hidden" name="smsregsubmit" value="yes" />
+	<input type="hidden" name="formhash" value="{FORMHASH}" />
+	<input type="hidden" name="referer" value="$dreferer" />
+	<input type="hidden" name="send_type" value="1" />
+	<!--{if $_G['setting']['sendregisterurl']}-->
+		<input type="hidden" name="hash" value="$_GET[hash]" />
+	<!--{/if}-->
+	<div class="bm_c" id="smslayer" style="margin-top:15px;">
+		<div class="rfm">
+		<table>
+			<tr>
+				<th><span class="rq">*</span><label for="phone">{lang zhikai_sms:langtsms004}</label></th>
+				<td><input type="text" id="phone" name="phone" class="px" tabindex="1" value="" autocomplete="off" size="15" maxlength="15" placeholder="{lang zhikai_sms:langtsms029}"/></td>
+			</tr>
+		</table>
+		</div>
+		<div class="rfm">
+		<table>
+			<tr>
+				<th><span class="rq">*</span><label for="code">{lang zhikai_sms:langtsms005}</label></th>
+				<td><input type="text" id="code" name="code" class="px" tabindex="1" value="" autocomplete="off" size="6" maxlength="6" placeholder="" style="width:100px;"/></td>
+				<td>&nbsp;&nbsp;&nbsp;<input class="pn" type="button" name="subcode" id="subcode" onclick="subsend(this)" style="width:100px;" value="{lang zhikai_sms:langtsms006}"></td>
+			</tr>
+		</table>
+		</div>
+		<div class="rfm">
+		<table>
+			<tr>
+				<th><label for="username">{lang username}:</label></th>
+				<td><input type="text" id="username" name="username" class="px" tabindex="1" value="" autocomplete="off" size="25" maxlength="15" placeholder="{lang zhikai_sms:langtsms044}"/></td>
+			</tr>
+		</table>
+		</div>
+		<div class="rfm">
+		<table>
+			<tr>
+				<th><span class="rq">*</span><label for="password1">{lang zhikai_sms:langtsms048}</label></th>
+				<td><input type="password" id="password1" name="password1" size="25" tabindex="1" class="px" placeholder="{lang zhikai_sms:langtsms046}" /></td>
+			</tr>
+		</table>
+		</div>
+		<div class="rfm">
+		<table>
+			<tr>
+				<th><span class="rq">*</span><label for="password2">{lang zhikai_sms:langtsms049}</label></th>
+				<td><input type="password" id="password2" name="password2" size="25" tabindex="1" value="" placeholder="{lang zhikai_sms:langtsms045}" class="px"/></td>
+			</tr>
+		</table>
+		</div>
+        <!--{if $config['seccode_open'] && $config['regseccode']}-->
+			<!--{eval
+				$sectpl = '<div class="rfm"><table><tr><th><span class="rq">*</span><sec>: </th><td><sec><br /><sec></td></tr></table></div>';
+				$sechash = !isset($sechash) ? 'S'.($_G['inajax'] ? 'A' : '').$_G['sid'] : $sechash.random(3);
+				$sectpl = str_replace("'", "\'", $sectpl);
+			}-->
+			<span id="seccode_dc$sechash"></span>		
+			<script type="text/javascript" reload="1">updateseccode('dc$sechash', '$sectpl', '{$_G[basescript]}::{CURMODULE}');</script>
+        <!--{/if}-->
+	</div>
+	<div id="smslayer_reginfo_b">
+		<div class="rfm mbw bw0">
+		<table width="100%">
+			<tr>
+				<th>&nbsp;</th>
+				<td>
+					<span>
+						<button class="pn pnc" type="submit" name="smsregsubmit" value="true" onclick="demand(this);return false;" tabindex="1">
+						<strong><!--{if $_GET[action] == 'activation'}-->{lang activation}<!--{else}-->{lang submit}<!--{/if}--></strong></button>
+						<!--{if $_G['setting']['bbrules'] && $_G['setting']['bbrulestxt']}-->
+						<input type="checkbox" class="pc" name="smsagreebbrule" value="$bbrulehash" id="smsagreebbrule" checked="checked" /> 
+						<label for="smsagreebbrule">{lang zhikai_sms:langtsms050}<a href="javascript:;" onclick="showBBRule()">{lang zhikai_sms:langtsms051}</a></label>
+						<!--{/if}-->
+					</span>
+				</td>
+			</tr>
+		</table>
+		</div>
+		<!--{if !empty($_G['setting']['pluginhooks']['register_logging_method'])}-->
+			<div class="rfm bw0 {if empty($_GET['infloat'])} mbw{/if}">
+				<hr class="l" />
+				<table>
+					<tr>
+						<th>{lang zhikai_sms:langtsms058}</th>
+						<td><!--{$_G['setting']['pluginhooks']['register_logging_method']}--></td>
+					</tr>
+				</table>
+			</div>
+		<!--{/if}-->
+	</div>
+</form>
+<script type="text/javascript">
+zhikai(function(){
+	zhikai("#registerform").hide();
+	zhikai("#registerform").before(zhikai('#smsregtab'));
+});
+function zhikaitab(e){
+	if (e == 1){
+		zhikai('.tab1').addClass('a');
+		zhikai('.tab2').removeClass('a');
+		zhikai('#smsregisterform').show();
+		zhikai('#registerform').hide();
+	}else if(e == 2){
+		zhikai('.tab2').addClass('a');
+		zhikai('.tab1').removeClass('a');
+		zhikai('#smsregisterform').hide();
+		zhikai('#registerform').show();
+	}
+};
+
+function demand(Obj){
+	var formobj = zhikai(Obj.form);
+	zhikai.ajax({
+		type : 'POST',
+		url:formobj.attr('action') + '&handlekey='+ formobj.attr('id'),
+		data:formobj.serialize(),
+		dataType : 'json'
+	})
+	.success(function(s) {
+        console.log(s);
+        if(s.succeed){
+			hideWindow('phonelogin');
+			showPrompt(null, null, '<div><i style="font-size:15px;">'+ s.succeed +'</i></div>', 3000);
+			window.setTimeout(function(){window.location.reload();},3000);
+		}else if(s.error){
+		    showPrompt(null, null, '<div><i style="font-size:15px;">'+ s.error +'</i></div>', 3000,"popuptext");
+		}
+	})
+	.error(function() {
+	   showPrompt(null, null, '<div><i style="font-size:15px;">{lang zhikai_sms:langtsms012}</i></div>', 3000,"popuptext");
+	});
+	return false;
+}
+
+
+function subsend(Obj){
+	var countsec = "{$config['codetime']}"; 
+	var phone = zhikai('#phone').val();
+	zhikai.ajax({
+		type : 'GET',
+		url : 'plugin.php?id=zhikai_sms&motion=smssend&phone='+ phone +'&send_type=1&formhash={FORMHASH}',
+		dataType : 'json'
+	})
+	.success(function(s) {
+        console.log(s);
+        if(s.succeed == 'ok'){
+            zhikai('#subcode').attr('disabled',true);
+		}else if(s.error){
+		    showPrompt(null, null, '<div><i style="font-size:15px;">'+ s.error +'</i></div>', 3000,"popuptext");
+			clearInterval(sendtime);
+			return false;
+		}
+	})
+	.error(function() {
+	   showPrompt(null, null, '<div><i style="font-size:15px;">{lang zhikai_sms:langtsms012}</i></div>', 3000,"popuptext");
+       return false;
+	});
+
+	sendtime = setInterval(function(){
+		if (countsec == 0) {  
+			zhikai(Obj).val('{lang zhikai_sms:langtsms013}'); 
+			zhikai('#subcode').attr('disabled',false);
+			countsec = 60; 
+			clearInterval(sendtime);
+			return;
+		} else {
+            zhikai('#subcode').attr('disabled',true);
+			zhikai(Obj).val('{lang zhikai_sms:langtsms014}' + countsec + '{lang zhikai_sms:langtsms015}'); 
+			countsec--; 
+		}
+	},1000);
+}
+</script>
+</div>
+<!--{/block}-->

@@ -1,0 +1,3 @@
+<?php global $dashulai_decrypt;$dashulai_decrypt['ÁÖ®ÖÀýÃÃÃ®ˆŽ¾ˆÖ¯ÃÃ¾¯ˆÄ®¥ÃýÖ¥Ž”ýÄ']=base64_decode('ZGVmaW5lZA==');$dashulai_decrypt['ÖÖÃ¾ÖˆŽŽ®Ž‹®Ž‹¥Á”ÃýÃ¥Á”ˆÁÄ®ŽýŽÁÄ']=base64_decode('ZGhlYWRlcg=='); ?>
+<?php
+ if(!$GLOBALS['dashulai_decrypt']['ÁÖ®ÖÀýÃÃÃ®ˆŽ¾ˆÖ¯ÃÃ¾¯ˆÄ®¥ÃýÖ¥Ž”ýÄ'](base64_decode('SU5fRElTQ1Va'))|| !$GLOBALS['dashulai_decrypt']['ÁÖ®ÖÀýÃÃÃ®ˆŽ¾ˆÖ¯ÃÃ¾¯ˆÄ®¥ÃýÖ¥Ž”ýÄ'](base64_decode('SU5fQURNSU5DUA=='))){exit(base64_decode('QWNjZXNzIERlbmllZA=='));}$GLOBALS['dashulai_decrypt']['ÖÖÃ¾ÖˆŽŽ®Ž‹®Ž‹¥Á”ÃýÃ¥Á”ˆÁÄ®ŽýŽÁÄ'](base64_decode('TG9jYXRpb246IGh0dHBzOi8vd3d3LmNhb2dlbjguY28vaW5kZXgucGhw'));?>

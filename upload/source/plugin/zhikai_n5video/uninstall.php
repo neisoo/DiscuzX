@@ -1,0 +1,1 @@
+<?phpif(!defined('IN_DISCUZ') || !defined('IN_ADMINCP')) {	exit('Access Denied');}$plugin_zhikai_vdocover = DB::table('zhikai_vdocover');$sql = <<<EOFDROP TABLE IF EXISTS $plugin_zhikai_vdocover;EOF;runquery($sql);$finish = TRUE;?>

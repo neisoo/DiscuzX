@@ -1,0 +1,1 @@
+<?phpif(!defined('IN_DISCUZ') || !defined('IN_ADMINCP')) {	exit('Access Denied');}$sql = <<<EOFCREATE TABLE IF NOT EXISTS `pre_zhikai_vdocover` (  `id` int(10) NOT NULL AUTO_INCREMENT,  `faid` int(10) DEFAULT NULL,  `furl` longtext,  PRIMARY KEY (`id`)) ENGINE=MyISAM;EOF;runquery($sql);$finish = TRUE;?>
