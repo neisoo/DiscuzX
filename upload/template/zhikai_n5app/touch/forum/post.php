@@ -261,6 +261,7 @@ function dzlang(){
 <script type="text/javascript" src="{STATICURL}js/mobile/ajaxfileupload.js?{VERHASH}"></script>
 <script type="text/javascript" src="{STATICURL}js/mobile/buildfileupload.js?{VERHASH}"></script>
 <script type="text/javascript">
+	var jq = jQuery.noConflict();
 	var imgexts = typeof imgexts == 'undefined' ? 'jpg, jpeg, gif, png' : imgexts;
 	var STATUSMSG = {
 		'-1' : '{lang uploadstatusmsgnag1}',
@@ -304,7 +305,7 @@ function dzlang(){
 
 			if(typeof FileReader != 'undefined' && this.files[0]) {
 				
-				$.buildfileupload({
+				jq.buildfileupload({
 					uploadurl:'misc.php?mod=swfupload&operation=upload&type=image&inajax=yes&infloat=yes&simple=2',
 					files:this.files,
 					uploadformdata:{uid:"$_G[uid]", hash:"<!--{eval echo md5(substr(md5($_G[config][security][authkey]), 8).$_G[uid])}-->"},
@@ -318,7 +319,7 @@ function dzlang(){
 
 			} else {
 
-				$.ajaxfileupload({
+				jq.ajaxfileupload({
 					url:'misc.php?mod=swfupload&operation=upload&type=image&inajax=yes&infloat=yes&simple=2',
 					data:{uid:"$_G[uid]", hash:"<!--{eval echo md5(substr(md5($_G[config][security][authkey]), 8).$_G[uid])}-->"},
 					dataType:'text',
@@ -349,7 +350,7 @@ function dzlang(){
 //			postlocation = geo.longitude + '|' + geo.latitude + '|' + geo.loc;
 //		}
 
-		$.ajax({
+		jq.ajax({
 			type:'POST',
 			url:form.attr('action') + '&geoloc=' + postlocation + '&handlekey='+form.attr('id')+'&inajax=1',
 			data:form.serialize(),
@@ -366,7 +367,7 @@ function dzlang(){
 
 	$(document).on('click', '.del', function() {
 		var obj = $(this);
-		$.ajax({
+		jq.ajax({
 			type:'GET',
 			url:'forum.php?mod=ajax&action=deleteattach&inajax=yes&aids[]=' + obj.attr('aid'),
 		})
