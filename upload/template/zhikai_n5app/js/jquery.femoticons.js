@@ -88,9 +88,8 @@
                         cpos = getPositionForTextArea(document.getElementById(textareaid)?document.getElementById(textareaid):window.frames[options.popName].document.getElementById(textareaid));
                     });
                 }
-				faces();
-                function faces(){
-                    //e.stopPropagation();
+                $(Obj).bind("click", function(e) {
+                    e.stopPropagation();
                     var faceHtml = '<div id="face">';
                     faceHtml += '<div id="facebox">';
                     faceHtml += '<div id="face_detail" class="facebox clearfix"><ul>';
@@ -101,7 +100,7 @@
                     faceHtml += '</ul></div>';
                     faceHtml += '</div><div class="arrow arrow_t"></div></div>';
 
-                    //container.find('#face').remove();
+                    container.find('#face').remove();
                     container.append(faceHtml);
                     
                     container.find("#face_detail ul >li").bind("click", function(e) {
@@ -129,19 +128,21 @@
                         }
                         cpos = pos;
                         setCursorPosition(tc, pos);//设置焦点
+
+                        //保留表情符输入面板。
                         //container.find("#face").remove();
 
                     });
                     //处理js事件冒泡问题
                     $('body').bind("click", function(e) {
                         e.stopPropagation();
-                        //container.find('#face').remove();
+                        container.find('#face').remove();
                         $(this).unbind('click');
                     });
                     if(options.popName != '') {
                         $(window.frames[options.popName].document).find('body').bind("click", function(e) {
                             e.stopPropagation();
-                            //container.find('#face').remove();
+                            container.find('#face').remove();
                         });
                     }
                     container.find('#face').bind("click", function(e) {
@@ -151,7 +152,7 @@
                     offset.top += options.top;
                     offset.left += options.left;
                     container.find("#face").css(offset).show();
-                }
+                });
             });
         },
     })
