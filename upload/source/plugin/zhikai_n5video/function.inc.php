@@ -412,6 +412,7 @@ function forumdisplay_replace($message, $tid = null, $pid = null, $fid = null)
         }
     }
     foreach ($playerarr as $k => $v) {
+        $player .= $v;
     }
     return $player;
 }
