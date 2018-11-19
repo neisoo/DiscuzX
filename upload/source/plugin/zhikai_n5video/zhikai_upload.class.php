@@ -16,6 +16,13 @@ Class zhikai_upload{
 	var $file_name = null;
 	var $file_id = 0;
 
+	// 构造函数：
+	// 参数：
+	//	 total - 切片总数。
+	//	 index - 此切片的索引。
+	//	 upsize - 文件大小。
+	//	 file_name - 文件名。
+	//	 file_id - 切片id，1000-9999的随机数。
 	public function __construct($total,$index,$upsize,$file_name,$file_id) {
 		$this->total = intval($total);
 		$this->index = intval($index);
@@ -25,7 +32,11 @@ Class zhikai_upload{
 		$this->file_id = intval($file_id);
 	}
 
+	// 初始化切片文件。
+	// 参数：
+	//	 attach - 上传的切片文件，也就是$_FILES['file_data']。
 	function init($attach, $type = 'temp', $extid = 0, $forcename = ''){
+		// 检查参数和上传文件是否正常。
 		if(!is_array($attach) || empty($attach) || !$this->is_upload_file($attach['tmp_name']) || $this->file_name == null || $attach['size'] == 0 ) {
 			$this->attach = array();
 			$this->errorcode = -1;
@@ -55,6 +66,7 @@ Class zhikai_upload{
 		}
 	}
 
+	// 保存文件切片到目标文件中。
 	function save(){
 		if(empty($this->attach) || empty($this->attach['tmp_name']) || empty($this->attach['target'])) {
 			$this->errorcode = -101;
@@ -116,10 +128,12 @@ Class zhikai_upload{
 		}
 	}
 
+	// 检查是否为上传文件。
 	function is_upload_file($source) {
 		return $source && ($source != 'none') && (is_uploaded_file($source) || is_uploaded_file(str_replace('\\\\', '\\', $source)));
 	}
-	
+
+	// 获取上传文件要另存的目标文件名。
 	function get_target_filename($type, $extid = 0, $forcename = '',$attach_ext) {
 		global $_G;
 		if($type == 'group' || ($type == 'common' && $forcename != '')) {
@@ -130,10 +144,12 @@ Class zhikai_upload{
 		return $filename;
 	}
 
+	// 获取目标文件的扩展名。
 	function get_target_extension($ext) {
 		return strtolower($ext);
 	}
 
+	// 获取目标文件的保存目录
 	function get_target_dir($type, $extid = '', $check_exists = true){
 		$subdir = $subdir1 = $subdir2 = '';
 		if($type == 'album' || $type == 'forum' || $type == 'portal' || $type == 'category' || $type == 'profile') {
@@ -147,10 +163,12 @@ Class zhikai_upload{
 		return $subdir;
 	}
 
+	// 检查目录类型是否正确。
 	function check_dir_type($type){
 		return !in_array($type, array('forum', 'group', 'album', 'portal', 'common', 'temp', 'category', 'profile')) ? 'temp' : $type;
 	}
 
+	// 确保目标文件的保存目录存在。
 	function check_dir_exists($type = '', $sub1 = '', $sub2 = ''){
 		$type = zhikai_upload::check_dir_type($type);
 		$basedir = !getglobal('setting/attachdir') ? (DISCUZ_ROOT.'./data/attachment') : getglobal('setting/attachdir');
@@ -166,10 +184,12 @@ Class zhikai_upload{
 		return $res;
 	}
 
+	// 新建和追加文件内容。
 	function save_to_local($source, $target){
   		if(!zhikai_upload::is_upload_file($source)){
 			$succeed = false;
 		}else if(function_exists('move_uploaded_file')){
+			// 第一个切片保存成目标文件，其后的切片追加到目标文件后。
 			if(!file_exists($target)){
 				if (!move_uploaded_file($source, $target)){ $this->errorcode = -1;}
 			}else{
@@ -182,6 +202,7 @@ Class zhikai_upload{
             @unlink($source);
 			$fsize = filesize($target);
 			if($this->upsize == $fsize){
+				// 标记上传完成。
 			    $this->errorcode = 0;
 				$this->attach['accomplish'] = 1;
 				@chmod($target, 0644);

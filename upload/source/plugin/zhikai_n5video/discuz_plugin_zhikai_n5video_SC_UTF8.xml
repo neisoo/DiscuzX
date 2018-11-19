@@ -400,6 +400,9 @@
 				<item id="lang_062"><![CDATA[允许上传的视频格式为：]]></item>
 				<item id="lang_063"><![CDATA[视频]]></item>
 				<item id="lang_064"><![CDATA[新上传视频需要时间转码审核，请稍后查看即可！]]></item>
+				<item id="lang_065"><![CDATA[原文字幕]]></item>
+				<item id="lang_066"><![CDATA[译文字幕]]></item>
+				<item id="lang_067"><![CDATA[重新上传]]></item>
 			</item>
 		</item>
 		<item id="installfile"><![CDATA[install.php]]></item>

@@ -1,7 +1,13 @@
 <!--{block file}-->
 <link href="source/plugin/zhikai_n5video/static/css/style.css" rel="stylesheet" />
+<link href="source/plugin/zhikai_n5video/uikit/css/uikit.min.css" rel="stylesheet" />
+<link href="source/plugin/zhikai_n5video/uikit/css/components/progress.css " rel="stylesheet" />
+
 <script type="text/javascript"src="source/plugin/zhikai_n5video/static/js/jquery.min.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.shardupload.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
 <script type="text/javascript"src="source/plugin/zhikai_n5video/ckplayer/ckplayer.min.js"></script>
+
 <style>
 .zhikai-up{
     position: relative;
@@ -16,7 +22,7 @@
     margin: 10px 0px;
     background: #fff;
     padding: 5px 5px;
-    border-bottom: 1px solid #ededed;
+    border-bottom: 0px solid #ededed;
 }
 .bnt{
     margin: 5px 5px;
@@ -31,7 +37,7 @@
 .explain{
     float: right;
     display: block;
-    width: 49%;
+    width: 25%;
     position: relative;
 }
 .explain .txt{
@@ -53,14 +59,48 @@
     color: #888;
     font-size: 14px;
     margin-right: 10px;
-	line-height: 30px;
+	width: 100%;
+	height: 45px;
+    border-bottom: 1px solid #efefef !important;
 }
-.setting .ction span{
+
+.setting .ction .finfo{
+	width: 100%;
+}
+
+.setting .ction .title{
+	display: inline-block;
+    margin: 5px 5px;
+    padding: 1px 15px;
+    margin-top: 10px;
+	width: 15%;
+}
+
+.setting .ction .txt{
+	display: inline-block;
+    margin: 5px 5px;
+    padding: 1px 15px;
+    margin-top: 10px;
+	width: 35%;
+}
+
+.setting .ction input{
     margin-right: 5px;
+	width: 70%;
+	border:0;
+	border-bottom: 0px solid #ddd;
+	border-radius:0;
+}
+.setting .ction select{
+	width:75px;
+	color:#888;
+	height:23px;
+	border:0px solid #ddd;
+	border-radius:0;
 }
 .zhikai-file .pw{
-    width: 50%;
-    max-height:100px;
+    width: 75%;
+    max-height:164px;
     display: inline-block;
     -webkit-box-orient: vertical;
     -webkit-box-pack: center;
@@ -111,6 +151,7 @@
 		'-5' : '{lang zhikai_n5video:lang_014}'
 	};
 
+	// 初始化上传按钮。
 	jq.zhikai({
 		updom: '.zhikai-ups',
 		upid: 'upflis',
@@ -125,12 +166,15 @@
 		}
 	});
 
+	// 上传完毕后的回调。
 	function up_success(data){
 	  if (data.indexOf('DISCUZUPLOAD') > -1){
 			var arr = data.split('|');
 			if(arr[1] == 0){
+				// 上传成功，更新预览。
 			    Up_Preview(arr);
 			}else if(lang_msg[arr[1]] != undefined ){
+				// 出错，显示出错原因。
 				var sizelimit = '';
 				if(arr[8] == 'ban') {
 					sizelimit = '{lang uploadpicatttypeban}';
@@ -143,9 +187,75 @@
 			}
 	   }else{
 			if (data)
-			popup.open(lang_msg[data], 'alert');
+				popup.open(lang_msg[data], 'alert');
 	   }
        return false;
+	};
+
+	// 上传字幕完毕后的回调。
+	function up_subtitle_success(data){
+	  if (data.indexOf('DISCUZUPLOAD') > -1){
+			var arr = data.split('|');
+			if(arr[1] == 0){
+				// 上传成功，更新预览。
+				up_subtitle(arr);
+			}else if(lang_msg[arr[1]] != undefined ){
+				// 出错，显示出错原因。
+				var sizelimit = '';
+				if(arr[8] == 'ban') {
+					sizelimit = '{lang uploadpicatttypeban}';
+				} else if(arr[8] == 'perday') {
+					sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+				} else if(arr[8] > 0) {
+					sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+				}
+				popup.open(lang_msg[arr[1]] + sizelimit, 'alert');
+			}
+	   }else{
+			if (data)
+				popup.open(lang_msg[data], 'alert');
+	   }
+       return false;
+	};
+
+	function up_subtitle(arr){
+	  if (data.indexOf('DISCUZUPLOAD') > -1){
+			var arr = data.split('|');
+			if(arr[1] == 0){
+				// 上传成功，更新预览。
+			    insert_subtitle_attach(arr[2], '');
+			}else if(lang_msg[arr[1]] != undefined ){
+				// 出错，显示出错原因。
+				var sizelimit = '';
+				if(arr[8] == 'ban') {
+					sizelimit = '{lang uploadpicatttypeban}';
+				} else if(arr[8] == 'perday') {
+					sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+				} else if(arr[8] > 0) {
+					sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+				}
+				popup.open(lang_msg[arr[1]] + sizelimit, 'alert');
+			}
+	   }else{
+			if (data)
+				popup.open(lang_msg[data], 'alert');
+	   }
+       return false;
+	};
+
+	function insert_subtitle_attach(aid,istrans){
+		var txt = '';
+		if (istrans == 1){
+			txt = '[subtitletrans]' + aid + '[/subtitletrans]';
+		}else{
+			txt = '[subtitle]' + aid + '[/subtitle]';
+		}
+		var v = jq('#needmessage').val();
+		if(v.indexOf(aid) != -1){
+			popup.open('{lang zhikai_n5video:lang_036}', 'alert');
+		}else{
+		    jq('#needmessage').val(v + txt);
+		}
 	};
 
 	function JudgeImg(v,arr){
@@ -172,7 +282,7 @@
 		if(JudgeImg(arr[7],isvdo) == 1){
 		    insertAttach(arr[2],'');
 			<!--{if $config['cover_open']}-->
-			cover = '<div class="bnt z" onclick="up_fmig('+ arr[2] +')" >{lang zhikai_n5video:lang_023}</div>';
+			cover = '<div class="bnt y" onclick="up_fmig('+ arr[2] +')" >{lang zhikai_n5video:lang_023}</div>';
 			<!--{/if}-->
 			file ='<div id="video_'+ arr[2] +'" class="pw"></div>';
 		}else if(JudgeImg(arr[7],isMP3) == 1){
@@ -187,22 +297,47 @@
 			'<img src="'+ FileType(arr[7]) +'" border="0" class="vm">&nbsp;{lang zhikai_n5video:lang_024}</div>';
 		}
 		var Dom ='<div class="zhikai-file" id="del_'+ arr[2] +'">'+ file
-		    +    '<div class="explain">'
-		    +    '<div class="txt">{lang zhikai_n5video:lang_025}<span>'+ arr[5] +'</span> </div>'
-			+	 '<div class="txt">{lang zhikai_n5video:lang_026}<span>'+ File_Size(arr[6]) +'</span></div>'
-			+	 cover
-			+	 '<div class="bnt y" onclick="insertAttach('+ arr[2] +','+ JudgeImg(arr[7],isimg) +')" >{lang zhikai_n5video:lang_027}</div>'
-			+	 '<div class="dels bnt y" aid="'+ arr[2] +'">{lang zhikai_n5video:lang_028}</div>'
+			+	'<div class="explain">'
+			+		cover
+			+		'<div class="bnt y" onclick="insertAttach('+ arr[2] +','+ JudgeImg(arr[7],isimg) +')" >{lang zhikai_n5video:lang_027}</div>'
+			+		'<div class="dels bnt y" aid="'+ arr[2] +'">{lang zhikai_n5video:lang_028}</div>'
 			+	 '</div>'
 			+	 '<div class="setting">'
-			+		'<div class="ction atds z"><span>{lang zhikai_n5video:lang_029}</span><input type="text" name="attachnew['+ arr[2] +'][description]" '
-			+		'class="px" value="" size="6" style="width:80px;height:21px;border:0;border-bottom: 1px solid #ddd;border-radius:0;"/></div>'
+			+		'<div class="ction">'
+			+			'<div class="finfo">{lang zhikai_n5video:lang_025}<span>'+ arr[5] +'</span> </div>'
+			+			'<div class="finfo">{lang zhikai_n5video:lang_026}<span>'+ File_Size(arr[6]) +'</span></div>'
+			+		'</div>'
+			+	 '</div>'
+			+	 '<div class="setting">'
+			+		'<div class="ction">'
+			+			'<div class="title" id="subtitle_title_' + arr[2] + '">{lang zhikai_n5video:lang_065}</div>'
+			+			'<div class="txt" id="subtitle_fname_' + arr[2] + '"></div>'
+			+			'<div class="bnt y" id="subtitle_btn_' + arr[2] + ')" >{lang zhikai_n5video:lang_020}</div>'
+			+			'<input type="file" value="" aid="" id="subtitle_input_' + arr[2] + '" style="opacity:0;display:block;position:relative;top: -28px;width:100%;line-height:26px;">'
+			+		'</div>'
+			+		'<div class="uk-progress" id="subtitle_bar_'+ arr[2] + '" style="display: none;">'
+			+			'<div class="uk-progress-bar" style="width: 40%;">40%</div>'
+			+		'</div>'
+			+		'<div class="ction">'
+			+			'<div class="title" id="tsubtitle_title_' + arr[2] + '">{lang zhikai_n5video:lang_066}</div>'
+			+			'<div class="txt" id="tsubtitle_fname_' + arr[2] + '"></div>'
+			+			'<div class="bnt y" id="tsubtitle_btn_' + arr[2] + ')" >{lang zhikai_n5video:lang_020}</div>'
+			+			'<input type="file" value="" aid="" id="tsubtitle_input_' + arr[2] + '" style="opacity:0;display:block;position:relative;top: -28px;width:100%;line-height:26px;">'
+			+		'</div>'
+			+		'<div class="uk-progress" id="tsubtitle_bar_'+ arr[2] + '" style="display: none;">'
+			+			'<div class="uk-progress-bar" style="width: 40%;">40%</div>'
+			+		'</div>'
+
+
+			+		'<div class="ction">'
+			+			'<div class="title">{lang zhikai_n5video:lang_029}</div>'
+			+			'<input class="txt" type="text" name="attachnew['+ arr[2] +'][description]" value="" size="6"/>'
+			+		'</div>'
 					<!--{if $_G['group']['allowsetattachperm']}-->
-			+		'<div class="ction attv z">'
-			+		   '<span>{lang zhikai_n5video:lang_030}</span>'
+			+		'<div class="ction">'
+			+			'<div class="title">{lang zhikai_n5video:lang_030}</div>'
 						<!--{if $_G['cache']['groupreadaccess']}-->
-			+			'<select class="ps" name="attachnew['+ arr[2] +'][readperm]" id="readperm" tabindex="1"'
-			+			        'style="width:75px;color:#888;height:23px;border:1px solid #ddd;border-radius:0;">'
+			+			'<select class="ps" name="attachnew['+ arr[2] +'][readperm]" id="readperm" tabindex="1">'
 			+					'<option value="">{lang zhikai_n5video:lang_031}</option>'
 							<!--{loop $_G['cache']['groupreadaccess'] $val}-->
 			+					'<option value="$val[readaccess]">$val[grouptitle]</option>'
@@ -213,14 +348,13 @@
 			+		'</div>'
 					<!--{/if}-->
 					<!--{if $_G['group']['maxprice']}-->
-			+		'<div class="ction attpr y">'
-			+			'<span>$_G[setting][extcredits][$_G[setting][creditstransextra][1]][title]</span>'
-			+			'<input type="text" name="attachnew['+ arr[2] +'][price]" class="px" value="" '
-			+			'size="1" style="width:30px;height:21px;border:0;border-bottom: 1px solid #ddd;border-radius:0;"/>'
+			+		'<div class="ction">'
+			+			'<div class="title">$_G[setting][extcredits][$_G[setting][creditstransextra][1]][title]</div>'
+			+			'<input class="txt" type="text" name="attachnew['+ arr[2] +'][price]" value="" size="1" />'
 			+		'</div>'
 					<!--{/if}-->
 			+		'</div>'
-			+	    '</div>';
+			+	'</div>';
 		jq('#zhikai-video').append(Dom);
 		scrollToEnd();
 		if(JudgeImg(arr[7],isvdo) == 1){
@@ -234,6 +368,168 @@
 			};
 			var player = new ckplayer(videoObject);
 		}
+
+		// 初始化字幕上传按钮。
+		jq('#' + 'subtitle_input_' + arr[2]).shardUpload({
+			uploadUrl: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
+			progressCallback: function(percnt, aid) {
+				if (percnt <= 100) {
+					// 更新进度条。
+					var bar = $('#subtitle_bar_' + aid + " div"); 
+					bar.css('width', percnt + '%');
+					bar.html(percnt + '%');
+				}
+				if (percnt == 0) {
+					// 删除之前上传的附件。
+					if ($('#subtitle_input_' + aid).attr('aid') != '') {
+						var subtitle_aid = $('#subtitle_input_' + aid).attr('aid');
+						$.ajax({
+							type:'GET',
+							url:'forum.php?mod=ajax&action=deleteattach&inajax=yes&aids[]=' + subtitle_aid,
+						})
+						.success(function(s) {
+						})
+						.error(function() {
+							popup.open('{lang networkerror}', 'alert');
+						});
+
+						var txt = '[subtitle]' + subtitle_aid + '[/subtitle]';
+						var v = $('#needmessage').val();
+						if (v.indexOf(txt) != -1) {
+							$('#needmessage').val(v.replace(txt, ''));
+						}
+						
+						$('#subtitle_input_' + aid).attr('aid', '');
+					}
+					// 显示 进度条。
+					$('#subtitle_bar_' + aid).css('display', 'block');
+				}
+				if (percnt == 100) {
+					// 隐藏进度条。
+					setTimeout('jQuery("#subtitle_bar_' + aid + '").fadeOut()', 1000);
+
+					// 修改上传按钮文本。
+					$('#subtitle_btn_' + aid).html('{lang zhikai_n5video:lang_067}');
+				}
+			},
+			stepCallback: function(data, aid) {
+				if (data.indexOf('DISCUZUPLOAD') > -1) {
+					var arr = data.split('|');
+					if (arr[1] == 0) {
+						// 记录上传文件的附件ID。
+						$('#subtitle_input_' + aid).attr('aid', arr[2]);
+
+						// 上传成功，更新字幕文件名。
+						$('#subtitle_fname_' + aid).html($('#subtitle_input_' + aid)[0].files[0].name);
+
+						// 插入到正文中。
+						var txt = '[subtitle]' + arr[2] + '[/subtitle]';
+						var v = $('#needmessage').val();
+						$('#needmessage').val(v + txt);
+					}
+					else if (lang_msg[arr[1]] != undefined ) {
+						// 出错，显示出错原因。
+						var sizelimit = '';
+						if(arr[8] == 'ban') {
+							sizelimit = '{lang uploadpicatttypeban}';
+						} else if(arr[8] == 'perday') {
+							sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+						} else if(arr[8] > 0) {
+							sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+						}
+						popup.open(lang_msg[arr[1]] + sizelimit, 'alert');
+					}
+				}
+				else {
+					if (data) {
+						popup.open(lang_msg[data], 'alert');
+					}
+				}
+				return false;
+			},
+			userData: arr[2]
+		}).init();
+
+		// 初始化译文字幕上传按钮，参照字幕上传按钮。
+		jq('#' + 'tsubtitle_input_' + arr[2]).shardUpload({
+			uploadUrl: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
+			progressCallback: function(percnt, aid) {
+				if (percnt <= 100) {
+					// 更新进度条。
+					var bar = $('#tsubtitle_bar_' + aid + " div"); 
+					bar.css('width', percnt + '%');
+					bar.html(percnt + '%');
+				}
+				if (percnt == 0) {
+					// 删除之前上传的附件。
+					if ($('#tsubtitle_input_' + aid).attr('aid') != '') {
+						var tsubtitle_aid = $('#tsubtitle_input_' + aid).attr('aid');
+						$.ajax({
+							type:'GET',
+							url:'forum.php?mod=ajax&action=deleteattach&inajax=yes&aids[]=' + tsubtitle_aid,
+						})
+						.success(function(s) {
+						})
+						.error(function() {
+							popup.open('{lang networkerror}', 'alert');
+						});
+
+						var txt = '[tsubtitle]' + tsubtitle_aid + '[/tsubtitle]';
+						var v = $('#needmessage').val();
+						if (v.indexOf(txt) != -1) {
+							$('#needmessage').val(v.replace(txt, ''));
+						}
+						
+						$('#tsubtitle_input_' + aid).attr('aid', '');
+					}
+					// 显示 进度条。
+					$('#tsubtitle_bar_' + aid).css('display', 'block');
+				}
+				if (percnt == 100) {
+					// 隐藏进度条。
+					setTimeout('jQuery("#tsubtitle_bar_' + aid + '").fadeOut()', 1000);
+
+					// 修改上传按钮文本。
+					$('#tsubtitle_btn_' + aid).html('{lang zhikai_n5video:lang_067}');
+				}
+			},
+			stepCallback: function(data, aid) {
+				if (data.indexOf('DISCUZUPLOAD') > -1) {
+					var arr = data.split('|');
+					if (arr[1] == 0) {
+						// 记录上传文件的附件ID。
+						$('#tsubtitle_input_' + aid).attr('aid', arr[2]);
+
+						// 上传成功，更新字幕文件名。
+						$('#tsubtitle_fname_' + aid).html($('#tsubtitle_input_' + aid)[0].files[0].name);
+
+						// 插入到正文中。
+						var txt = '[tsubtitle]' + arr[2] + '[/tsubtitle]';
+						var v = $('#needmessage').val();
+						$('#needmessage').val(v + txt);
+					}
+					else if (lang_msg[arr[1]] != undefined ) {
+						// 出错，显示出错原因。
+						var sizelimit = '';
+						if(arr[8] == 'ban') {
+							sizelimit = '{lang uploadpicatttypeban}';
+						} else if(arr[8] == 'perday') {
+							sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+						} else if(arr[8] > 0) {
+							sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+						}
+						popup.open(lang_msg[arr[1]] + sizelimit, 'alert');
+					}
+				}
+				else {
+					if (data) {
+						popup.open(lang_msg[data], 'alert');
+					}
+				}
+				return false;
+			},
+			userData: arr[2]
+		}).init();
 	};
 
 	function up_fmig(e){
