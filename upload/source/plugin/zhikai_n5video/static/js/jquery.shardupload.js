@@ -102,7 +102,7 @@
 
 			// 回调：显示进度条。
 			if (typeof self.config.progressCallback == 'function') {
-				self.config.progressCallback(0, self.config.userData);
+				self.config.progressCallback(self.$elem, 0, self.config.userData);
 			}
 
 			// 将文件切片，分成几块放在re数组中上传。
@@ -144,7 +144,7 @@
 						if (xhr.readyState == 4 && xhr.status == 200) {
 							// 回调：显示状态信息。
 							if (typeof self.config.stepCallback == 'function'){
-								self.config.stepCallback(xhr.responseText, self.config.userData);
+								self.config.stepCallback(self.$elem, xhr.responseText, self.config.userData);
 							}
 
 							++succeed;
@@ -152,7 +152,7 @@
 							// 回调：更新进度条进度显示。
 							if (typeof self.config.progressCallback == 'function') {
 								var percnt = self.getPercent(succeed, shardCount);
-								self.config.progressCallback(percnt, self.config.userData);
+								self.config.progressCallback(self.$elem, percnt, self.config.userData);
 							}
 						}
 					}
