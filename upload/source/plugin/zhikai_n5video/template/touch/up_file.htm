@@ -8,142 +8,22 @@
 <script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
 <script type="text/javascript"src="source/plugin/zhikai_n5video/ckplayer/ckplayer.min.js"></script>
 
-<style>
-.zhikai-up{
-    position: relative;
-    display: block;
-    margin: 20px 10px;
-}
-.zhikai-ups{
-    margin:10px 0px;
-	height: 35px;
-}
-.zhikai-file{
-    margin: 10px 0px;
-    background: #fff;
-    padding: 5px 5px;
-    border-bottom: 0px solid #ededed;
-}
-.bnt{
-    margin: 5px 5px;
-    padding: 1px 15px;
-    background:#FF9800;
-    color: #fff;
-    display: inline-block;
-    margin-top: 10px;
-    border-radius: 15px;
-    font-size: 14px;
-}
-.explain{
-    float: right;
-    display: block;
-    width: 25%;
-    position: relative;
-}
-.explain .txt{
-    line-height: 20px;
-    color: #9E9E9E;
-    font-size: 13px;
-    margin: 5px 0px;
-}
-.explain .txt span{
-    font-size: 12px;
-}
-.setting{
-    display: inline-block;
-    position: relative;
-    width: 100%;
-	margin: 5px 0px;
-}
-.setting .ction{
-    color: #888;
-    font-size: 14px;
-    margin-right: 10px;
-	width: 100%;
-    border-bottom: 1px solid #efefef !important;
-}
-
-.setting .ction .finfo{
-	width: 100%;
-}
-
-.setting .ction .title{
-	display: inline-block;
-    margin: 5px 5px;
-    padding: 1px 15px;
-    margin-top: 10px;
-	width: 15%;
-}
-
-.setting .ction .txt{
-	display: inline-block;
-    margin: 5px 5px;
-    padding: 1px 15px;
-    margin-top: 10px;
-	width: 35%;
-}
-
-.setting .ction input{
-    margin-right: 5px;
-	width: 70%;
-	border:0;
-	border-bottom: 0px solid #ddd;
-	border-radius:0;
-}
-.setting .ction select{
-	width:75px;
-	color:#888;
-	height:23px;
-	border:0px solid #ddd;
-	border-radius:0;
-}
-.zhikai-file .pw{
-    width: 75%;
-    max-height:164px;
-    display: inline-block;
-    -webkit-box-orient: vertical;
-    -webkit-box-pack: center;
-    -webkit-box-align: center;
-    text-align: center;
-}
-.notice{
-    text-align: inherit;
-    font-size: 13px;
-    color: #a5a5a5;
-    background: #fbf3de;
-    padding: 10px 15px;
-    border: 1px dashed #f3de9f;
-    margin: 5px;
-    border-radius: 3px;
-}
-.zhikai-button{
-    background: #8BC34A !important;
-	color: #fff !important;
-	width: 40% !important;
-	float: none;
-	margin: 0 auto;
-}
-</style>
-<div class="zhikai-up cl">
-	<div class="zhikai-file">
-		<div class="setting" id="setting">
-			<div class="ction">
-				<div class="title" id="media_title">{lang zhikai_n5video:lang_063}</div>
-				<div class="txt" id="media_fname"></div>
-				<div class="bnt y" id="media_btn">{lang zhikai_n5video:lang_020}</div>
-				<input type="file" value="" aid="" id="media_input" style="opacity:0;display:block;position:relative;top: -28px;width:100%;line-height:26px;">
-				<div>
-				<div id="zhikai-video">
-				</div>
-				</div>
-			</div>
-			<div class="uk-progress" id="media_bar" style="display: none;">
-				<div class="uk-progress-bar" style="width: 40%;">40%</div>
-			</div>
+<div id="setting">
+	<div class="n5sq_fbbt cl">
+		<div class="fbbt_btbt z" id="media_title">{lang zhikai_n5video:lang_063}</div>
+		<div class="fbbt_btxx z" id="media_fname"></div>
+		<div class="fbbt_btaj y">
+			<div class="btn y" id="media_btn">{lang zhikai_n5video:lang_020}</div>
 		</div>
+		<input class="fbbt_btwj" type="file" value="" aid="" id="media_input">
 	</div>
-
+	<div class="uk-progress" id="media_bar" style="display: none;">
+		<div class="uk-progress-bar" style="width: 40%;">40%</div>
+	</div>
+	<div class="n5sq_fbbt cl" id="zhikai-video">
+	</div>
 </div>
+
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/up.js" charset="{CHARSET}"></script>
 <script type="text/javascript">
     var jq = jQuery.noConflict();
@@ -164,8 +44,9 @@
 		'11' : '{lang zhikai_n5video:lang_013}',
 		'-5' : '{lang zhikai_n5video:lang_014}'
 	};
+	var needsubtitle = false;
 
-	// 初始化字幕上传按钮。
+	// 初始化视频上传按钮。
 	jq('#media_input').shardUpload({
 		uploadUrl: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
 		progressCallback: function(self, percnt, userData) {
@@ -262,7 +143,10 @@
 		if(JudgeImg(arr[7],isvdo) == 1){
 		    insertAttach(arr[2],'');
 			<!--{if $config['cover_open']}-->
-			cover = '<div class="bnt y" onclick="up_fmig('+ arr[2] +')" >{lang zhikai_n5video:lang_023}</div>';
+			cover = '<div class="fbbt_btaj y">'
+			+			'<div class="btn y" onclick="up_fmig('+ arr[2] +')" >{lang zhikai_n5video:lang_023}</div>'
+			+		'</div>';
+			
 			<!--{/if}-->
 			file ='<div id="video_'+ arr[2] +'" class="pw"></div>';
 		}else if(JudgeImg(arr[7],isMP3) == 1){
@@ -276,59 +160,65 @@
 			file ='<div id="file_'+ arr[2] +'" class="pw" style="line-height:80px;">'+
 			'<img src="'+ FileType(arr[7]) +'" border="0" class="vm">&nbsp;{lang zhikai_n5video:lang_024}</div>';
 		}
-		var Dom ='<div class="zhikai-file" id="del_'+ arr[2] +'">'+ file
-			+		'<div class="explain">'
-			+			cover
-			+		'</div>'
-			+		'<div class="setting">'
-			+			'<div class="finfo">{lang zhikai_n5video:lang_026}<span>'+ File_Size(arr[6]) +'</span></div>'
-			+		'</div>';
-			+	'</div>';
+		var Dom ='<div class="fbbt_btyl z">'+ file
+			+	'</div>'
+			+	cover
+			+	'<div class="fbbt_btyl z">{lang zhikai_n5video:lang_026}<span>'+ File_Size(arr[6]) +'</span></div>';
 
 		jq('#zhikai-video').html('').append(Dom);
 
-		Dom = '<div class="ction">'
-			+	'<div class="title">{lang zhikai_n5video:lang_065}</div>'
-			+	'<div class="txt" id="subtitle_' + arr[2] + '_filename"></div>'
-			+	'<div class="bnt y" id="subtitle_' + arr[2] + '_upload" >{lang zhikai_n5video:lang_020}</div>'
-			+	'<input type="file" value="" aid="" id="subtitle_' + arr[2] +'_file" style="opacity:0;display:block;position:relative;top: -28px;width:100%;line-height:26px;">'
+		Dom = '<div class="n5sq_fbbt cl">'
+			+	'<div class="fbbt_btbt z">{lang zhikai_n5video:lang_065}</div>'
+			+	'<div class="fbbt_btxx z" id="subtitle_' + arr[2] + '_filename"></div>'
+			+	'<div class="fbbt_btaj y">'
+			+		'<div class="btn y" id="subtitle_' + arr[2] + '_upload" >{lang zhikai_n5video:lang_020}</div>'
+			+	'</div>'
+			+	'<input  class="fbbt_btwj" type="file" value="" aid="" id="subtitle_' + arr[2] +'_file">'
 			+	'<input type="text" value="" name="attachnew['+ arr[2] +'][subtitle]" style="display:none">'
 			+'</div>'
 			+'<div class="uk-progress" id="subtitle_' + arr[2] + '_progress" style="display: none;">'
 			+	'<div class="uk-progress-bar" style="width: 40%;">40%</div>'
 			+'</div>'
-			+'<div class="ction">'
-			+	'<div class="title">{lang zhikai_n5video:lang_065}</div>'
-			+	'<div class="txt" id="tsubtitle_' + arr[2] + '_filename"></div>'
-			+	'<div class="bnt y" id="tsubtitle_' + arr[2] + '_upload" >{lang zhikai_n5video:lang_020}</div>'
-			+	'<input type="file" value="" aid="" id="tsubtitle_' + arr[2] + '_file" style="opacity:0;display:block;position:relative;top: -28px;width:100%;line-height:26px;">'
+			+'<div class="n5sq_fbbt cl">'
+			+	'<div class="fbbt_btbt z">{lang zhikai_n5video:lang_065}</div>'
+			+	'<div class="fbbt_btxx z" id="tsubtitle_' + arr[2] + '_filename"></div>'
+			+	'<div class="fbbt_btaj y">'
+			+		'<div class="btn y" id="tsubtitle_' + arr[2] + '_upload" >{lang zhikai_n5video:lang_020}</div>'
+			+	'</div>'
+			+	'<input class="fbbt_btwj" type="file" value="" aid="" id="tsubtitle_' + arr[2] + '_file">'
 			+	'<input type="text" value="" name="attachnew['+ arr[2] +'][tsubtitle]" style="display:none">'
 			+'</div>'
 			+'<div class="uk-progress" id="tsubtitle_' + arr[2] + '_progress" style="display: none;">'
 			+	'<div class="uk-progress-bar" style="width: 40%;">40%</div>'
 			+'</div>'
-			+'<div class="ction">'
-			+	'<div class="title">{lang zhikai_n5video:lang_029}</div>'
-			+	'<input class="txt" type="text" name="attachnew['+ arr[2] +'][description]" value="" size="6"/>'
+			+'<div class="n5sq_fbbt cl">'
+			+	'<div class="fbbt_btbt z">{lang zhikai_n5video:lang_029}</div>'
+			+	'<div class="fbbt_btsr z">'
+			+		'<input class="txt" type="text" name="attachnew['+ arr[2] +'][description]" value="" size="6"/>'
+			+	'</div>'
 			+'</div>'
 			<!--{if $_G['group']['allowsetattachperm']}-->
-			+'<div class="ction">'
-			+	'<div class="title">{lang zhikai_n5video:lang_030}</div>'
+			+'<div class="n5sq_fbbt cl">'
+			+	'<div class="fbbt_btbt z">{lang zhikai_n5video:lang_030}</div>'
 				<!--{if $_G['cache']['groupreadaccess']}-->
-			+	'<select class="ps" name="attachnew['+ arr[2] +'][readperm]" id="readperm" tabindex="1">'
-			+			'<option value="">{lang zhikai_n5video:lang_031}</option>'
-					<!--{loop $_G['cache']['groupreadaccess'] $val}-->
-			+			'<option value="$val[readaccess]">$val[grouptitle]</option>'
-					<!--{/loop}-->
-			+			'<option value="255">{lang zhikai_n5video:lang_032}</option>'
-			+	'</select>'
+			+	'<div class="fbbt_btaj y">'
+			+		'<select class="ps" name="attachnew['+ arr[2] +'][readperm]" id="readperm" tabindex="1">'
+			+				'<option value="">{lang zhikai_n5video:lang_031}</option>'
+						<!--{loop $_G['cache']['groupreadaccess'] $val}-->
+			+				'<option value="$val[readaccess]">$val[grouptitle]</option>'
+						<!--{/loop}-->
+			+				'<option value="255">{lang zhikai_n5video:lang_032}</option>'
+			+		'</select>'
+			+	'</div>'
 				<!--{/if}-->
 			+'</div>'
 			<!--{/if}-->
 			<!--{if $_G['group']['maxprice']}-->
-			+'<div class="ction">'
-			+	'<div class="title">$_G[setting][extcredits][$_G[setting][creditstransextra][1]][title]</div>'
-			+	'<input class="txt" type="text" name="attachnew['+ arr[2] +'][price]" value="" size="1" />'
+			+'<div class="n5sq_fbbt cl">'
+			+	'<div class="fbbt_btbt z">$_G[setting][extcredits][$_G[setting][creditstransextra][1]][title]</div>'
+			+	'<div class="fbbt_btsr z">'
+			+		'<input class="txt" type="text" name="attachnew['+ arr[2] +'][price]" value="" size="1" />'
+			+	'</div>'
 			+'</div>'
 			<!--{/if}-->
 			+'</div>';
@@ -336,7 +226,9 @@
 		// 视频的相关设置。
 		jq('#setting').append(Dom);
 		
-		scrollToEnd();
+		// 滚动到视频预览
+		//scrollToEnd();
+		
 		if(JudgeImg(arr[7],isvdo) == 1){
 			var videoObject = {
 				container: '#video_' + arr[2],
@@ -405,6 +297,13 @@
 
 					// 填写表单数据。
 					$('input[name="attachnew['+ userData['aid'] +'][' + userData['prefix'] + ']"]').val(arr[2]);
+
+					needmessage = true;
+					needsubtitle = true;
+					if (needsubject  == true && needmessage == true) {
+						$('.btn_pn').removeClass('btn_pn_grey').addClass('btn_pn_blue');
+						$('.btn_pn').attr('disable', 'false');
+					}
 				}
 				else if (lang_msg[arr[1]] != undefined ) {
 					// 出错，显示出错原因。

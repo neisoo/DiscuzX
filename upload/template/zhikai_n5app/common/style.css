@@ -1162,10 +1162,15 @@ _::-webkit-full-page-media, _:future, :root .n5sq_qlzt .y a {line-height: 35px;}
 
 /* 主题发布 */
 .n5sq_ztfb {}
-.n5sq_ztfb .n5sq_fbbt {margin-top:15px;padding: 10px 12px;font-size: 15px;background: #fff;border-bottom: 1px solid #efefef !important;}
-.n5sq_ztfb .n5sq_fbbt .fbbt_btbt {width: 15%;color: #666;}
-.n5sq_ztfb .n5sq_fbbt .fbbt_btsr {width: 85%;}
+.n5sq_ztfb .n5sq_fbbt {padding: 16px 12px;font-size: 15px;background: #fff;border-bottom: 1px solid #efefef !important;}
+.n5sq_ztfb .n5sq_fbbt .fbbt_btbt {width: 20%;color: #666;}
+.n5sq_ztfb .n5sq_fbbt .fbbt_btsr {width: 80%;}
 .n5sq_ztfb .n5sq_fbbt .fbbt_btsr .txt {width: 100%;background: #fff;border: 0;font-size: 15px;border-radius: 0;color: #000;outline: none;-webkit-appearance: none;}
+.n5sq_ztfb .n5sq_fbbt .fbbt_btyl {width: 70%;}
+.n5sq_ztfb .n5sq_fbbt .fbbt_btxx {width: 60%;}
+.n5sq_ztfb .n5sq_fbbt .fbbt_btaj {width: 20%;}
+.n5sq_ztfb .n5sq_fbbt .fbbt_btaj .btn {width: 100%; text-align:center; padding: 1px 5px;background:#FF9800;color: #fff;display: inline-block;border-radius: 15px;font-size: 14px;}
+.n5sq_ztfb .n5sq_fbbt .fbbt_btwj {opacity:0;display:block;position:absolute;width:100%;line-height:26px;}
 .n5sq_ztfb .n5sq_flxz {margin-bottom: 15px;padding: 10px 12px;font-size: 15px;background: #fff;border-bottom: 1px solid #efefef !important;}
 .n5sq_ztfb .n5sq_flxz .flxz_btbt {width: 15%;color: #666;}
 .n5sq_ztfb .n5sq_flxz .selectbox {width: 85%;}
