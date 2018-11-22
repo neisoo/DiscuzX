@@ -173,8 +173,9 @@
 			+	'<div class="fbbt_btaj y">'
 			+		'<div class="btn y" id="subtitle_' + arr[2] + '_upload" >{lang zhikai_n5video:lang_020}</div>'
 			+	'</div>'
-			+	'<input  class="fbbt_btwj" type="file" value="" aid="" id="subtitle_' + arr[2] +'_file">'
-			+	'<input type="text" value="" name="attachnew['+ arr[2] +'][subtitle]" style="display:none">'
+			+	'<input  class="fbbt_btwj" type="file" value="" aid="" id="subtitle_' + arr[2] + '_file">'
+			+	'<div id="subtitle_' + arr[2] + '_data" style="display:none">'
+			+	'</div>'
 			+'</div>'
 			+'<div class="uk-progress" id="subtitle_' + arr[2] + '_progress" style="display: none;">'
 			+	'<div class="uk-progress-bar" style="width: 40%;">40%</div>'
@@ -186,7 +187,8 @@
 			+		'<div class="btn y" id="tsubtitle_' + arr[2] + '_upload" >{lang zhikai_n5video:lang_020}</div>'
 			+	'</div>'
 			+	'<input class="fbbt_btwj" type="file" value="" aid="" id="tsubtitle_' + arr[2] + '_file">'
-			+	'<input type="text" value="" name="attachnew['+ arr[2] +'][tsubtitle]" style="display:none">'
+			+	'<div id="tsubtitle_' + arr[2] + '_data" style="display:none">'
+			+	'</div>'
 			+'</div>'
 			+'<div class="uk-progress" id="tsubtitle_' + arr[2] + '_progress" style="display: none;">'
 			+	'<div class="uk-progress-bar" style="width: 40%;">40%</div>'
@@ -268,6 +270,13 @@
 						popup.open('{lang networkerror}', 'alert');
 					});
 
+					// 删除帖子正文中的标记
+					var txt = '[' + userData['prefix'] + ']' + aid + '[/' + userData['prefix'] + ']';
+					var v = $('#needmessage').val();
+					if (v.indexOf(txt) != -1) {
+						$('#needmessage').val(v.replace(txt, ''));
+					}
+
 					self.attr('aid', '');
 				}
 				// 显示进度条。
@@ -295,9 +304,16 @@
 					// 上传成功，更新字幕文件名。
 					$('#' + prefix + '_filename').html(self[0].files[0].name);
 
-					// 填写表单数据。
-					$('input[name="attachnew['+ userData['aid'] +'][' + userData['prefix'] + ']"]').val(arr[2]);
+					// 添加标记到帖子正文中。
+					var txt = '[' + userData['prefix'] + ']' + arr[2] + '[/' + userData['prefix'] + ']';
+					var v = $('#needmessage').val();
+					$('#needmessage').val(v + txt);
 
+					// 附件提交的表单数据
+					var Dom = '<input type="text" value="' + userData['prefix'] + '" name="attachnew['+ arr[2] +'][description]"/>';
+					$('#' + prefix + '_data').html('').append(Dom);
+
+					// 充许或禁用提交按钮
 					needmessage = true;
 					needsubtitle = true;
 					if (needsubject  == true && needmessage == true) {
