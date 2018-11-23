@@ -37,7 +37,9 @@ class plugin_zhikai_n5video {
 			$style ='<link rel="stylesheet" href="source/plugin/zhikai_n5video/static/audio/APlayer.min.css">
 					<script type="text/javascript" src="//player.youku.com/jsapi"></script>
 					<script src="source/plugin/zhikai_n5video/static/audio/APlayer.min.js"></script>
-					<script type="text/javascript" src="source/plugin/zhikai_n5video/ckplayer/ckplayer_'.CHARSET.'.js" charset="'.CHARSET.'"></script>';
+					<link rel="stylesheet" href="source/plugin/zhikai_n5video/video-js/video-js.min.css">
+					<script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>';
+					
 			if($_G['basescript'] == 'forum' && $_G['gp_mod'] == 'viewthread'){
 				$style .='<style type="text/css">
 						   .zhikai-player{position:relative;width:100%;display:inline-flex;}
@@ -173,8 +175,9 @@ class mobileplugin_zhikai_n5video extends plugin_zhikai_n5video{
 		if(CURMODULE == 'viewthread' || CURMODULE == 'forumdisplay' || CURMODULE == 'guide' || CURMODULE == 'post'){
 			$style ='<link rel="stylesheet" href="source/plugin/zhikai_n5video/static/audio/APlayer.min.css">
 			        <script type="text/javascript" src="//player.youku.com/jsapi"></script>
-					<script src="source/plugin/zhikai_n5video/static/audio/APlayer.min.js"></script>'.$zkv1.'
-					<script type="text/javascript" src="source/plugin/zhikai_n5video/ckplayer/ckplayer_'.CHARSET.'.js" charset="'.CHARSET.'"></script>';
+					<script src="source/plugin/zhikai_n5video/static/audio/APlayer.min.js"></script>
+					<link rel="stylesheet" href="source/plugin/zhikai_n5video/video-js/video-js.min.css">
+					<script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>';
 			if( CURMODULE == 'guide' || CURMODULE == 'forumdisplay'){
 				$style .='<style type="text/css">
 						   .zhikai-player{position:relative;width:100%;}

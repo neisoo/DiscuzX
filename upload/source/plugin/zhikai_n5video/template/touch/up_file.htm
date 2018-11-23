@@ -2,11 +2,13 @@
 <link href="source/plugin/zhikai_n5video/static/css/style.css" rel="stylesheet" />
 <link href="source/plugin/zhikai_n5video/uikit/css/uikit.min.css" rel="stylesheet" />
 <link href="source/plugin/zhikai_n5video/uikit/css/components/progress.css " rel="stylesheet" />
+<link rel="stylesheet" href="source/plugin/zhikai_n5video/video-js/video-js.min.css">
 
 <script type="text/javascript"src="source/plugin/zhikai_n5video/static/js/jquery.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.shardupload.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
 <script type="text/javascript"src="source/plugin/zhikai_n5video/ckplayer/ckplayer.min.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>';
 
 <div id="setting">
 	<div class="n5sq_fbbt cl">
@@ -148,7 +150,8 @@
 			+		'</div>';
 			
 			<!--{/if}-->
-			file ='<div id="video_'+ arr[2] +'" class="pw"></div>';
+			
+			file = '<video id="video_'+ arr[2] + '" class="video-js vjs-default-skin vjs-big-play-centered vjs-fluid"></video>';
 		}else if(JudgeImg(arr[7],isMP3) == 1){
 		    insertAttach(arr[2],'');
 			file ='<div id="file_'+ arr[2] +'" class="pw"><audio src="'+ attachurl +'" controls="controls" '+
@@ -232,15 +235,17 @@
 		//scrollToEnd();
 		
 		if(JudgeImg(arr[7],isvdo) == 1){
-			var videoObject = {
-				container: '#video_' + arr[2],
-				variable: 'player',
-				flashplayer:false,
-				video:attachurl,
-				autoplay:true,
-				loop:true
+			var videoOptions = {
+				controls:true,//控制条：boolean
+				fluid: true,// 播放器宽高自适应
+				sources:[
+					{
+						src: attachurl,
+						type:'video/mp4'
+					}
+				],
 			};
-			var player = new ckplayer(videoObject);
+			var player = videojs('video_' + arr[2], videoOptions);
 		}
 		
 		// 更新视频文件名。
