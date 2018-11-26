@@ -7,7 +7,6 @@
 <script type="text/javascript"src="source/plugin/zhikai_n5video/static/js/jquery.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.shardupload.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
-<script type="text/javascript"src="source/plugin/zhikai_n5video/ckplayer/ckplayer.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>';
 
 <div id="setting">
@@ -47,6 +46,7 @@
 		'-5' : '{lang zhikai_n5video:lang_014}'
 	};
 	var needsubtitle = false;
+	var attachInfo = new Array();
 
 	// 初始化视频上传按钮。
 	jq('#media_input').shardUpload({
@@ -72,12 +72,6 @@
 						popup.open('{lang networkerror}', 'alert');
 					});
 
-					var txt = '[attach]' + media_aid + '[/attach]';
-					var v = $('#needmessage').val();
-					if (v.indexOf(txt) != -1) {
-						$('#needmessage').val(v.replace(txt, ''));
-					}
-					
 					$('#media_input').attr('aid', '');
 				}
 
@@ -184,7 +178,7 @@
 			+	'<div class="uk-progress-bar" style="width: 40%;">40%</div>'
 			+'</div>'
 			+'<div class="n5sq_fbbt cl">'
-			+	'<div class="fbbt_btbt z">{lang zhikai_n5video:lang_065}</div>'
+			+	'<div class="fbbt_btbt z">{lang zhikai_n5video:lang_066}</div>'
 			+	'<div class="fbbt_btxx z" id="tsubtitle_' + arr[2] + '_filename"></div>'
 			+	'<div class="fbbt_btaj y">'
 			+		'<div class="btn y" id="tsubtitle_' + arr[2] + '_upload" >{lang zhikai_n5video:lang_020}</div>'
@@ -275,13 +269,6 @@
 						popup.open('{lang networkerror}', 'alert');
 					});
 
-					// 删除帖子正文中的标记
-					var txt = '[' + userData['prefix'] + ']' + aid + '[/' + userData['prefix'] + ']';
-					var v = $('#needmessage').val();
-					if (v.indexOf(txt) != -1) {
-						$('#needmessage').val(v.replace(txt, ''));
-					}
-
 					self.attr('aid', '');
 				}
 				// 显示进度条。
@@ -309,10 +296,12 @@
 					// 上传成功，更新字幕文件名。
 					$('#' + prefix + '_filename').html(self[0].files[0].name);
 
-					// 添加标记到帖子正文中。
-					var txt = '[' + userData['prefix'] + ']' + arr[2] + '[/' + userData['prefix'] + ']';
-					var v = $('#needmessage').val();
-					$('#needmessage').val(v + txt);
+					// 更新帖子正文中的标记
+					attachInfo[userData['prefix']] = arr[2];
+					jq('#needmessage').val('[attach]'
+						+ (attachInfo['video'] + ',')
+						+ ((attachInfo['subtitle'] ? attachInfo['subtitle'] : '') + ',')
+						+ ((attachInfo['tsubtitle'] ? attachInfo['tsubtitle'] : '') +'[/attach]'));
 
 					// 附件提交的表单数据
 					var Dom = '<input type="text" value="' + userData['prefix'] + '" name="attachnew['+ arr[2] +'][description]"/>';
@@ -320,8 +309,10 @@
 
 					// 充许或禁用提交按钮
 					needmessage = true;
-					needsubtitle = true;
-					if (needsubject  == true && needmessage == true) {
+					if (userData['prefix'] == 'subtitle') {
+						needsubtitle = true;
+					}
+					if (needsubject  == true && needmessage == true && needsubtitle == true) {
 						$('.btn_pn').removeClass('btn_pn_grey').addClass('btn_pn_blue');
 						$('.btn_pn').attr('disable', 'false');
 					}
@@ -415,18 +406,11 @@
 	}
 
 	function insertAttach(aid,isimg){
-		var txt = '';
-		if (isimg == 1){
-			txt = '[attachimg]' + aid + '[/attachimg]';
-		}else{
-			txt = '[attach]' + aid + '[/attach]';
-		}
-		var v = jq('#needmessage').val();
-		if(v.indexOf(aid) != -1){
-			popup.open('{lang zhikai_n5video:lang_036}', 'alert');
-		}else{
-		    jq('#needmessage').val(v + txt);
-		}
+		attachInfo['video'] = aid;
+		jq('#needmessage').val('[attach]'
+			+ (attachInfo['video'] + ',')
+			+ ((attachInfo['subtitle'] ? attachInfo['subtitle'] : '') + ',')
+			+ ((attachInfo['tsubtitle'] ? attachInfo['tsubtitle'] : '') +'[/attach]'));
 	};
 
 	// 文件大小字串

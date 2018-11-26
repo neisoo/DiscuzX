@@ -42,6 +42,9 @@ function youku_access_token()
     }
     return true;
 }
+
+// 替换帖子内容[attach]标记以外的内容。
+// is_match = fase 表示是preg_replace_callback的回调，在discuzcode()中使用。
 function attach_replace($matches, $is_match = FALSE)
 {
     global $_G;
@@ -49,7 +52,9 @@ function attach_replace($matches, $is_match = FALSE)
         loadcache('plugin');
     }
     $config = $_G['cache']['plugin']['zhikai_n5video'];
-    $aid = $is_match ? $matches : $matches[2];
+    $ids = $is_match ? explode(',', $matches) : explode(',', $matches[2]);
+    $aid = $ids[0];
+
     $video = explode('|', $config['video_bmp']);
     $voice = explode('|', $config['voice_bmp']);
     if (empty($aid)) {
@@ -61,6 +66,19 @@ function attach_replace($matches, $is_match = FALSE)
     }
     $attachlist = DB::fetch_all('SELECT readperm,price,attachment,filename,remote,dateline,filesize FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $aid));
     $furl = DB::result_first('SELECT furl FROM %t WHERE faid=%d', array(0 => 'zhikai_vdocover', 1 => $aid));
+
+    $surl = null;
+    if (isset($ids[1])) {
+        $saidtb = getattachtablebyaid($ids[1]);
+        $surl = DB::result_first('SELECT attachment FROM %t WHERE aid=%d', array(0 => $saidtb, 1 => $ids[1]));
+    }
+
+    $turl = null;
+    if (isset($ids[2])) {
+        $taidtb = getattachtablebyaid($ids[2]);
+        $turl = DB::result_first('SELECT attachment FROM %t WHERE aid=%d', array(0 => $taidtb, 1 => $ids[2]));
+    }
+
     require_once libfile('function/attachment');
     foreach ($attachlist as $k => $attach) {
         $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
@@ -82,8 +100,18 @@ function attach_replace($matches, $is_match = FALSE)
         }
         if (in_array($attachext, $video)) {
             $furl = $furl ? $furl : $config['cover_init'];
-            return player($attachurl . $attach['attachment'], 'video', $aid, '', $furl);
+            if ($surl != null) {
+                $surl = $attachurl . $surl;
+            }
+            if ($turl != null) {
+                $turl = $attachurl . $turl;
+            }
+            // 删除回车换行符。
+            $htmlPlayer = player($attachurl . $attach['attachment'], 'video', $aid, '', $furl, $surl, $turl);
+            $htmlPlayer = str_replace(array("\r\n", "\r", "\n"), '', $htmlPlayer);
+            return $htmlPlayer;
         }
+
         if (!$attach['readperm']) {
             if ($attach['price']) {
                 if (checkmobile() && CURMODULE == 'viewthread') {
@@ -96,6 +124,8 @@ function attach_replace($matches, $is_match = FALSE)
       return $is_match ? '' : $matches[0];
     }
 }
+
+// 替换帖子内容[attach]标记以外的内容。
 function noattach_replace($postlist, $isforumdisplay = FALSE)
 {
     global $_G;
@@ -111,7 +141,9 @@ function noattach_replace($postlist, $isforumdisplay = FALSE)
     $video = explode('|', $config['video_bmp']);
     $voice = explode('|', $config['voice_bmp']);
     $post = DB::fetch_first('SELECT message FROM %t WHERE tid=%d and pid=%d and fid=%d ', array(0 => 'forum_post', 1 => $tid, 2 => $pid, 3 => $fid));
-    preg_match_all('/\\[attach(.*?)\\](\\d+)\\[\\/attach\\]/i', $post['message'], $mat);
+    preg_match_all('/\\[attach(.*?)\\](\\d+,\\d+,\\d*)\\[\\/attach\\]/i', $post['message'], $mat);
+    $mat = explode(',', $mat[2][0]);
+
     $aidtb = getattachtablebytid($tid);
     if ($aidtb == 'forum_attachment_unused') {
         return $postlist;
@@ -133,7 +165,7 @@ function noattach_replace($postlist, $isforumdisplay = FALSE)
     foreach ($attachlist as $k => $attach) {
         $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
         $attachext = strtolower(fileext($attach['filename']));
-        if (!in_array($attach['aid'], $mat[2])) {
+        if (!in_array($attach['aid'], $mat)) {
             $attachicon = attachtype($attachext . "\t");
             $attachdate = dgmdate($attach['dateline'], 'u');
             $attachsize = sizecount($attach['filesize']);
@@ -331,7 +363,7 @@ function youku_replace($matches, $is_match = FALSE)
         return '<div class="zhikai-player cl"><div id="' . $arr[5] . '" class="video"></div><script type="text/javascript">var player=new YKU.Player("' . $arr[5] . '",{styleid:"0",client_id:"' . $config['client_id'] . '",vid:"' . $arr[5] . '",newPlayer:true,autoplay:false,show_related:false});</script></div>';
     }
 }
-function player($playurl, $type, $id = null, $title = null, $furl = null)
+function player($playurl, $type, $id = null, $title = null, $furl = null, $surl = null, $turl = null)
 {
     if ($type == 'voice') {
         include template('zhikai_n5video:audio');
@@ -384,7 +416,7 @@ function forumdisplay_replace($message, $tid = null, $pid = null, $fid = null)
         }
     }
     if (strexists($message, '[/attach]') !== false) {
-        if (preg_match_all('/\\[attach\\](\\d+)\\[\\/attach\\]/is', $message, $matc)) {
+        if (preg_match_all('/\\[attach\\](\\d+,\\d+,\\d*)\\[\\/attach\\]/is', $message, $matc)) {
             array_unique($matc[1]);
             foreach (array_unique($matc[1]) as $val) {
                 if (!empty($val)) {

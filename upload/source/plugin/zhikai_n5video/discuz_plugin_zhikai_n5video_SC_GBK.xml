@@ -403,6 +403,8 @@
 				<item id="lang_065"><![CDATA[原文字幕]]></item>
 				<item id="lang_066"><![CDATA[译文字幕]]></item>
 				<item id="lang_067"><![CDATA[重新上传]]></item>
+				<item id="lang_068"><![CDATA[原文]]></item>
+				<item id="lang_069"><![CDATA[译文]]></item>
 			</item>
 		</item>
 		<item id="installfile"><![CDATA[install.php]]></item>

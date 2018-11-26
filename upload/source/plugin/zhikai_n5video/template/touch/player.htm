@@ -1,1 +1,37 @@
-<!--{block player}--><div class="zhikai-player cl"><video id="video_{$id}" class="video-js vjs-default-skin vjs-big-play-centered vjs-fluid"><source src="{$playurl}" type='video/mp4'><p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p></video></div><script type="text/javascript">var videoOptions = {poster: '{$furl}',controls:true,fluid: true};var player = videojs('video_{$id}', videoOptions);</script><!--{/block}-->
+<!--{block player}-->
+<style>
+::cue {
+	background: none;
+	color: #fff;
+	text-shadow: 0 1px #000, 1px 0 #000, -1px 0 #000, 0 -1px #000;
+	font-size: medium;
+}
+::cue(v[voice=hanhan]) {
+	color: green;
+}
+::cue(.red) {
+	color: red;
+}
+</style>
+
+<div class="zhikai-player cl">
+<video id="video_{$id}" class="video-js vjs-default-skin vjs-big-play-centered vjs-fluid">
+	<source src="{$playurl}" type='video/mp4'>
+	<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
+	<!--{if $surl != null}-->
+	<track kind="subtitles" src="{$surl}" srclang="en" label="{lang zhikai_n5video:lang_068}</div>" default></track>
+	<!--{/if}--> 
+	<!--{if $turl != null}-->
+	<track kind="subtitles" src="{$turl}" srclang="zh" label="{lang zhikai_n5video:lang_069}</div>"></track>
+	<!--{/if}--> 
+</video>
+</div>
+<script type="text/javascript">
+var videoOptions = {
+	poster: '{$furl}',
+	controls:true,
+	fluid: true
+};
+var player = videojs('video_{$id}', videoOptions);
+</script>
+<!--{/block}-->
