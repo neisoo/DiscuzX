@@ -448,3 +448,67 @@ function forumdisplay_replace($message, $tid = null, $pid = null, $fid = null)
     }
     return $player;
 }
+
+// 获取主题贴的视频和字幕信息。
+function reply_replace($tid)
+{
+    global $_G;
+    if (empty($_G['cache']['plugin'])) {
+        loadcache('plugin');
+    }
+    $config = $_G['cache']['plugin']['zhikai_n5video'];
+
+    $video = explode('|', $config['video_bmp']);
+    $voice = explode('|', $config['voice_bmp']);
+    
+    $post = DB::fetch_first('SELECT message FROM %t WHERE tid=%d ', array(0 => 'forum_post', 1 => $tid));
+    $message = $post['message'];
+    if (strexists($message, '[/attach]') !== false) {
+        if (preg_match_all('/\\[attach\\](\\d+,\\d+,\\d*)\\[\\/attach\\]/is', $message, $mat)) {
+            $ids = explode(',', $mat[1][0]);
+            $aid = $ids[0];
+
+            $aidtb = getattachtablebyaid($aid);
+            if ($aidtb == 'forum_attachment_unused') {
+                return null;
+            }
+            $attachlist = DB::fetch_all('SELECT readperm,price,attachment,filename,remote,dateline,filesize FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $aid));
+            $furl = DB::result_first('SELECT furl FROM %t WHERE faid=%d', array(0 => 'zhikai_vdocover', 1 => $aid));
+
+            $surl = null;
+            if (isset($ids[1])) {
+                $saidtb = getattachtablebyaid($ids[1]);
+                $surl = DB::result_first('SELECT attachment FROM %t WHERE aid=%d', array(0 => $saidtb, 1 => $ids[1]));
+            }
+
+            $turl = null;
+            if (isset($ids[2])) {
+                $taidtb = getattachtablebyaid($ids[2]);
+                $turl = DB::result_first('SELECT attachment FROM %t WHERE aid=%d', array(0 => $taidtb, 1 => $ids[2]));
+            }
+
+            require_once libfile('function/attachment');
+            foreach ($attachlist as $k => $attach) {
+                $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
+                $attachext = strtolower(fileext($attach['filename']));
+                if (in_array($attachext, $video)) {
+                    $furl = $furl ? $furl : $config['cover_init'];
+                    if ($surl != null) {
+                        $surl = $attachurl . $surl;
+                    }
+                    if ($turl != null) {
+                        $turl = $attachurl . $turl;
+                    }
+                    
+                    $attachInfo['video'] = $attachurl . $attach['attachment'];
+                    $attachInfo['cover'] = $furl;
+                    $attachInfo['subtitle'] = $surl;
+                    $attachInfo['tsubtitle'] = $turl;
+                    return $attachInfo;
+                }
+            }
+        }
+    }
+
+    return null;
+}

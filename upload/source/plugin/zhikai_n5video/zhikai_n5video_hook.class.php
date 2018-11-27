@@ -239,7 +239,13 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 			$attachurl = self::$attachurl;
 			$video = json_encode(explode('|',$config['video_bmp']));
 			$voice = json_encode(explode('|',$config['voice_bmp']));
-			include template('zhikai_n5video:up_file');
+			if($_GET['action'] == 'reply') {
+				$attachInfo = reply_replace($_G['tid']);
+				include template('zhikai_n5video:up_reply_file');
+			}
+			else {
+				include template('zhikai_n5video:up_file');
+			}
 			return $file;
 		}else if($config['youkuup_open'] == 2){
 			youku_access_token($config);

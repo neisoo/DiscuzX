@@ -1,0 +1,489 @@
+<!--{block file}-->
+<link href="source/plugin/zhikai_n5video/static/css/style.css" rel="stylesheet" />
+<link href="source/plugin/zhikai_n5video/uikit/css/uikit.min.css" rel="stylesheet" />
+<link href="source/plugin/zhikai_n5video/uikit/css/components/progress.css " rel="stylesheet" />
+<link rel="stylesheet" href="source/plugin/zhikai_n5video/video-js/video-js.min.css">
+
+<script type="text/javascript"src="source/plugin/zhikai_n5video/static/js/jquery.min.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.shardupload.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>';
+
+<script type="text/javascript">
+ var tid = parseInt('{$_G[tid]}');
+ var urlVideo = '{$attachInfo[video]}';
+ var urlSubtitle = '{$attachInfo[subtitle]}';
+ var urlTsubtitle = '{$attachInfo[tsubtitle]}';
+</script>
+
+<div id="setting">
+	<div class="n5sq_fbbt cl">
+		<div class="fbbt_btbt z" id="video_title">{lang zhikai_n5video:lang_063}</div>
+		<div class="fbbt_btxx z" id="video_fname"></div>
+		<div class="fbbt_btaj y">
+			<div class="btn y" id="video_btn">{lang zhikai_n5video:lang_020}</div>
+		</div>
+		<input class="fbbt_btwj" type="file" value="" aid="" id="video_file">
+	</div>
+	<div class="uk-progress" id="video_bar" style="display: none;">
+		<div class="uk-progress-bar" style="width: 40%;">40%</div>
+	</div>
+
+	<div class="n5sq_fbbt cl" id="zhikai-video" style="display: none;">
+	</div>
+
+	<div class="n5sq_fbbt cl">
+		<div class="fbbt_btbt z">{lang zhikai_n5video:lang_065}</div>
+		<div class="fbbt_btxx z" id="subtitle_filename"></div>
+		<div class="fbbt_btaj y">
+			<div class="btn y" id="subtitle_upload" >{lang zhikai_n5video:lang_020}</div>
+		</div>
+		<input  class="fbbt_btwj" type="file" value="" aid="" id="subtitle_file">
+		<div id="subtitle_data" style="display:none">
+		</div>
+	</div>
+	<div class="uk-progress" id="subtitle_progress" style="display: none;">
+		<div class="uk-progress-bar" style="width: 40%;">40%</div>
+	</div>
+
+	<div class="n5sq_fbbt cl">
+		<div class="fbbt_btbt z">{lang zhikai_n5video:lang_066}</div>
+		<div class="fbbt_btxx z" id="tsubtitle_filename"></div>
+		<div class="fbbt_btaj y">
+			<div class="btn y" id="tsubtitle_upload" >{lang zhikai_n5video:lang_020}</div>
+		</div>
+		<input  class="fbbt_btwj" type="file" value="" aid="" id="tsubtitle_file">
+		<div id="tsubtitle_data" style="display:none">
+		</div>
+	</div>
+	<div class="uk-progress" id="tsubtitle_progress" style="display: none;">
+		<div class="uk-progress-bar" style="width: 40%;">40%</div>
+	</div>
+
+	<div class="n5sq_fbbt cl">
+		<div class="fbbt_btbt z">{lang zhikai_n5video:lang_029}</div>
+		<div class="fbbt_btsr z">
+			<input class="txt" type="text" id="attach_description" value="" size="6"/>
+		</div>
+	</div>
+	<!--{if $_G['group']['allowsetattachperm']}-->
+	<div class="n5sq_fbbt cl">
+		<div class="fbbt_btbt z">{lang zhikai_n5video:lang_030}</div>
+		<!--{if $_G['cache']['groupreadaccess']}-->
+		<div class="fbbt_btaj y">
+			<select class="ps" id="attach_readperm" tabindex="1">
+				<option value="">{lang zhikai_n5video:lang_031}</option>
+				<!--{loop $_G['cache']['groupreadaccess'] $val}-->
+				<option value="$val[readaccess]">$val[grouptitle]</option>
+				<!--{/loop}-->
+				<option value="255">{lang zhikai_n5video:lang_032}</option>
+			</select>
+		</div>
+	<!--{/if}-->
+	</div>
+	<!--{/if}-->
+	<!--{if $_G['group']['maxprice']}-->
+	<div class="n5sq_fbbt cl">
+		<div class="fbbt_btbt z">$_G[setting][extcredits][$_G[setting][creditstransextra][1]][title]</div>
+		<div class="fbbt_btsr z">
+			<input class="txt" type="text" id="attach_price" value="" size="1" />
+		</div>
+	</div>
+	<!--{/if}-->
+</div>
+
+<script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/up.js" charset="{CHARSET}"></script>
+<script type="text/javascript">
+    var jq = jQuery.noConflict();
+	var imges = typeof imges == 'undefined' ? 'jpg, jpeg, gif, png' : imges;
+	var lang_msg = {
+		'-1' : '{lang zhikai_n5video:lang_001}',
+		'0' : '{lang zhikai_n5video:lang_002}',
+		'1' : '{lang zhikai_n5video:lang_003}',
+		'2' : '{lang zhikai_n5video:lang_004}',
+		'3' : '{lang zhikai_n5video:lang_005}',
+		'4' : '{lang zhikai_n5video:lang_006}',
+		'5' : '{lang zhikai_n5video:lang_007}',
+		'6' : '{lang zhikai_n5video:lang_008}',
+		'7' : '{lang zhikai_n5video:lang_009}('+ imges +')',
+		'8' : '{lang zhikai_n5video:lang_010}',
+		'9' : '{lang zhikai_n5video:lang_011}',
+		'10' : '{lang zhikai_n5video:lang_012}',
+		'11' : '{lang zhikai_n5video:lang_013}',
+		'-5' : '{lang zhikai_n5video:lang_014}'
+	};
+	var needsubtitle = false;
+	var attachInfo = new Array();
+
+	// 初始化视频上传按钮。
+	jq('#video_file').shardUpload({
+		uploadUrl: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
+		progressCallback: function(self, percnt, userData) {
+			if (percnt <= 100) {
+				// 更新进度条。
+				var bar = $('#video_bar div'); 
+				bar.css('width', percnt + '%');
+				bar.html(percnt + '%');
+			}
+			if (percnt == 0) {
+				// 删除之前上传的附件。
+				if ($('#video_file').attr('aid') != '') {
+					var video_aid = $('#video_file').attr('aid');
+					$.ajax({
+						type:'GET',
+						url:'forum.php?mod=ajax&action=deleteattach&inajax=yes&aids[]=' + video_aid,
+					})
+					.success(function(s) {
+					})
+					.error(function() {
+						popup.open('{lang networkerror}', 'alert');
+					});
+
+					$('#video_file').attr('aid', '');
+				}
+
+				// 显示 进度条。
+				$('#video_bar').css('display', 'block');
+			}
+			if (percnt == 100) {
+				// 隐藏进度条。
+				setTimeout('jQuery("#video_bar").fadeOut()', 1000);
+
+				// 修改上传按钮文本。
+				$('#video_btn').html('{lang zhikai_n5video:lang_067}');
+			}
+		},
+		stepCallback: function(self, data, userData) {
+			if (data.indexOf('DISCUZUPLOAD') > -1) {
+				var arr = data.split('|');
+				if (arr[1] == 0) {
+					// 上传成功，更新预览。
+					updatePreview(arr);
+				}
+				else if (lang_msg[arr[1]] != undefined ) {
+					// 出错，显示出错原因。
+					var sizelimit = '';
+					if(arr[8] == 'ban') {
+						sizelimit = '{lang uploadpicatttypeban}';
+					} else if(arr[8] == 'perday') {
+						sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+					} else if(arr[8] > 0) {
+						sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+					}
+					popup.open(lang_msg[arr[1]] + sizelimit, 'alert');
+				}
+			}
+			else {
+				if (data) {
+					popup.open(lang_msg[data], 'alert');
+				}
+			}
+			return false;
+		}
+	}).init();
+
+	// 字幕上传进度回调
+	function progressCallback(self, percnt, userData) {
+		var prefix = userData['prefix'];
+
+		if (percnt <= 100) {
+			// 更新进度条进度。
+			var bar = $('#' + prefix + '_progress' + ' div'); 
+			bar.css('width', percnt + '%');
+			bar.html(percnt + '%');
+		}
+		if (percnt == 0) {
+			// 删除之前上传的附件。
+			if (self.attr('aid') != '') {
+				var aid = self.attr('aid');
+				$.ajax({
+					type:'GET',
+					url:'forum.php?mod=ajax&action=deleteattach&inajax=yes&aids[]=' + aid,
+				})
+				.success(function(s) {
+				})
+				.error(function() {
+					popup.open('{lang networkerror}', 'alert');
+				});
+
+				self.attr('aid', '');
+			}
+			// 显示进度条。
+			$('#' + prefix + '_progress').css('display', 'block');
+		}
+		if (percnt == 100) {
+			// 隐藏进度条。
+			setTimeout('jQuery("#' + prefix + '_progress' + '").fadeOut()', 1000);
+
+			// 修改上传按钮文本。
+			$('#' + prefix + '_upload').html('{lang zhikai_n5video:lang_067}');
+		}
+	}
+
+	// 字幕上传状态回调
+	function stepCallback(self, data, userData) {
+		var prefix = userData['prefix'];
+
+		if (data.indexOf('DISCUZUPLOAD') > -1) {
+			var arr = data.split('|');
+			if (arr[1] == 0) {
+				// 记录上传文件的附件ID。
+				self.attr('aid', arr[2]);
+
+				// 上传成功，更新字幕文件名。
+				$('#' + prefix + '_filename').html(self[0].files[0].name);
+
+				// 更新帖子正文中的标记
+				attachInfo[userData['prefix']] = arr[2];
+				jq('#needmessage').val('[attach]'
+					+ (attachInfo['video'] + ',')
+					+ ((attachInfo['subtitle'] ? attachInfo['subtitle'] : '') + ',')
+					+ ((attachInfo['tsubtitle'] ? attachInfo['tsubtitle'] : '') +'[/attach]'));
+
+				// 附件提交的表单数据
+				var Dom = '<input type="text" value="' + userData['prefix'] + '" name="attachnew['+ arr[2] +'][description]"/>';
+				$('#' + prefix + '_data').html('').append(Dom);
+
+				// 充许或禁用提交按钮
+				needmessage = true;
+				if (userData['prefix'] == 'subtitle') {
+					needsubtitle = true;
+				}
+				if (needsubject  == true && needmessage == true && needsubtitle == true) {
+					$('.btn_pn').removeClass('btn_pn_grey').addClass('btn_pn_blue');
+					$('.btn_pn').attr('disable', 'false');
+				}
+			}
+			else if (lang_msg[arr[1]] != undefined ) {
+				// 出错，显示出错原因。
+				var sizelimit = '';
+				if(arr[8] == 'ban') {
+					sizelimit = '{lang uploadpicatttypeban}';
+				} else if(arr[8] == 'perday') {
+					sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+				} else if(arr[8] > 0) {
+					sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+				}
+				popup.open(lang_msg[arr[1]] + sizelimit, 'alert');
+			}
+		}
+		else {
+			if (data) {
+				popup.open(lang_msg[data], 'alert');
+			}
+		}
+		return false;
+	}
+
+	// 初始化原文字幕上传按钮。
+	jq('#subtitle_file').shardUpload({
+		uploadUrl: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
+		progressCallback: progressCallback,
+		stepCallback: stepCallback,
+		userData: {prefix: 'subtitle'}
+	}).init();
+
+	// 初始化译文字幕上传按钮。
+	jq('#tsubtitle_file').shardUpload({
+		uploadUrl: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
+		progressCallback: progressCallback,
+		stepCallback: stepCallback,
+		userData: {prefix: 'tsubtitle'}
+	}).init();
+
+	function JudgeImg(v,arr){
+	    var type = 0;
+		for(var i = 0;i < arr.length; i++) {
+		   if(v.toString() == arr[i].toString()){
+		      type = 1;
+		   }
+		}
+		return type;
+	};
+
+	function scrollToEnd(){
+		var h = jq(document).height() - jq(window).height();
+		jq(document).scrollTop(h);
+	};
+
+	function updatePreview(arr){
+	    var Dom ='',cover='';
+	    var isimg = ['jpg','jpeg','gif','png','bmp'],
+			isvdo = JSON.parse('$video'),
+			isMP3 = JSON.parse('$voice'),
+			file ='', attachurl = '{$attachurl}' + arr[4];
+		if(JudgeImg(arr[7],isvdo) == 1){
+		    insertAttach(arr[2],'');
+			<!--{if $config['cover_open']}-->
+			cover = '<div class="fbbt_btaj y">'
+			+			'<div class="btn y" onclick="up_fmig('+ arr[2] +')" >{lang zhikai_n5video:lang_023}</div>'
+			+		'</div>';
+			
+			<!--{/if}-->
+			
+			file = '<video id="video_'+ arr[2] + '" class="video-js vjs-default-skin vjs-big-play-centered vjs-fluid"></video>';
+		}else if(JudgeImg(arr[7],isMP3) == 1){
+		    insertAttach(arr[2],'');
+			file ='<div id="file_'+ arr[2] +'" class="pw"><audio src="'+ attachurl +'" controls="controls" '+
+			      'autoplay="autoplay" style="width: 100%;height:55px;" /></audio></div>';
+		}else if(JudgeImg(arr[7],isimg) == 1){
+		    insertAttach(arr[2],1);
+			file ='<div id="file_'+ arr[2] +'" class="pw"><img src="'+ attachurl +'" style="width:120px;height:105px;" /></div>';
+		}else {
+			file ='<div id="file_'+ arr[2] +'" class="pw" style="line-height:80px;">'+
+			'<img src="'+ FileType(arr[7]) +'" border="0" class="vm">&nbsp;{lang zhikai_n5video:lang_024}</div>';
+		}
+		var Dom ='<div class="fbbt_btyl z">'+ file
+			+	'</div>'
+			+	cover
+			+	'<div class="fbbt_btyl z">{lang zhikai_n5video:lang_026}<span>'+ File_Size(arr[6]) +'</span></div>';
+
+		// 显示预览。
+		jq('#zhikai-video').html('').append(Dom);
+		jq("#zhikai-video").css('display','block');
+
+		// 修改视频文件的提交表单名字，表单这个表单数据是属于当前视频附件的。
+		jq('#attach_description').attr('name', 'attachnew['+ arr[2] +'][description]');
+		<!--{if $_G['group']['allowsetattachperm']}-->
+		jq('#attach_readperm').attr('name', 'attachnew['+ arr[2] +'][readperm]');
+		<!--{/if}-->
+		<!--{if $_G['group']['maxprice']}-->
+		jq('#attach_price').attr('name', 'attachnew['+ arr[2] +'][price]');
+		<!--{/if}-->
+
+		// 滚动到视频预览
+		//scrollToEnd();
+
+		// 添加视频播放脚本。
+		if(JudgeImg(arr[7],isvdo) == 1){
+			var videoOptions = {
+				controls:true,//控制条：boolean
+				fluid: true,// 播放器宽高自适应
+				sources:[
+					{
+						src: attachurl,
+						type:'video/mp4'
+					}
+				],
+			};
+			var player = videojs('video_' + arr[2], videoOptions);
+		}
+		
+		// 更新视频文件名。
+		jq("#video_fname").html(jq('#video_file')[0].files[0].name);
+
+	};
+
+	// 设置封面。
+	function up_fmig(e){
+		var Vobj = document.getElementById("video_"+ e +"");
+		var Vobjs = Vobj.getElementsByTagName("video");
+		var scale = 0.4;
+		var canvas = document.createElement("canvas");
+		canvas.width = Vobjs[0].videoWidth * scale;
+		canvas.height = Vobjs[0].videoHeight * scale;
+		canvas.getContext('2d').drawImage(Vobjs[0], 0, 0, canvas.width, canvas.height);
+		var urls = canvas.toDataURL("image/png");
+        if(e && urls){
+			jq.ajax({
+				type:'POST',
+				url:'plugin.php?id=zhikai_n5video&act=add&uid=$_G[uid]&formhash={FORMHASH}',
+				data:{aid:e, url:urls}
+			})
+			.success(function(s){
+				if(s == 'succeed'){
+					popup.open('{lang zhikai_n5video:lang_033}', 'alert');
+				}else if(s == 'error'){
+				    popup.open('{lang zhikai_n5video:lang_034}', 'alert');
+				}else{
+				    popup.open('{lang zhikai_n5video:lang_034}', 'alert');
+				}
+			})
+			.error(function(){
+				popup.open('{lang networkerror}', 'alert');
+			});
+			return false;
+		}
+	};
+
+	// 删除封面
+	function delCover(aid){
+		if(aid){
+			jq.ajax({
+				type:'GET',
+				url:'plugin.php?id=zhikai_n5video&act=del&uid=$_G[uid]&aid='+ aid +'&formhash={FORMHASH}'
+			})
+			.success(function(s){
+				if(s == 'succeed'){
+					popup.open('{lang zhikai_n5video:lang_035}', 'alert');
+				}else if(s == 'error'){
+				    popup.open('{lang zhikai_n5video:lang_043}', 'alert');
+				}
+			})
+		}
+	}
+
+	function insertAttach(aid,isimg){
+		attachInfo['video'] = aid;
+		jq('#needmessage').val('[attach]'
+			+ (attachInfo['video'] + ',')
+			+ ((attachInfo['subtitle'] ? attachInfo['subtitle'] : '') + ',')
+			+ ((attachInfo['tsubtitle'] ? attachInfo['tsubtitle'] : '') +'[/attach]'));
+	};
+
+	// 文件大小字串
+	function File_Size(size){
+		if(size < 30)return 0;
+		return size = size > 1024
+			? size / 1024  > 1024
+			? size / (1024 * 1024) > 1024
+			? (size / (1024 * 1024 * 1024)).toFixed(2) + 'GB'
+			: (size / (1024 * 1024)).toFixed(2) + 'MB'
+			: (size / 1024).toFixed(2) + 'KB'
+			: size + 'B';
+	};
+
+	function FileType(types){
+		var types = types.toLowerCase();
+		switch (types){
+			case 'mp4':
+			  types = 'av.gif';
+			  break;
+			case 'mp3':
+			   types = 'file-music.png';
+			  break;
+			case 1:
+			   types = 'image.gif';
+			  break;
+			case 'rtf':
+			  types = 'file-word.png'
+			  break;
+			case 'zip':
+			   types = 'zip.gif';
+			  break;
+			case 'rar':
+			   types = 'rar.gif';
+			  break;
+			case 'pdf':
+			   types = 'pdf.gif';
+			  break;
+			case 'xlsx':
+			   types = 'msoffice.gif';
+			  break;
+			case 'svf':
+			   types = 'flash.gif';
+			  break;
+			case 'htm':
+			   types = 'html.gif';
+			  break;
+			case 'txt':
+			   types = 'text.gif';
+			  break;
+			default:
+			   types = 'unknown.gif';
+			   break;
+		}
+		return 'static/image/filetype/'+ types;
+	};
+</script>
+<!--{/block}-->
