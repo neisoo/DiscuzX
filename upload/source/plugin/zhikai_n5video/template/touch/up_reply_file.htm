@@ -30,10 +30,10 @@
 	<source src="{$attachInfo[video]}" type='video/mp4'>
 	<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
 	<!--{if attachInfo['subtitle'] != null}-->
-	<track kind="subtitles" src="{$attachInfo[subtitle]}" srclang="en" label="{lang zhikai_n5video:lang_068}" default></track>
+	<track kind="subtitles" src="{$attachInfo[subtitle]}" srclang="en" id="original" label="{lang zhikai_n5video:lang_068}" default></track>
 	<!--{/if}--> 
 	<!--{if $attachInfo['tsubtitle'] != null}-->
-	<track kind="subtitles" src="{$attachInfo[tsubtitle]}" srclang="zh" label="{lang zhikai_n5video:lang_069}"></track>
+	<track kind="subtitles" src="{$attachInfo[tsubtitle]}" srclang="zh" id="translation" label="{lang zhikai_n5video:lang_069}"></track>
 	<!--{/if}--> 
 </video>
 </div>
@@ -46,28 +46,47 @@ var videoOptions = {
 	fluid: true
 };
 
+var subtitleInit = false;
 var player = videojs('video_{$_G[tid]}', videoOptions);
 
+player.on("ready", function(){
+	var origTrack = player.textTracks().getTrackById("original");
+	var transTrack = player.textTracks().getTrackById("translation");
+
+	origTrack.mode = 'showing';
+	transTrack.mode = 'showing';
+});
+
 player.on("canplay", function(){
-	var tracks = player.textTracks();
+	
+	if (!subtitleInit) {
+		subtitleInit = true;
 
-	// 获取原文、译文和时间段。
-	if (tracks[0]) {
-		for (var i = 0, l = tracks[0].cues.length; i < l; i++) {
-			var cue = tracks[0].cues[i];
+		var origTrack = player.textTracks().getTrackById("original");
+		var transTrack = player.textTracks().getTrackById("translation");
+		
+		// 获取原文、译文和时间段。
+		if (origTrack) {
+			for (var i = 0, l = origTrack.cues.length; i < l; i++) {
+				var cue = origTrack.cues[i];
 
-			var dom = '<div class="n5sq_fbbt cl">' +
-				'<b>' + (i + 1) + '/' + l + '</b> ' +
-				cue.startTime + '-' + cue.endTime + ':<br/>' +
-				cue.text;
+				var dom = '<div class="n5sq_fbbt cl">' +
+					'<b>' + (i + 1) + '/' + l + '</b> ' +
+					cue.startTime + '-' + cue.endTime + ':<br/>' +
+					cue.text;
 
-			if (tracks[1] && tracks[1].cues[i]) {
-				dom += '<br/>' + tracks[1].cues[i].text;
+				// 译文
+				if (transTrack && transTrack.cues && transTrack.cues[i]) {
+					dom += '<br/>' + transTrack.cues[i].text;
+				}
+				dom += '</div>';
+
+				jq('#sutitle_list').append(dom);
 			}
-			dom += '</div>';
-
-			jq('#sutitle_list').append(dom);
 		}
+		
+		origTrack.mode = 'hidden';
+		transTrack.mode = 'hidden';
 	}
 });
 
