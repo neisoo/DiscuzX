@@ -142,9 +142,6 @@ function dzlang(){
 </div>
 
 <script type="text/javascript">
-	$("#message_face").jqfaceedit({txtAreaObj:$("#needmessage"),containerObj:$('#kshf_bqzs')});
-</script>
-<script type="text/javascript">
 	var needsubject = false;
 	var needmessage = false;
 
