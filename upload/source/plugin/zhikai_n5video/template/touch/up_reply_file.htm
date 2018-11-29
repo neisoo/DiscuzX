@@ -6,9 +6,9 @@
 
 <script type="text/javascript"src="source/plugin/zhikai_n5video/static/js/jquery.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.shardupload.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.scroll.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
-<script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>';
-<script type="text/javascript" src="source/plugin/zhikai_n5video/vtt.js/vtt.min.js"></script>';
+<script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>
 
 <style>
 ::cue {
@@ -23,10 +23,38 @@
 ::cue(.red) {
 	color: red;
 }
+
+.fixed_div {
+	width: 100%;
+	position: fixed;
+	background: #e5e5e5;
+	top: 0;
+	z-index: 1000;
+	left: 0px;
+	border: 1px solid red;
+}
+
+.sentence_wrap {
+	padding-top: 80px;
+}
+
+.vidoe_wrap{
+	width:100%;
+	position:relative;
+	padding-bottom:62%; /*需要用padding来维持16:9比例,也就是9除以16*/
+	height: 0;
+	video{
+		position: absolute;
+		top:0;
+		left: 0;
+		width: 100%;
+		height: 100%
+	}
+}
 </style>
 
-<div class="zhikai-player cl">
-<video id="video_{$_G[tid]}" class="video-js vjs-default-skin vjs-big-play-centered vjs-fluid">
+<div class="zhikai-player cl fixed_div">
+<video id="video_{$_G[tid]}" class="video-js vjs-default-skin vjs-big-play-centered vidoe_wrap">
 	<source src="{$attachInfo[video]}" type='video/mp4'>
 	<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
 	<!--{if attachInfo['subtitle'] != null}-->
@@ -37,17 +65,21 @@
 	<!--{/if}--> 
 </video>
 </div>
+<div id="sutitle_list" class="sentence_wrap">
+</div>
 
 <script type="text/javascript">
+var jq = jQuery.noConflict();
 
 var videoOptions = {
 	poster: '{$attachInfo[cover]}',
-	controls:true,
-	fluid: true
+	controls:true
 };
 
-var subtitleInit = false;
 var player = videojs('video_{$_G[tid]}', videoOptions);
+var subtitleInit = false;
+var subtitleCount = 0;
+var subtitleCurrent = 0;
 
 player.on("ready", function(){
 	var origTrack = player.textTracks().getTrackById("original");
@@ -67,11 +99,12 @@ player.on("canplay", function(){
 		
 		// 获取原文、译文和时间段。
 		if (origTrack) {
-			for (var i = 0, l = origTrack.cues.length; i < l; i++) {
+			subtitleCount = origTrack.cues.length;
+			for (var i = 0; i < subtitleCount; i++) {
 				var cue = origTrack.cues[i];
 
-				var dom = '<div class="n5sq_fbbt cl">' +
-					'<b>' + (i + 1) + '/' + l + '</b> ' +
+				var dom = '<div class="n5sq_fbbt cl" id="sentence_' + i + '">' +
+					'<b>' + (i + 1) + '/' + subtitleCount + '</b> ' +
 					cue.startTime + '-' + cue.endTime + ':<br/>' +
 					cue.text;
 
@@ -87,11 +120,54 @@ player.on("canplay", function(){
 		
 		origTrack.mode = 'hidden';
 		transTrack.mode = 'hidden';
+		
+		// 定位于列表开始
+		UIkit.Utils.scrollToElement(jq('#sentence_0'), {
+			offset: $('#sentence_0').offset().top
+		});
 	}
 });
 
+function onScrollStop(e) {
+	if (subtitleCount > 0) {
+		var x, h;
+		var i;
+		var top = $('#sentence_0').offset().top;
+		var align = $(window).scrollTop() + top;
+
+		for (i = 0; i < subtitleCount; i++) {
+			x = $('#sentence_' + i).offset().top;
+			h = $('#sentence_' + i).outerHeight();
+
+			if (align > x && align < (x + h)) {
+
+				if (align <= x + h / 2) {
+					// 向上对齐当前
+					UIkit.Utils.scrollToElement(jq('#sentence_' + i), {
+						offset: top
+					});
+				}
+				else {
+					// 向下对齐下一个
+					if (i < (subtitleCount - 1)) {
+						UIkit.Utils.scrollToElement(jq('#sentence_' + (i + 1)), {
+							offset: top
+						});
+					}
+				}
+
+				break;
+			}
+			else if (align == x) {
+				break;
+			}
+		}
+	}
+}
+
+// 监听滚动结束
+jq(window).bind('scrollstop', onScrollStop);
+
 </script>
 
-<div id="sutitle_list">
-</div>
 <!--{/block}-->
