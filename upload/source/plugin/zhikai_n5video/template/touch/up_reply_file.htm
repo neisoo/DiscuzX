@@ -51,6 +51,14 @@
 		height: 100%
 	}
 }
+
+/* 显示当前时间和总时间 */
+.video-js .vjs-time-control {
+    display: block;
+}
+.video-js .vjs-remaining-time {
+    display: none;
+}
 </style>
 
 <div class="zhikai-player cl fixed_div">
@@ -73,18 +81,38 @@ var jq = jQuery.noConflict();
 
 var videoOptions = {
 	poster: '{$attachInfo[cover]}',
-	controls:true
+	controls: true,
+	playbackRates: [0.5, 0.75, 1, 1.5, 2],
+	controlBar: {
+		playToggle: false,
+		volumePanel: false,
+		currentTimeDisplay: true,
+		durationDisplay: true,
+		remainingTimeDisplay: false,
+		progressControl: true,
+		fullscreenToggle: false,
+		chaptersButton: false,
+		descriptionsButton: false,
+		subsCapsButton: false,
+	},
+	// 禁用自带来的bigPlayButton。
+	children: ['mediaLoader', 'posterImage', 'textTrackDisplay', 'loadingSpinner', /*'bigPlayButton',*/ 'controlBar', 'errorDisplay', 'textTrackSettings', 'resizeManager'],
+	inactivityTimeout: 10000, // 不要自动inactive.
+	
 };
 
 var player = videojs('video_{$_G[tid]}', videoOptions);
 var subtitleInit = false;
 var subtitleCount = 0;
-var subtitleCurrent = 0;
+var subtitleCurrent = -1;
+var sentenceStartTime = 0;
+var sentenceEndTime = 0;
 
 player.on("ready", function(){
 	var origTrack = player.textTracks().getTrackById("original");
 	var transTrack = player.textTracks().getTrackById("translation");
 
+	// 强制加载所有的字幕。
 	origTrack.mode = 'showing';
 	transTrack.mode = 'showing';
 });
@@ -103,9 +131,10 @@ player.on("canplay", function(){
 			for (var i = 0; i < subtitleCount; i++) {
 				var cue = origTrack.cues[i];
 
-				var dom = '<div class="n5sq_fbbt cl" id="sentence_' + i + '">' +
-					'<b>' + (i + 1) + '/' + subtitleCount + '</b> ' +
-					cue.startTime + '-' + cue.endTime + ':<br/>' +
+				var dom = '<div class="n5sq_fbbt cl" id="sentence_' + i +
+					'" startTime="' + cue.startTime +
+					'" endTime="' + cue.endTime + '">' +
+					'<b>' + (i + 1) + '/' + subtitleCount + '</b><br> ' +
 					cue.text;
 
 				// 译文
@@ -118,15 +147,86 @@ player.on("canplay", function(){
 			}
 		}
 		
-		origTrack.mode = 'hidden';
-		transTrack.mode = 'hidden';
+		//origTrack.mode = 'hidden';
+		//transTrack.mode = 'hidden';
 		
 		// 定位于列表开始
 		UIkit.Utils.scrollToElement(jq('#sentence_0'), {
 			offset: $('#sentence_0').offset().top
 		});
+
+		sentencePlay(0);
 	}
 });
+
+// 使用自己的大播放按钮。
+function dummyBigPlayBtnPlugin(options) {        
+	var playBtn = document.createElement('div');
+	playBtn.className = 'vjs-big-play-button';
+	playBtn.innerHTML = '<span aria-hidden="true" class="vjs-icon-placeholder"></span><span class="vjs-control-text" aria-live="polite">Play Video</span>';
+	player.el().appendChild(playBtn);
+	playBtn.onclick = function () {
+		//恢复播放并隐藏大播放按钮和控制条
+		player.userActive(false);
+		player.play();
+		jq(".vjs-big-play-button").css("display","none");
+		jq(".vjs-control-bar").css("opacity","0");
+	};
+
+};
+videojs.plugin('dummyBigPlayBtnPlugin', dummyBigPlayBtnPlugin);
+player.dummyBigPlayBtnPlugin({});    
+player.userActive(false);
+
+// 点击视频时，暂停和播放视频。
+player.on("useractive", function(){
+	console.log("useractive");
+	if (jq(".vjs-big-play-button").css("display") == "block") {
+		//恢复播放并隐藏大播放按钮和控制条
+		player.play();
+		jq(".vjs-big-play-button").css("display","none");
+		jq(".vjs-control-bar").css("opacity","0");
+	}
+	else {
+		//点击屏幕后暂停并显示大播放按钮和控制条
+		player.pause();
+		jq(".vjs-big-play-button").css("display","block");
+		jq(".vjs-control-bar").css("opacity","1");
+	}
+});
+
+player.on("userinactive", function(){
+	console.log("userinactive");
+	if (jq(".vjs-big-play-button").css("display") == "block") {
+		//恢复播放并隐藏大播放按钮和控制条
+		player.play();
+		jq(".vjs-big-play-button").css("display","none");
+		jq(".vjs-control-bar").css("opacity","0");
+	}
+	else {
+		//点击屏幕后暂停并显示大播放按钮和控制条
+		player.pause();
+		jq(".vjs-big-play-button").css("display","block");
+		jq(".vjs-control-bar").css("opacity","1");
+	}
+});
+
+// 设置播放区间到句子的范围内。
+function sentencePlay(index) {
+	if (index != subtitleCurrent) {
+		subtitleCurrent = index;
+
+		sentenceStartTime = $('#sentence_' + subtitleCurrent).attr('startTime');
+		sentenceEndTime = $('#sentence_' + subtitleCurrent).attr('endTime');
+		player.currentTime(sentenceStartTime);
+		player.on('timeupdate', function() {
+			if (player.currentTime() >= sentenceEndTime) {
+				player.currentTime(sentenceStartTime);
+			}
+		});
+		player.play();
+	}
+}
 
 function onScrollStop(e) {
 	if (subtitleCount > 0) {
@@ -146,6 +246,8 @@ function onScrollStop(e) {
 					UIkit.Utils.scrollToElement(jq('#sentence_' + i), {
 						offset: top
 					});
+					
+					sentencePlay(i);
 				}
 				else {
 					// 向下对齐下一个
@@ -154,11 +256,14 @@ function onScrollStop(e) {
 							offset: top
 						});
 					}
+					
+					sentencePlay(i + 1);
 				}
 
 				break;
 			}
 			else if (align == x) {
+				subtitleCurrent = i;
 				break;
 			}
 		}
@@ -168,6 +273,7 @@ function onScrollStop(e) {
 // 监听滚动结束
 jq(window).bind('scrollstop', onScrollStop);
 
+//jq(".zhikai-player").on('click')
 </script>
 
 <!--{/block}-->
