@@ -1,6 +1,6 @@
 <!--{block file}-->
 <link href="source/plugin/zhikai_n5video/static/css/style.css" rel="stylesheet" />
-<link href="source/plugin/zhikai_n5video/uikit/css/uikit.min.css" rel="stylesheet" />
+<link href="source/plugin/zhikai_n5video/uikit/css/uikit.docs.min.css" rel="stylesheet" />
 <link href="source/plugin/zhikai_n5video/uikit/css/components/progress.css " rel="stylesheet" />
 <link rel="stylesheet" href="source/plugin/zhikai_n5video/video-js/video-js.min.css">
 
@@ -35,7 +35,9 @@
 }
 
 .sentence_wrap {
-	padding-top: 80px;
+	padding-top: 65px; /* 句子列表距顶部的距离 */
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
 .vidoe_wrap{
@@ -58,6 +60,23 @@
 }
 .video-js .vjs-remaining-time {
     display: none;
+}
+
+.sentence-play-button, .sentence-record-button{
+	color: white;
+	width: 48px;
+	height: 48px;
+	font-size: 22px;
+	border-radius: 50%;
+}
+
+.uk-panel-title {
+    margin-bottom: 6px;
+}
+
+.uk-article-divider {
+    margin-top: 6px;
+    margin-bottom: 6px;
 }
 </style>
 
@@ -117,6 +136,8 @@ player.on("ready", function(){
 	transTrack.mode = 'showing';
 });
 
+
+
 player.on("canplay", function(){
 	
 	if (!subtitleInit) {
@@ -131,16 +152,49 @@ player.on("canplay", function(){
 			for (var i = 0; i < subtitleCount; i++) {
 				var cue = origTrack.cues[i];
 
-				var dom = '<div class="n5sq_fbbt cl" id="sentence_' + i +
-					'" startTime="' + cue.startTime +
-					'" endTime="' + cue.endTime + '">' +
-					'<b>' + (i + 1) + '/' + subtitleCount + '</b><br> ' +
-					cue.text;
+				var dom ='<div class="uk-grid data-uk-grid-margin uk-grid-small">'
+					+	'<div class="uk-width-1-1 uk-row-first">'
+					+		'<div class="uk-panel uk-panel-box" id="sentence_' + i + '" startTime="' + cue.startTime + '" endTime="' + cue.endTime + '">'
+					+			'<div class="uk-panel-badge uk-badge">Hot</div>'
+					+			'<h3 class="uk-panel-title">' + (i + 1) + '/' + subtitleCount + '</h3>'
+					+			'<p style="color:black;">' + cue.text + '</b></p>';
 
 				// 译文
 				if (transTrack && transTrack.cues && transTrack.cues[i]) {
-					dom += '<br/>' + transTrack.cues[i].text;
+					dom +=		'<p>' + transTrack.cues[i].text + '</p>';
 				}
+				dom +=			'<hr class="uk-article-divider">';
+				dom +=			'<div class="uk-grid uk-grid-small">';
+				dom +=				'<div class="uk-width-3-6 uk-vertical-align">';
+				dom +=					'<div class="uk-panel uk-width-1-1 uk-vertical-align-middle">';
+				dom +=						'<div class="uk-progress uk-progress-mini">';
+				dom +=							'<div class="uk-progress-bar" style="width: 40%;"></div>';
+				dom +=						'</div>';
+				dom +=					'</div>';
+				dom +=				'</div>';
+				dom +=				'<div class="uk-width-1-6 uk-vertical-align">';
+				dom +=					'<div class="uk-panel uk-vertical-align-middle">';
+				dom +=						Math.floor((cue.endTime - cue.startTime) * 100) / 100  + 's';
+				dom +=					'</div>';
+				dom +=				'</div>';
+				dom +=				'<div class="uk-width-1-6">';
+				dom +=					'<div class="uk-panel">';
+				dom +=						'<button class="uk-button uk-button-success sentence-play-button" type="button" style="display: none;">';
+				dom +=							'<i class="uk-icon-play"></i>';
+				dom +=						'</button>';
+				dom +=					'</div>';
+				dom +=				'</div>';
+				dom +=				'<div class="uk-width-1-6">';
+				dom +=					'<div class="uk-panel">';
+				dom +=						'<button id="record_btn_' + i + '" class="uk-button uk-button-success sentence-record-button" type="button"' + (i == 0 ? '>' : ' disabled>');
+				dom +=							'<i class="uk-icon-microphone"></i>';
+				dom +=						'</button>';
+				dom +=					'</div>';
+				dom +=				'</div>';
+				dom +=			'</div>';
+
+				dom +=		'</div>';
+				dom +=	'</div>';
 				dom += '</div>';
 
 				jq('#sutitle_list').append(dom);
@@ -149,7 +203,7 @@ player.on("canplay", function(){
 		
 		//origTrack.mode = 'hidden';
 		//transTrack.mode = 'hidden';
-		
+
 		// 定位于列表开始
 		UIkit.Utils.scrollToElement(jq('#sentence_0'), {
 			offset: $('#sentence_0').offset().top
@@ -214,7 +268,11 @@ player.on("userinactive", function(){
 // 设置播放区间到句子的范围内。
 function sentencePlay(index) {
 	if (index != subtitleCurrent) {
+		
+		// 使能当前句子的录音按钮。
+		$('#record_btn_' + subtitleCurrent).attr('disabled', '1');
 		subtitleCurrent = index;
+		$('#record_btn_' + subtitleCurrent).removeAttr('disabled');
 
 		sentenceStartTime = $('#sentence_' + subtitleCurrent).attr('startTime');
 		sentenceEndTime = $('#sentence_' + subtitleCurrent).attr('endTime');
@@ -273,7 +331,6 @@ function onScrollStop(e) {
 // 监听滚动结束
 jq(window).bind('scrollstop', onScrollStop);
 
-//jq(".zhikai-player").on('click')
 </script>
 
 <!--{/block}-->
