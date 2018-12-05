@@ -9,6 +9,8 @@
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.scroll.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/mp3-recorder/recorder.js"></script>
+
 
 <style>
 ::cue {
@@ -127,6 +129,8 @@ var subtitleCurrent = -1;
 var sentenceStartTime = 0;
 var sentenceEndTime = 0;
 
+var recordPlayer;
+
 player.on("ready", function(){
 	var origTrack = player.textTracks().getTrackById("original");
 	var transTrack = player.textTracks().getTrackById("translation");
@@ -168,7 +172,7 @@ player.on("canplay", function(){
 				dom +=				'<div class="uk-width-3-6 uk-vertical-align">';
 				dom +=					'<div class="uk-panel uk-width-1-1 uk-vertical-align-middle">';
 				dom +=						'<div class="uk-progress uk-progress-mini">';
-				dom +=							'<div class="uk-progress-bar" style="width: 40%;"></div>';
+				dom +=							'<div id="record_progress_' + i + '" class="uk-progress-bar" style="width: 0%;"></div>';
 				dom +=						'</div>';
 				dom +=					'</div>';
 				dom +=				'</div>';
@@ -179,7 +183,7 @@ player.on("canplay", function(){
 				dom +=				'</div>';
 				dom +=				'<div class="uk-width-1-6">';
 				dom +=					'<div class="uk-panel">';
-				dom +=						'<button class="uk-button uk-button-success sentence-play-button" type="button" style="display: none;">';
+				dom +=						'<button id="play_btn_' + i + '" class="uk-button uk-button-success sentence-play-button" type="button" style="display: none;">';
 				dom +=							'<i class="uk-icon-play"></i>';
 				dom +=						'</button>';
 				dom +=					'</div>';
@@ -191,6 +195,8 @@ player.on("canplay", function(){
 				dom +=						'</button>';
 				dom +=					'</div>';
 				dom +=				'</div>';
+				dom +=				'<div id="audio_data_' + i + '" style="display: none;">'; // 在里存放录音的声音。
+				dom +=				'</div>';
 				dom +=			'</div>';
 
 				dom +=		'</div>';
@@ -198,6 +204,12 @@ player.on("canplay", function(){
 				dom += '</div>';
 
 				jq('#sutitle_list').append(dom);
+
+				// 设置句子的播放和录音回调。
+				jq('#play_btn_' + i).click({index: i}, onPlayBtnClick);
+				jq('#record_btn_' + i).click({index: i, duration: (cue.endTime - cue.startTime) * 1.2 + 1}, onRecordBtnClick);
+				
+
 			}
 		}
 		
@@ -330,6 +342,128 @@ function onScrollStop(e) {
 
 // 监听滚动结束
 jq(window).bind('scrollstop', onScrollStop);
+
+////////////////////////////////////////////////////////////////
+// 录音
+
+//唯一影响mp3文件大小的参数为 bitRate
+//sampleRate 仅供特殊需求的人使用
+var recorder = new MP3Recorder({
+	WORKER_PATH: 'source/plugin/zhikai_n5video/mp3-recorder/recorder-worker.js',
+	//numChannels: 1,     //声道数,默认为1
+	//sampleRate: 8000,   //采样率,一般由设备提供,比如 48000
+	bitRate: 64,        //比特率,不要低于64,否则可能录制无声音（人声）
+
+	//录音结束事件
+	complete: function (data, type) {
+		var blob = new Blob(data, { type: type }),
+			url = URL.createObjectURL(blob),
+			mp3Name = 'recording_' + Date.now() + '.mp3';
+
+		// 保存句子声音数据
+		jq('#audio_data_' + subtitleCurrent).html('').
+			append('<a href="' + url + '" download="' + mp3Name + '">' + mp3Name + '</a>').
+			append('<audio controls src="' + url + '" id="record_audio_' + subtitleCurrent + '"></audio>');
+		
+		// 显示句子播放按钮
+		jq('#play_btn_' + subtitleCurrent).css('display', 'inline-block');
+
+		// 让视频静音播放。
+		player.currentTime(sentenceStartTime);
+		player.muted(true);
+		player.userActive(false);
+
+		// 播放用户的录音。
+		recordPlayer = jq('#record_audio_' + subtitleCurrent)[0]; // 将jquery对象转换成js对象
+		recordPlayer.play(); 
+	}
+});
+
+var isRecordStart = false;
+var recordTimer;
+
+// 录音时间到结束录音
+function stopRecordTimer(index) {
+	//停止录音
+	recorder.stop();
+	if (recordTimer) clearInterval(recordTimer);
+	isRecordStart = false;
+
+	// 进度条动画结束
+	jq('#record_progress_' + index).css('transition', 'width 0s');
+	jq('#record_progress_' + index).css('width', '100%');
+
+}
+
+//更新按钮
+function updateButton() {
+}
+
+//输出错误信息
+function writeError(msg) {
+	//elAudio.innerHTML = msg;
+	console.log(msg);
+}
+
+if (!recorder.support) writeError("您的浏览器不支持HTML5录音！");
+
+function onRecordBtnClick(event) {
+	if (!recorder.support) return;
+
+	if (!isRecordStart) {
+		// 让视频静音播放。
+		player.currentTime(sentenceStartTime);
+		player.muted(true);
+		player.userActive(false);
+
+		//开始录音
+		recorder.start(function () {
+			isRecordStart = true;
+			
+			// 定时结束录音
+			recordTimer = setInterval('stopRecordTimer(' + event.data.index + ')', event.data.duration * 1000);
+			
+			// 进度条动画开始，从0%-100%。
+			jq('#record_progress_' + event.data.index).css('transition', 'width 0s');
+			jq('#record_progress_' + event.data.index).css('width', '0%');
+			setTimeout(function(){
+				jq('#record_progress_' + subtitleCurrent).css('transition', 'width ' + event.data.duration + 's linear');
+				jq('#record_progress_' + subtitleCurrent).css('width', '99.99%');
+			}, 200);
+
+		}, function (e) {
+			switch (e.code || e.name) {
+				case 'PERMISSION_DENIED':
+				case 'PermissionDeniedError':
+					writeError('用户拒绝提供设备。');
+					break;
+				case 'NOT_SUPPORTED_ERROR':
+				case 'NotSupportedError':
+					writeError('浏览器不支持硬件设备。');
+					break;
+				case 'MANDATORY_UNSATISFIED_ERROR':
+				case 'MandatoryUnsatisfiedError':
+					writeError('无法发现指定的硬件设备。');
+					break;
+				default:
+					writeError('无法打开麦克风。异常信息:' + (e.code || e.name));
+					break;
+			}
+		});
+	} else {
+		//停止录音
+		stopRecordTimer(event.data.index);
+	}
+}
+
+function playUserRecord(index) {
+}
+
+function onPlayBtnClick(event) {
+	// 播放用户的录音。
+	recordPlayer = jq('#record_audio_' + event.data.index)[0]; // 将jquery对象转换成js对象
+	recordPlayer.play(); 
+}
 
 </script>
 
