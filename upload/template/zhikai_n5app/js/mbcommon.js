@@ -735,6 +735,7 @@ var geo = {
 	}
 };
 
+// 下拉刷新
 var pullrefresh = {
 	init : function() {
 		var pos = {};
@@ -805,8 +806,11 @@ var pullrefresh = {
 					return;
 				}
 			}
-			divobj.remove();
-			divobj = null;
+
+			if (divobj != null) { 
+				divobj.remove();
+				divobj = null;
+			}
 			status = false;
 			pos = {};
 		});
