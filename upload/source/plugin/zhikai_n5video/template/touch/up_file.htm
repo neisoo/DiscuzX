@@ -1,6 +1,6 @@
 <!--{block file}-->
 <link href="source/plugin/zhikai_n5video/static/css/style.css" rel="stylesheet" />
-<link href="source/plugin/zhikai_n5video/uikit/css/uikit.min.css" rel="stylesheet" />
+<link href="source/plugin/zhikai_n5video/uikit/css/uikit.docs.min.css" rel="stylesheet" />
 <link href="source/plugin/zhikai_n5video/uikit/css/components/progress.css " rel="stylesheet" />
 <link rel="stylesheet" href="source/plugin/zhikai_n5video/video-js/video-js.min.css">
 
@@ -12,7 +12,9 @@
 <div id="setting">
 	<div class="n5sq_fbbt cl">
 		<div class="fbbt_btbt z" id="video_title">{lang zhikai_n5video:lang_063}</div>
-		<div class="fbbt_btxx z" id="video_fname"></div>
+		<div class="fbbt_btxx z" id="video_fname">
+			<input type="text" value="" placeholder="{lang zhikai_n5video:lang_071}" class="txt">
+		</div>
 		<div class="fbbt_btaj y">
 			<div class="btn y" id="video_btn">{lang zhikai_n5video:lang_020}</div>
 		</div>
@@ -27,7 +29,9 @@
 
 	<div class="n5sq_fbbt cl">
 		<div class="fbbt_btbt z">{lang zhikai_n5video:lang_065}</div>
-		<div class="fbbt_btxx z" id="subtitle_filename"></div>
+		<div class="fbbt_btxx z" id="subtitle_filename">
+			<input type="text" value="" placeholder="{lang zhikai_n5video:lang_071}" class="txt">
+		</div>
 		<div class="fbbt_btaj y">
 			<div class="btn y" id="subtitle_upload" >{lang zhikai_n5video:lang_020}</div>
 		</div>
@@ -50,6 +54,20 @@
 		</div>
 	</div>
 	<div class="uk-progress" id="tsubtitle_progress" style="display: none;">
+		<div class="uk-progress-bar" style="width: 40%;">40%</div>
+	</div>
+
+	<div class="n5sq_fbbt cl">
+		<div class="fbbt_btbt z">{lang zhikai_n5video:lang_070}</div>
+		<div class="fbbt_btxx z" id="accompany_filename"></div>
+		<div class="fbbt_btaj y">
+			<div class="btn y" id="accompany_upload" >{lang zhikai_n5video:lang_020}</div>
+		</div>
+		<input  class="fbbt_btwj" type="file" value="" aid="" id="accompany_file">
+		<div id="accompany_data" style="display:none">
+		</div>
+	</div>
+	<div class="uk-progress" id="accompany_progress" style="display: none;">
 		<div class="uk-progress-bar" style="width: 40%;">40%</div>
 	</div>
 
@@ -231,9 +249,12 @@
 				jq('#needmessage').val('[attach]'
 					+ (attachInfo['video'] + ',')
 					+ ((attachInfo['subtitle'] ? attachInfo['subtitle'] : '') + ',')
-					+ ((attachInfo['tsubtitle'] ? attachInfo['tsubtitle'] : '') +'[/attach]'));
+					+ ((attachInfo['tsubtitle'] ? attachInfo['tsubtitle'] : '') + ',')
+					+ ((attachInfo['accompany'] ? attachInfo['accompany'] : '') +'[/attach]'));
 
-				// 附件提交的表单数据
+				// 附件提交的表单数据，表单中至少有一个attachnew['附件ID'][xxx]的表单项，
+				// 提交后附件ID对应的附件才会被视为已使用附件。
+				// 表单项的内容只是简单的填充一个字符串，暂时未使用。
 				var Dom = '<input type="text" value="' + userData['prefix'] + '" name="attachnew['+ arr[2] +'][description]"/>';
 				$('#' + prefix + '_data').html('').append(Dom);
 
@@ -267,6 +288,14 @@
 		}
 		return false;
 	}
+
+	// 初始化伴奏音频上传按钮。
+	jq('#accompany_file').shardUpload({
+		uploadUrl: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
+		progressCallback: progressCallback,
+		stepCallback: stepCallback,
+		userData: {prefix: 'accompany'}
+	}).init();
 
 	// 初始化原文字幕上传按钮。
 	jq('#subtitle_file').shardUpload({

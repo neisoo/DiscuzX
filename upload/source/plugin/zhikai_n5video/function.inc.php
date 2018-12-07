@@ -141,7 +141,7 @@ function noattach_replace($postlist, $isforumdisplay = FALSE)
     $video = explode('|', $config['video_bmp']);
     $voice = explode('|', $config['voice_bmp']);
     $post = DB::fetch_first('SELECT message FROM %t WHERE tid=%d and pid=%d and fid=%d ', array(0 => 'forum_post', 1 => $tid, 2 => $pid, 3 => $fid));
-    preg_match_all('/\\[attach(.*?)\\](\\d+,\\d+,\\d*)\\[\\/attach\\]/i', $post['message'], $mat);
+    preg_match_all('/\\[attach(.*?)\\](\\d+,\\d+,\\d*,\\d*)\\[\\/attach\\]/i', $post['message'], $mat);
     $mat = explode(',', $mat[2][0]);
 
     $aidtb = getattachtablebytid($tid);
@@ -416,7 +416,7 @@ function forumdisplay_replace($message, $tid = null, $pid = null, $fid = null)
         }
     }
     if (strexists($message, '[/attach]') !== false) {
-        if (preg_match_all('/\\[attach\\](\\d+,\\d+,\\d*)\\[\\/attach\\]/is', $message, $matc)) {
+        if (preg_match_all('/\\[attach\\](\\d+,\\d+,\\d*,\\d*)\\[\\/attach\\]/is', $message, $matc)) {
             array_unique($matc[1]);
             foreach (array_unique($matc[1]) as $val) {
                 if (!empty($val)) {
@@ -464,7 +464,7 @@ function reply_replace($tid)
     $post = DB::fetch_first('SELECT message FROM %t WHERE tid=%d ', array(0 => 'forum_post', 1 => $tid));
     $message = $post['message'];
     if (strexists($message, '[/attach]') !== false) {
-        if (preg_match_all('/\\[attach\\](\\d+,\\d+,\\d*)\\[\\/attach\\]/is', $message, $mat)) {
+        if (preg_match_all('/\\[attach\\](\\d+,\\d+,\\d*,\\d*)\\[\\/attach\\]/is', $message, $mat)) {
             $ids = explode(',', $mat[1][0]);
             $aid = $ids[0];
 
@@ -472,19 +472,30 @@ function reply_replace($tid)
             if ($aidtb == 'forum_attachment_unused') {
                 return null;
             }
+
+            // 封面
             $attachlist = DB::fetch_all('SELECT readperm,price,attachment,filename,remote,dateline,filesize FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $aid));
             $furl = DB::result_first('SELECT furl FROM %t WHERE faid=%d', array(0 => 'zhikai_vdocover', 1 => $aid));
 
+            // 原文
             $surl = null;
             if (isset($ids[1])) {
                 $saidtb = getattachtablebyaid($ids[1]);
                 $surl = DB::result_first('SELECT attachment FROM %t WHERE aid=%d', array(0 => $saidtb, 1 => $ids[1]));
             }
 
+            // 译文
             $turl = null;
             if (isset($ids[2])) {
                 $taidtb = getattachtablebyaid($ids[2]);
                 $turl = DB::result_first('SELECT attachment FROM %t WHERE aid=%d', array(0 => $taidtb, 1 => $ids[2]));
+            }
+
+            // 伴奏
+            $aurl = null;
+            if (isset($ids[3])) {
+                $taidtb = getattachtablebyaid($ids[3]);
+                $aurl = DB::result_first('SELECT attachment FROM %t WHERE aid=%d', array(0 => $taidtb, 1 => $ids[3]));
             }
 
             require_once libfile('function/attachment');
@@ -499,11 +510,15 @@ function reply_replace($tid)
                     if ($turl != null) {
                         $turl = $attachurl . $turl;
                     }
+                    if ($aurl != null) {
+                        $aurl = $attachurl . $aurl;
+                    }
                     
                     $attachInfo['video'] = $attachurl . $attach['attachment'];
                     $attachInfo['cover'] = $furl;
                     $attachInfo['subtitle'] = $surl;
                     $attachInfo['tsubtitle'] = $turl;
+                    $attachInfo['accompany'] = $aurl;
                     return $attachInfo;
                 }
             }

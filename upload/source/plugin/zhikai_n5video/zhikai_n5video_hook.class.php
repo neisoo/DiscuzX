@@ -69,7 +69,7 @@ class plugin_zhikai_n5video {
 					$_G['discuzcodemessage'] = preg_replace_callback("/\[audio(=1)*\]\s*([^\[\<\r\n]+?)\s*\[\/audio\]/is","audio_replace",$_G['discuzcodemessage']);
 				}
 				if(strexists($_G['discuzcodemessage'],'[/attach]') !== FALSE){
-					$_G['discuzcodemessage'] = preg_replace_callback("/\[attach(.*?)\](\d+,\d+,\d*)\[\/attach\]/i","attach_replace",$_G['discuzcodemessage']);
+					$_G['discuzcodemessage'] = preg_replace_callback("/\[attach(.*?)\](\d+,\d+,\d*,\d*)\[\/attach\]/i","attach_replace",$_G['discuzcodemessage']);
 				}
 				if($config['img_parse'] && checkmobile()){
 					preg_match_all("/\[img(.*?)\](.*?)\[\/img\]/", $param['param'][0], $match);
