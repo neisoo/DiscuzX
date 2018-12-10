@@ -239,6 +239,13 @@ player.on("canplay", function(){
 		});
 
 		sentencePlay(0);
+		
+		// 监听触屏拖动。
+		dragSwitchSentence.init();
+
+		// 监听滚动结束。
+		jq(window).bind('scrollstop', onScrollStop);
+
 	}
 });
 
@@ -284,49 +291,67 @@ player.userActive(false);
 player.on("useractive", onUserActive);
 player.on("userinactive", onUserActive);
 
-// 设置播放区间到句子的范围内。
+// 停止录音或录音回放。
+function stopRecordOrPlay()
+{
+	if (playStatus == 1) {
+		// 停止播放视频和录音。
+		onStopRecord();
+	}
+	else if (playStatus == 2) {
+		// 录音回放完毕，停止播放。
+		player.pause();
+
+		jq(".vjs-big-play-button").css("display","block");
+		jq(".vjs-control-bar").css("opacity","1");
+
+		if (accompanyPlayer != null) {
+			accompanyPlayer.pause();
+		}
+		if (recordPlayer != null) {
+			recordPlayer.pause();
+		}
+		playStatus = 0;
+	}
+}
+
+// 限制视频播放区间。
+player.on('timeupdate', function() {
+	if (player.currentTime() >= sentenceEndTime) {
+		player.currentTime(sentenceStartTime);
+		stopRecordOrPlay();
+	}
+});
+
+// 设置播放区间到句子的时间范围内。
 function sentencePlay(index) {
+	console.log("sentencePlay:", index);
+
 	if (index != subtitleCurrent) {
-		
-		// 使能当前句子的录音按钮。
+		// 禁用之前句子的录音按钮，并使能当前句子的录音按钮。
 		$('#record_btn_' + subtitleCurrent).attr('disabled', '1');
 		subtitleCurrent = index;
 		$('#record_btn_' + subtitleCurrent).removeAttr('disabled');
 
+		// 播放视频
 		sentenceStartTime = $('#sentence_' + subtitleCurrent).attr('startTime');
 		sentenceEndTime = $('#sentence_' + subtitleCurrent).attr('endTime');
 		player.currentTime(sentenceStartTime);
-		player.on('timeupdate', function() {
-			if (player.currentTime() >= sentenceEndTime) {
-				player.currentTime(sentenceStartTime);
-
-				if (playStatus == 1) {
-					// 录音完毕，停止播放视频和录音。
-					onStopRecord();
-				}
-				else if (playStatus == 2) {
-					// 录音回放完毕，停止播放。
-					player.pause();
-
-					jq(".vjs-big-play-button").css("display","block");
-					jq(".vjs-control-bar").css("opacity","1");
-
-					if (accompanyPlayer != null) {
-						accompanyPlayer.pause();
-					}
-					if (recordPlayer != null) {
-						recordPlayer.pause();
-					}
-					playStatus = 0;
-				}
-			}
-		});
+		player.muted(false);
 		player.play();
+		jq(".vjs-big-play-button").css("display","none");
+		jq(".vjs-control-bar").css("opacity","0");
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////////////
+// 句子列表滚动
+
+// 句子列表滚动结束后进行对齐和切换当前句子。
 function onScrollStop(e) {
-	if (subtitleCount > 0) {
+	console.log('onScrollStop');
+
+	if (!dragSwitchSentence.isInTouch && subtitleCount > 0) {
 		var x, h;
 		var i;
 		var top = $('#sentence_0').offset().top;
@@ -336,7 +361,7 @@ function onScrollStop(e) {
 			x = $('#sentence_' + i).offset().top;
 			h = $('#sentence_' + i).outerHeight();
 
-			if (align > x && align <= (x + h)) {
+			if (align >= x && align < (x + h)) {
 
 				if (align <= x + h / 2) {
 					// 向上对齐当前
@@ -363,8 +388,54 @@ function onScrollStop(e) {
 	}
 }
 
-// 监听滚动结束
-jq(window).bind('scrollstop', onScrollStop);
+// 监听触屏：结束拖动名子列表时，切换句子。
+var dragSwitchSentence = {
+	isInTouch : false,
+
+	init : function() {
+		var pos = {};
+		var status = false;
+		var _self = this;
+
+		$('body').on('touchstart', function(e) {
+			//console.log('touchstart');
+
+			e = mygetnativeevent(e);
+			pos.startx = e.touches[0].clientX;
+			pos.starty = e.touches[0].clientY;
+			_self.isInTouch = true;
+		})
+		.on('touchmove', function(e) {
+			//console.log('touchmove');
+
+			e = mygetnativeevent(e);
+			pos.curposx = e.touches[0].clientX;
+			pos.curposy = e.touches[0].clientY;
+
+			// 垂直方向移动距离超过50，确认开始滚动。
+			var pullheight = pos.curposy - pos.starty;
+			if (!status && Math.abs(pullheight) > 50) {
+				status = true;
+
+				// 拖动开始，停止录音和录音回放。
+				stopRecordOrPlay();
+			}
+		})
+		.on('touchend', function(e) {
+			//console.log('touchend');
+
+			_self.isInTouch = false;
+
+			// 拖动结束，准备切换句子。
+			if (pos.curposy != pos.starty){
+				onScrollStop();
+			}
+
+			status = false;
+			pos = {};
+		});
+	}
+};
 
 ////////////////////////////////////////////////////////////////
 // 录音
