@@ -98,6 +98,7 @@
 <!--{if $attachInfo['accompany'] != null}-->
 <audio id="accompany" src="{$attachInfo[accompany]}"></audio>
 <!--{/if}--> 
+<audio id="startRecordSnd" src="source/plugin/zhikai_n5video/di.ogg"></audio>
 
 <script type="text/javascript">
 var jq = jQuery.noConflict();
@@ -121,10 +122,11 @@ var videoOptions = {
 	},
 	// 禁用自带来的bigPlayButton。
 	children: ['mediaLoader', 'posterImage', 'textTrackDisplay', 'loadingSpinner', /*'bigPlayButton',*/ 'controlBar', 'errorDisplay', 'textTrackSettings', 'resizeManager', 'audioTrackButton'],
-	inactivityTimeout: 10000, // 不要自动inactive.
+	inactivityTimeout: -1, // 不要超时inactive.
 	
 };
 
+var startRecordSnd = jq('#startRecordSnd')[0]; // 录音开始提示音。
 var player = videojs('video_{$_G[tid]}', videoOptions);
 var subtitleInit = false;
 var subtitleCount = 0;
@@ -132,15 +134,27 @@ var subtitleCurrent = -1;
 var sentenceStartTime = 0;
 var sentenceEndTime = 0;
 
-var recordPlayer;
+var recordPlayer = null;
+var accompanyPlayer = null;
+if (jq('#accompany').length > 0) {
+	accompanyPlayer = jq('#accompany')[0];
+}
+
+
+var playStatus = 0; // =0原音播放或暂停中，=1用户录音中，=2回放用户录音中
 
 player.on("ready", function(){
 	var origTrack = player.textTracks().getTrackById("original");
 	var transTrack = player.textTracks().getTrackById("translation");
 
 	// 强制加载所有的字幕。
-	origTrack.mode = 'showing';
-	transTrack.mode = 'showing';
+	if (origTrack != null) {
+		origTrack.mode = 'showing';
+	}
+	
+	if (transTrack != null) {
+		transTrack.mode = 'showing';
+	}
 });
 
 
@@ -209,8 +223,8 @@ player.on("canplay", function(){
 				jq('#sutitle_list').append(dom);
 
 				// 设置句子的播放和录音回调。
-				jq('#play_btn_' + i).click({index: i, startTime: cue.startTime, endTime: cue.endTime}, onPlayBtnClick);
-				jq('#record_btn_' + i).click({index: i, duration: (cue.endTime - cue.startTime)}, onRecordBtnClick);
+				jq('#play_btn_' + i).click(onPlayBtnClick);
+				jq('#record_btn_' + i).click(onRecordBtnClick);
 				
 
 			}
@@ -228,59 +242,47 @@ player.on("canplay", function(){
 	}
 });
 
-// 使用自己的大播放按钮。
+// 使用自己的大播放按钮，点击时暂停和播放视频。
 function dummyBigPlayBtnPlugin(options) {        
 	var playBtn = document.createElement('div');
 	playBtn.className = 'vjs-big-play-button';
 	playBtn.innerHTML = '<span aria-hidden="true" class="vjs-icon-placeholder"></span><span class="vjs-control-text" aria-live="polite">Play Video</span>';
 	player.el().appendChild(playBtn);
 	playBtn.onclick = function () {
-		//恢复播放并隐藏大播放按钮和控制条
-		player.userActive(false);
-		player.play();
-		jq(".vjs-big-play-button").css("display","none");
-		jq(".vjs-control-bar").css("opacity","0");
+		onUserActive();
 	};
 
 };
 videojs.plugin('dummyBigPlayBtnPlugin', dummyBigPlayBtnPlugin);
 player.dummyBigPlayBtnPlugin({});    
-player.userActive(false);
+
 
 // 点击视频时，暂停和播放视频。
-player.on("useractive", function(){
-	console.log("useractive");
-	if (jq(".vjs-big-play-button").css("display") == "block") {
-		//恢复播放并隐藏大播放按钮和控制条
-		player.muted(false);
-		player.play();
-		jq(".vjs-big-play-button").css("display","none");
-		jq(".vjs-control-bar").css("opacity","0");
-	}
-	else {
-		//点击屏幕后暂停并显示大播放按钮和控制条
-		player.pause();
-		jq(".vjs-big-play-button").css("display","block");
-		jq(".vjs-control-bar").css("opacity","1");
-	}
-});
+function onUserActive() {
+	if (playStatus == 0) {
+		if (jq(".vjs-big-play-button").css("display") == "block") {
+			console.log("userinactive");
 
-player.on("userinactive", function(){
-	console.log("userinactive");
-	if (jq(".vjs-big-play-button").css("display") == "block") {
-		//恢复播放并隐藏大播放按钮和控制条
-		player.muted(false);
-		player.play();
-		jq(".vjs-big-play-button").css("display","none");
-		jq(".vjs-control-bar").css("opacity","0");
+			//恢复播放并隐藏大播放按钮和控制条
+			player.muted(false);
+			player.play();
+			jq(".vjs-big-play-button").css("display","none");
+			jq(".vjs-control-bar").css("opacity","0");
+		}
+		else {
+			console.log("useractive");
+
+			//点击屏幕后暂停并显示大播放按钮和控制条
+			player.pause();
+			jq(".vjs-big-play-button").css("display","block");
+			jq(".vjs-control-bar").css("opacity","1");
+		}
 	}
-	else {
-		//点击屏幕后暂停并显示大播放按钮和控制条
-		player.pause();
-		jq(".vjs-big-play-button").css("display","block");
-		jq(".vjs-control-bar").css("opacity","1");
-	}
-});
+}
+
+player.userActive(false);
+player.on("useractive", onUserActive);
+player.on("userinactive", onUserActive);
 
 // 设置播放区间到句子的范围内。
 function sentencePlay(index) {
@@ -297,6 +299,26 @@ function sentencePlay(index) {
 		player.on('timeupdate', function() {
 			if (player.currentTime() >= sentenceEndTime) {
 				player.currentTime(sentenceStartTime);
+
+				if (playStatus == 1) {
+					// 录音完毕，停止播放视频和录音。
+					onStopRecord();
+				}
+				else if (playStatus == 2) {
+					// 录音回放完毕，停止播放。
+					player.pause();
+
+					jq(".vjs-big-play-button").css("display","block");
+					jq(".vjs-control-bar").css("opacity","1");
+
+					if (accompanyPlayer != null) {
+						accompanyPlayer.pause();
+					}
+					if (recordPlayer != null) {
+						recordPlayer.pause();
+					}
+					playStatus = 0;
+				}
 			}
 		});
 		player.play();
@@ -377,24 +399,17 @@ var recorder = new MP3Recorder({
 });
 
 var isRecordStart = false;
-var recordTimer;
-var playTimer;
 
 // 录音时间到结束录音
-function stopRecordTimer(index) {
-	//停止录音
+function onStopRecord() {
+	//停止录音，触发complete()。
 	recorder.stop();
-	if (recordTimer) clearInterval(recordTimer);
 	isRecordStart = false;
 
 	// 进度条动画结束
-	jq('#record_progress_' + index).css('transition', 'width 0s');
-	jq('#record_progress_' + index).css('width', '100%');
+	jq('#record_progress_' + subtitleCurrent).css('transition', 'width 0s');
+	jq('#record_progress_' + subtitleCurrent).css('width', '100%');
 
-}
-
-//更新按钮
-function updateButton() {
 }
 
 //输出错误信息
@@ -405,30 +420,15 @@ function writeError(msg) {
 
 if (!recorder.support) writeError("您的浏览器不支持HTML5录音！");
 
-function onRecordBtnClick(event) {
-	if (!recorder.support) return;
-
-	if (!isRecordStart) {
-		// 让视频静音播放。
-		player.currentTime(sentenceStartTime);
-		player.muted(true);
-		player.userActive(false);
-
-		//开始录音
+function onRecordStart() {
+	if (playStatus == 1) {
+		//提示音结束后开始录音和播放视频（已经静音）
 		recorder.start(function () {
-			isRecordStart = true;
-			
-			// 定时结束录音
-			recordTimer = setInterval('stopRecordTimer(' + event.data.index + ')', event.data.duration * 1000);
-			
-			// 进度条动画开始，从0%-100%。
-			jq('#record_progress_' + event.data.index).css('transition', 'width 0s');
-			jq('#record_progress_' + event.data.index).css('width', '0%');
-			setTimeout(function(){
-				jq('#record_progress_' + subtitleCurrent).css('transition', 'width ' + event.data.duration + 's linear');
-				jq('#record_progress_' + subtitleCurrent).css('width', '99.99%');
-			}, 200);
+			// 开始录音动画
+			jq('#record_progress_' + subtitleCurrent).css('transition', 'width ' + (sentenceEndTime - sentenceStartTime) + 's linear');
+			jq('#record_progress_' + subtitleCurrent).css('width', '99.99%');
 
+			player.play();
 		}, function (e) {
 			switch (e.code || e.name) {
 				case 'PERMISSION_DENIED':
@@ -448,46 +448,69 @@ function onRecordBtnClick(event) {
 					break;
 			}
 		});
+	}
+}
+startRecordSnd.addEventListener('ended', onRecordStart, false);
+
+// 当前句子录音按钮按下
+function onRecordBtnClick(event) {
+	if (!recorder.support) return;
+
+	if (!isRecordStart) {
+		isRecordStart = true;
+		playStatus = 1;
+
+		// 隐藏播放按钮。
+		jq('#play_btn_' + subtitleCurrent).css('display', 'none');
+
+		// 让视频静音播放。
+		player.currentTime(sentenceStartTime);
+		player.muted(true);
+		jq(".vjs-big-play-button").css("display","none");
+		jq(".vjs-control-bar").css("opacity","0");
+
+		// 停止伴奏。
+		if (accompanyPlayer != null) {
+			accompanyPlayer.pause();
+		}
+
+		// 复位录音进度条。
+		jq('#record_progress_' + subtitleCurrent).css('transition', 'width 0s');
+		jq('#record_progress_' + subtitleCurrent).css('width', '0%');
+
+		// 播放提示音,时长100ms。
+		startRecordSnd.play();
+		
 	} else {
 		//停止录音
-		stopRecordTimer(event.data.index);
+		onStopRecord();
 	}
 }
 
-
+// 当前句子录音回放按钮按下
 function onPlayBtnClick(event) {
-	var record = jq('#record_audio_' + event.data.index)[0]; // 将jquery对象转换成js对象
-	var accompany = null;
+	playStatus = 2;
 
-	// 让视频静音播放。
+	// 让视频静音播放，并隐藏大播放按钮和控制条
 	player.pause();
 	player.currentTime(sentenceStartTime);
 	player.muted(true);
+	jq(".vjs-big-play-button").css("display","none");
+	jq(".vjs-control-bar").css("opacity","0");
 
-	record.pause();
-	record.currentTime = 0;
-	if (playTimer) clearInterval(playTimer);
+	// 播放用户录音。
+	recordPlayer = jq('#record_audio_' + subtitleCurrent)[0]; // 将jquery对象转换成js对象
+	recordPlayer.pause();
+	recordPlayer.currentTime = 0;
 
 	// 重新播放伴奏和录音。
-	if (jq('#accompany').length > 0) {
-		var accompany = jq('#accompany')[0];
-		accompany.pause();
-		accompany.currentTime = event.data.startTime;
-		accompany.play();
+	if (accompanyPlayer != null) {
+		accompanyPlayer.pause();
+		accompanyPlayer.currentTime = sentenceStartTime;
+		accompanyPlayer.play();
 	}
-	record.play();
-	player.userActive(false);
-
-	// 时间到了，停止播放伴奏和录音。
-	playTimer = setInterval(function() {
-		record.pause();
-		if (accompany != null) {
-			accompany.pause();
-		}
-		player.userActive(true);
-		player.muted(false);
-
-	}, (event.data.endTime - event.data.startTime) * 1000);
+	recordPlayer.play();
+	player.play();
 }
 
 
