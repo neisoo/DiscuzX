@@ -11,7 +11,6 @@
 <script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/mp3-recorder/recorder.js"></script>
 
-
 <style>
 ::cue {
 	background: none;
@@ -37,7 +36,7 @@
 }
 
 .sentence_wrap {
-	padding-top: 65px; /* 句子列表距顶部的距离 */
+	padding-top: 100px; /* 句子列表距顶部的距离 */
 	padding-left: 10px;
 	padding-right: 10px;
 }
@@ -96,6 +95,9 @@
 </div>
 <div id="sutitle_list" class="sentence_wrap">
 </div>
+<!--{if $attachInfo['accompany'] != null}-->
+<audio id="accompany" src="{$attachInfo[accompany]}"></audio>
+<!--{/if}--> 
 
 <script type="text/javascript">
 var jq = jQuery.noConflict();
@@ -115,9 +117,10 @@ var videoOptions = {
 		chaptersButton: false,
 		descriptionsButton: false,
 		subsCapsButton: false,
+		AudioTrackButton: true,
 	},
 	// 禁用自带来的bigPlayButton。
-	children: ['mediaLoader', 'posterImage', 'textTrackDisplay', 'loadingSpinner', /*'bigPlayButton',*/ 'controlBar', 'errorDisplay', 'textTrackSettings', 'resizeManager'],
+	children: ['mediaLoader', 'posterImage', 'textTrackDisplay', 'loadingSpinner', /*'bigPlayButton',*/ 'controlBar', 'errorDisplay', 'textTrackSettings', 'resizeManager', 'audioTrackButton'],
 	inactivityTimeout: 10000, // 不要自动inactive.
 	
 };
@@ -206,8 +209,8 @@ player.on("canplay", function(){
 				jq('#sutitle_list').append(dom);
 
 				// 设置句子的播放和录音回调。
-				jq('#play_btn_' + i).click({index: i}, onPlayBtnClick);
-				jq('#record_btn_' + i).click({index: i, duration: (cue.endTime - cue.startTime) * 1.2 + 1}, onRecordBtnClick);
+				jq('#play_btn_' + i).click({index: i, startTime: cue.startTime, endTime: cue.endTime}, onPlayBtnClick);
+				jq('#record_btn_' + i).click({index: i, duration: (cue.endTime - cue.startTime)}, onRecordBtnClick);
 				
 
 			}
@@ -249,6 +252,7 @@ player.on("useractive", function(){
 	console.log("useractive");
 	if (jq(".vjs-big-play-button").css("display") == "block") {
 		//恢复播放并隐藏大播放按钮和控制条
+		player.muted(false);
 		player.play();
 		jq(".vjs-big-play-button").css("display","none");
 		jq(".vjs-control-bar").css("opacity","0");
@@ -265,6 +269,7 @@ player.on("userinactive", function(){
 	console.log("userinactive");
 	if (jq(".vjs-big-play-button").css("display") == "block") {
 		//恢复播放并隐藏大播放按钮和控制条
+		player.muted(false);
 		player.play();
 		jq(".vjs-big-play-button").css("display","none");
 		jq(".vjs-control-bar").css("opacity","0");
@@ -309,7 +314,7 @@ function onScrollStop(e) {
 			x = $('#sentence_' + i).offset().top;
 			h = $('#sentence_' + i).outerHeight();
 
-			if (align > x && align < (x + h)) {
+			if (align > x && align <= (x + h)) {
 
 				if (align <= x + h / 2) {
 					// 向上对齐当前
@@ -330,10 +335,6 @@ function onScrollStop(e) {
 					sentencePlay(i + 1);
 				}
 
-				break;
-			}
-			else if (align == x) {
-				subtitleCurrent = i;
 				break;
 			}
 		}
@@ -368,19 +369,16 @@ var recorder = new MP3Recorder({
 		// 显示句子播放按钮
 		jq('#play_btn_' + subtitleCurrent).css('display', 'inline-block');
 
-		// 让视频静音播放。
-		player.currentTime(sentenceStartTime);
-		player.muted(true);
-		player.userActive(false);
-
-		// 播放用户的录音。
-		recordPlayer = jq('#record_audio_' + subtitleCurrent)[0]; // 将jquery对象转换成js对象
-		recordPlayer.play(); 
+		// 录完后自动播放用户的录音。
+		var sentence = jq('#sentence_' + subtitleCurrent);
+		var event = {data: {index: subtitleCurrent, startTime: sentence.attr('startTime'), endTime: sentence.attr('endTime')}};
+		jq('#play_btn_' + subtitleCurrent).trigger('click', event);
 	}
 });
 
 var isRecordStart = false;
 var recordTimer;
+var playTimer;
 
 // 录音时间到结束录音
 function stopRecordTimer(index) {
@@ -456,15 +454,44 @@ function onRecordBtnClick(event) {
 	}
 }
 
-function playUserRecord(index) {
-}
 
 function onPlayBtnClick(event) {
-	// 播放用户的录音。
-	recordPlayer = jq('#record_audio_' + event.data.index)[0]; // 将jquery对象转换成js对象
-	recordPlayer.play(); 
+	var record = jq('#record_audio_' + event.data.index)[0]; // 将jquery对象转换成js对象
+	var accompany = null;
+
+	// 让视频静音播放。
+	player.pause();
+	player.currentTime(sentenceStartTime);
+	player.muted(true);
+
+	record.pause();
+	record.currentTime = 0;
+	if (playTimer) clearInterval(playTimer);
+
+	// 重新播放伴奏和录音。
+	if (jq('#accompany').length > 0) {
+		var accompany = jq('#accompany')[0];
+		accompany.pause();
+		accompany.currentTime = event.data.startTime;
+		accompany.play();
+	}
+	record.play();
+	player.userActive(false);
+
+	// 时间到了，停止播放伴奏和录音。
+	playTimer = setInterval(function() {
+		record.pause();
+		if (accompany != null) {
+			accompany.pause();
+		}
+		player.userActive(true);
+		player.muted(false);
+
+	}, (event.data.endTime - event.data.startTime) * 1000);
 }
 
+
 </script>
+
 
 <!--{/block}-->
