@@ -8,7 +8,7 @@
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.shardupload.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.scroll.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
-<script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/mp3-recorder/recorder.js"></script>
 
 <style>
@@ -250,13 +250,11 @@ function dummyBigPlayBtnPlugin(options) {
 	player.el().appendChild(playBtn);
 	playBtn.onclick = function (e) {
 		onUserActive();
+		player.userActivity_ = false;
 	};
-	
-
 };
 videojs.registerPlugin('dummyBigPlayBtnPlugin', dummyBigPlayBtnPlugin);
-player.dummyBigPlayBtnPlugin({});    
-
+player.dummyBigPlayBtnPlugin({});
 
 // 点击视频时，暂停和播放视频。
 function onUserActive() {
