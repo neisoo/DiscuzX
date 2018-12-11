@@ -8,7 +8,7 @@
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.shardupload.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.scroll.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
-<script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/mp3-recorder/recorder.js"></script>
 
 <style>
@@ -140,7 +140,6 @@ if (jq('#accompany').length > 0) {
 	accompanyPlayer = jq('#accompany')[0];
 }
 
-
 var playStatus = 0; // =0原音播放或暂停中，=1用户录音中，=2回放用户录音中
 
 player.on("ready", function(){
@@ -156,8 +155,6 @@ player.on("ready", function(){
 		transTrack.mode = 'showing';
 	}
 });
-
-
 
 player.on("canplay", function(){
 	
@@ -242,10 +239,6 @@ player.on("canplay", function(){
 		
 		// 监听触屏拖动。
 		dragSwitchSentence.init();
-
-		// 监听滚动结束。
-		jq(window).bind('scrollstop', onScrollStop);
-
 	}
 });
 
@@ -255,12 +248,13 @@ function dummyBigPlayBtnPlugin(options) {
 	playBtn.className = 'vjs-big-play-button';
 	playBtn.innerHTML = '<span aria-hidden="true" class="vjs-icon-placeholder"></span><span class="vjs-control-text" aria-live="polite">Play Video</span>';
 	player.el().appendChild(playBtn);
-	playBtn.onclick = function () {
+	playBtn.onclick = function (e) {
 		onUserActive();
 	};
+	
 
 };
-videojs.plugin('dummyBigPlayBtnPlugin', dummyBigPlayBtnPlugin);
+videojs.registerPlugin('dummyBigPlayBtnPlugin', dummyBigPlayBtnPlugin);
 player.dummyBigPlayBtnPlugin({});    
 
 
@@ -324,73 +318,58 @@ player.on('timeupdate', function() {
 });
 
 // 设置播放区间到句子的时间范围内。
+var sentenceTimer = null;
 function sentencePlay(index) {
-	console.log("sentencePlay:", index);
+	//console.log("sentencePlay:", index);
 
 	if (index != subtitleCurrent) {
-		// 禁用之前句子的录音按钮，并使能当前句子的录音按钮。
-		$('#record_btn_' + subtitleCurrent).attr('disabled', '1');
-		subtitleCurrent = index;
-		$('#record_btn_' + subtitleCurrent).removeAttr('disabled');
+		//console.log("sentence new:", index);
 
-		// 播放视频
-		sentenceStartTime = $('#sentence_' + subtitleCurrent).attr('startTime');
-		sentenceEndTime = $('#sentence_' + subtitleCurrent).attr('endTime');
-		player.currentTime(sentenceStartTime);
-		player.muted(false);
-		player.play();
-		jq(".vjs-big-play-button").css("display","none");
-		jq(".vjs-control-bar").css("opacity","0");
+		// 切换句子之前关闭录音和录音回放。
+		bPlayAfterRecord = false;
+		stopRecordOrPlay();
+
+		// 等待录音完成后，才能切换。因为保存录音是在一个后台work中，
+		// 不等待保存录音就切换，录音会保存到切换后的句子上。
+		// 使用定时器的方法来轮询录音状态，只在录音完成后，才执行真正的句子切换。
+		if (sentenceTimer != null) {
+			window.clearInterval(sentenceTimer);
+			sentenceTimer = null;
+		}
+		sentenceTimer = window.setInterval(function(){
+			if (!isRecordStart) {
+				//console.log("record has done.")
+				window.clearInterval(sentenceTimer);
+				sentenceTimer = null;
+				
+				// 禁用之前句子的录音按钮，并使能当前句子的录音按钮。
+				$('#record_btn_' + subtitleCurrent).attr('disabled', '1');
+				subtitleCurrent = index;
+				$('#record_btn_' + subtitleCurrent).removeAttr('disabled');
+
+				// 播放视频
+				sentenceStartTime = $('#sentence_' + subtitleCurrent).attr('startTime');
+				sentenceEndTime = $('#sentence_' + subtitleCurrent).attr('endTime');
+				player.currentTime(sentenceStartTime);
+				player.muted(false);
+				player.play();
+				jq(".vjs-big-play-button").css("display","none");
+				jq(".vjs-control-bar").css("opacity","0");
+			}
+			else {
+				//console.log("record hasn't done.")
+			}
+		}, 100);
 	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
 // 句子列表滚动
 
-// 句子列表滚动结束后进行对齐和切换当前句子。
-function onScrollStop(e) {
-	console.log('onScrollStop');
-
-	if (!dragSwitchSentence.isInTouch && subtitleCount > 0) {
-		var x, h;
-		var i;
-		var top = $('#sentence_0').offset().top;
-		var align = $(window).scrollTop() + top;
-
-		for (i = 0; i < subtitleCount; i++) {
-			x = $('#sentence_' + i).offset().top;
-			h = $('#sentence_' + i).outerHeight();
-
-			if (align >= x && align < (x + h)) {
-
-				if (align <= x + h / 2) {
-					// 向上对齐当前
-					UIkit.Utils.scrollToElement(jq('#sentence_' + i), {
-						offset: top
-					});
-					
-					sentencePlay(i);
-				}
-				else {
-					// 向下对齐下一个
-					if (i < (subtitleCount - 1)) {
-						UIkit.Utils.scrollToElement(jq('#sentence_' + (i + 1)), {
-							offset: top
-						});
-					}
-					
-					sentencePlay(i + 1);
-				}
-
-				break;
-			}
-		}
-	}
-}
-
 // 监听触屏：结束拖动名子列表时，切换句子。
 var dragSwitchSentence = {
 	isInTouch : false,
+	isInScroll : false,
 
 	init : function() {
 		var pos = {};
@@ -434,11 +413,81 @@ var dragSwitchSentence = {
 			status = false;
 			pos = {};
 		});
+
+		// 滚动结束事件处理
+		// 句子列表滚动结束后进行对齐和切换当前句子。
+		function onScrollStop(e) {
+			//console.log('onScrollStop');
+
+			if (dragSwitchSentence.isInScroll) {
+				dragSwitchSentence.isInScroll = false;
+			}
+
+			if (!dragSwitchSentence.isInTouch && subtitleCount > 0) {
+				var x, h;
+				var i;
+				var top = $('#sentence_0').offset().top;
+				var align = $(window).scrollTop() + top;
+
+				for (i = 0; i < subtitleCount; i++) {
+					x = $('#sentence_' + i).offset().top;
+					h = $('#sentence_' + i).outerHeight();
+
+					if (align >= x && align < (x + h)) {
+
+						if (align <= x + h / 2) {
+							// 向上对齐当前
+							UIkit.Utils.scrollToElement(jq('#sentence_' + i), {
+								offset: top
+							});
+							
+							sentencePlay(i);
+						}
+						else {
+							// 向下对齐下一个
+							if (i < (subtitleCount - 1)) {
+								UIkit.Utils.scrollToElement(jq('#sentence_' + (i + 1)), {
+									offset: top
+								});
+							}
+							
+							sentencePlay(i + 1);
+						}
+
+						break;
+					}
+				}
+			}
+		};
+
+		// 监听滚动事件，在滚动结束时处理。
+		var scrollTimer = null;
+		document.onscroll = function() {
+			//console.log('scroll');
+			if (dragSwitchSentence.isInTouch) {
+				return;
+			}
+			dragSwitchSentence.isInScroll = true;
+
+			if (scrollTimer != null){
+			   window.clearTimeout(scrollTimer);
+			}
+
+			window.canAutoScroll = false;
+			//500ms后，假定认为停止滚动
+			scrollTimer = window.setTimeout(function() {
+				dragSwitchSentence.isInScroll = false;
+				onScrollStop();
+			}, 500);
+		};
 	}
 };
 
 ////////////////////////////////////////////////////////////////
 // 录音
+var isRecordStart = false;
+var bPlayAfterRecord = false;
+var waitRecordStopTimer = null;
 
 //唯一影响mp3文件大小的参数为 bitRate
 //sampleRate 仅供特殊需求的人使用
@@ -450,42 +499,59 @@ var recorder = new MP3Recorder({
 
 	//录音结束事件
 	complete: function (data, type) {
-		var blob = new Blob(data, { type: type }),
-			url = URL.createObjectURL(blob),
-			mp3Name = 'recording_' + Date.now() + '.mp3';
+		var blob = new Blob(data, { type: type });
+		if (blob.size > 0) {
+			var url = URL.createObjectURL(blob);
+			var mp3Name = 'recording_' + Date.now() + '.mp3';
 
-		// 保存句子声音数据
-		jq('#audio_data_' + subtitleCurrent).html('').
-			append('<a href="' + url + '" download="' + mp3Name + '">' + mp3Name + '</a>').
-			append('<audio controls src="' + url + '" id="record_audio_' + subtitleCurrent + '"></audio>');
-		
-		// 显示句子播放按钮
-		jq('#play_btn_' + subtitleCurrent).css('display', 'inline-block');
+			// 保存句子声音数据
+			jq('#audio_data_' + subtitleCurrent).html('').
+				append('<a href="' + url + '" download="' + mp3Name + '">' + mp3Name + '</a>').
+				append('<audio controls src="' + url + '" id="record_audio_' + subtitleCurrent + '"></audio>');
 
-		// 录完后自动播放用户的录音。
-		var sentence = jq('#sentence_' + subtitleCurrent);
-		var event = {data: {index: subtitleCurrent, startTime: sentence.attr('startTime'), endTime: sentence.attr('endTime')}};
-		jq('#play_btn_' + subtitleCurrent).trigger('click', event);
+			// 显示句子播放按钮
+			jq('#play_btn_' + subtitleCurrent).css('display', 'inline-block');
+			
+			// 录音完成。
+			isRecordStart = false;
+
+			if (bPlayAfterRecord) {
+				// 录完后自动播放用户的录音。
+				var sentence = jq('#sentence_' + subtitleCurrent);
+				var event = {data: {index: subtitleCurrent, startTime: sentence.attr('startTime'), endTime: sentence.attr('endTime')}};
+				jq('#play_btn_' + subtitleCurrent).trigger('click', event);
+			}
+			else {
+				playStatus = 0;
+			}
+		}
+
+	},
+
+	error: function (data) {
+		console.log("encode error.");
 	}
 });
 
-var isRecordStart = false;
 
 // 录音时间到结束录音
 function onStopRecord() {
-	//停止录音，触发complete()。
-	recorder.stop();
-	isRecordStart = false;
+	if (isRecordStart) {
+		// 停止视频播放
+		player.pause();
 
-	// 进度条动画结束
-	jq('#record_progress_' + subtitleCurrent).css('transition', 'width 0s');
-	jq('#record_progress_' + subtitleCurrent).css('width', '100%');
+		//停止录音，触发complete()。
+		recorder.stop();
 
+		// 进度条动画在当前位置停止。
+		var elem = jq('#record_progress_' + subtitleCurrent);
+		elem.css('transition', 'width 0s linear');
+		elem.css('width', ' ' + elem[0].offsetWidth + 'px');
+	}
 }
 
 //输出错误信息
 function writeError(msg) {
-	//elAudio.innerHTML = msg;
 	console.log(msg);
 }
 
@@ -497,7 +563,7 @@ function onRecordStart() {
 		recorder.start(function () {
 			// 开始录音动画
 			jq('#record_progress_' + subtitleCurrent).css('transition', 'width ' + (sentenceEndTime - sentenceStartTime) + 's linear');
-			jq('#record_progress_' + subtitleCurrent).css('width', '99.99%');
+			jq('#record_progress_' + subtitleCurrent).css('width', '100%');
 
 			player.play();
 		}, function (e) {
@@ -529,6 +595,7 @@ function onRecordBtnClick(event) {
 
 	if (!isRecordStart) {
 		isRecordStart = true;
+		bPlayAfterRecord = true;
 		playStatus = 1;
 
 		// 隐藏播放按钮。
@@ -554,16 +621,36 @@ function onRecordBtnClick(event) {
 		
 	} else {
 		//停止录音
+		bPlayAfterRecord = false;
 		onStopRecord();
+
+		if (waitRecordStopTimer != null) {
+			window.clearInterval(waitRecordStopTimer);
+		}
+
+		// 等待录音完成，再开始新的录音。
+		waitRecordStopTimer = window.setInterval(function(){
+			if (!isRecordStart) {
+				//console.log("record has done.")
+				window.clearInterval(waitRecordStopTimer);
+				waitRecordStopTimer = null;
+
+				onRecordBtnClick();
+			}
+			else {
+				//console.log("record hasn't done.")
+			}
+		}, 100);
+		
 	}
 }
 
 // 当前句子录音回放按钮按下
 function onPlayBtnClick(event) {
+	//console.log("record playback.")
 	playStatus = 2;
 
 	// 让视频静音播放，并隐藏大播放按钮和控制条
-	player.pause();
 	player.currentTime(sentenceStartTime);
 	player.muted(true);
 	jq(".vjs-big-play-button").css("display","none");
@@ -571,12 +658,10 @@ function onPlayBtnClick(event) {
 
 	// 播放用户录音。
 	recordPlayer = jq('#record_audio_' + subtitleCurrent)[0]; // 将jquery对象转换成js对象
-	recordPlayer.pause();
 	recordPlayer.currentTime = 0;
 
 	// 重新播放伴奏和录音。
 	if (accompanyPlayer != null) {
-		accompanyPlayer.pause();
 		accompanyPlayer.currentTime = sentenceStartTime;
 		accompanyPlayer.play();
 	}
