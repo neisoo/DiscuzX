@@ -134,6 +134,9 @@ function dzlang(){
 	<!--{/if}-->
 	
 	<div class="ztfb_fban cl"><button id="postsubmit" class="btn_pn <!--{if $_GET[action] == 'edit'}-->btn_pn_blue" disable="false"<!--{else}-->btn_pn_grey" disable="true"<!--{/if}-->><!--{if $_GET[action] == 'newthread'}-->{lang send_thread}<!--{elseif $_GET[action] == 'reply'}-->{lang join_thread}<!--{elseif $_GET[action] == 'edit'}-->{lang edit_save}<!--{/if}--></button></div>	
+	<!--{if in_array('zhikai_n5video',$_G['setting']['plugins']['available'])}-->
+		<div id="pagebottom"></div>
+	<!--{/if}-->
 	<style type="text/css">
 		.zhikai-form-radios {display:none;}
 	</style>

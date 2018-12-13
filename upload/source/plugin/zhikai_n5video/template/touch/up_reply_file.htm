@@ -6,7 +6,6 @@
 
 <script type="text/javascript"src="source/plugin/zhikai_n5video/static/js/jquery.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.shardupload.js"></script>
-<script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.scroll.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/mp3-recorder/recorder.js"></script>
@@ -36,7 +35,6 @@
 }
 
 .sentence_wrap {
-	padding-top: 100px; /* 句子列表距顶部的距离 */
 	padding-left: 10px;
 	padding-right: 10px;
 }
@@ -44,7 +42,7 @@
 .vidoe_wrap{
 	width:100%;
 	position:relative;
-	padding-bottom:62%; /*需要用padding来维持16:9比例,也就是9除以16*/
+	padding-bottom:56.25%; /*需要用padding来维持16:9比例,也就是9除以16*/
 	height: 0;
 	video{
 		position: absolute;
@@ -62,6 +60,246 @@
 .video-js .vjs-remaining-time {
     display: none;
 }
+
+/* 顶部的功能条 */
+.video-js .vjs-top-bar {
+	font-size: 2.5em;
+	line-height: 1em;
+	height: 1.5em;
+	width: 100%;
+	display: block;
+
+	/*顶部对齐*/
+	position: absolute;
+	top:0em;
+
+	padding: 0;
+	cursor: pointer;
+	opacity: 1;
+	
+	/* 背景透明渐变 */
+	background: #000;
+	background: -webkit-linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0));
+	background: -moz-linear-gradient(top,rgba(255,255,255,1) 50%, rgba(255,255,255,0) 0%);; /*FireFox*/
+	background: -o-linear-gradient(top,rgba(255,255,255,1) 50%, rgba(255,255,255,0) 0%);  /* Opear */
+	background: -ms-linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0)); /*IE10及IE10+*/
+
+	transition: all 0.4s;
+}
+
+/* 左上角回退按钮 */
+.video-js .vjs-back-button {
+	display: block;
+	position: absolute;
+	padding: 0;
+	cursor: pointer;
+
+	/* 背景透明 */
+	background-color: rgba(0, 0, 0, 0);
+
+	/* 位置*/
+	top: 1em;
+	left: 1em;
+	height: 2em;
+	width: 2em;
+	margin-top: -1em;
+	margin-left: -1em;
+
+	/* 文字大小 */
+	font-size: 2em;
+	line-height: 2em;
+}
+
+/* 左上角回退按钮图标*/
+.video-js .vjs-back-button .vjs-icon-placeholder:before {
+	text-align: center;
+	vertical-align:middle;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	margin-top: 0.4em;
+}
+
+/* 点击视频时显示的按钮和状态条区域 */
+.video-js .vjs-control-panel {
+	transition: visibility 0.1s, opacity 0.1s;
+}
+
+/* 顶部中央的标题 */
+.video-js .vjs-control-panel .vjs-head-title {
+	display: block;
+	position: absolute;
+	padding: 0;
+	cursor: pointer;
+
+	/* 背景透明 */
+	background-color: rgba(0, 0, 0, 0);
+
+	/* 位置*/
+	top: 0.4em;
+	height: 1.6em;
+	width: 100%;
+
+	/* 文字大小 */
+	font-size: 1.6em;
+	line-height: 1.6em;
+}
+
+/* 顶部中央的标题文字 */
+.video-js .vjs-control-panel .vjs-head-title .vjs-icon-placeholder {
+	text-align: center;
+	vertical-align:middle;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+/* 底部的状态条 */
+.video-js .vjs-control-panel .vjs-status-bar {
+	font-size: 0.5em;
+	height: 2.5em;
+	width: 100%;
+	display: block;
+	position: absolute;
+	bottom: 0em;
+	padding-top: 0.75em;
+	padding-bottom: 0.75em;
+	cursor: pointer;
+	opacity: 1;
+	background: #000;
+	background: -webkit-linear-gradient(rgba(0,0,0,0.2),rgba(0,0,0,1));
+	background: -moz-linear-gradient(top,rgba(255,255,255,0) 20%,rgba(255,255,255,1) 100%);; /*FireFox*/
+	background: -o-linear-gradient(top,rgba(255,255,255,0) 20%,rgba(255,255,255,1) 100%);  /* Opear */
+	background: -ms-linear-gradient(rgba(0,0,0,0.2),rgba(0,0,0,1)); /*IE10及IE10+*/
+}
+
+/* 状态条的当前时间 */
+.video-js .vjs-control-panel .vjs-status-bar .vjs-current-time {
+	/* 位置*/
+	display: block;
+	position: absolute;
+	padding: 0;
+	left: 1em;
+	height: 100%;
+	width: 3em;
+}
+
+
+/* 状态条的总时间 */
+.video-js .vjs-control-panel .vjs-status-bar .vjs-duration-time {
+	/* 位置*/
+	display: block;
+	position: absolute;
+	padding: 0;
+	right: 1em;
+	height: 100%;
+	width: 3em;
+}
+
+/* 状态条的进度条 */
+.video-js .vjs-control-panel .vjs-process-bar {
+	display: block;
+	position: absolute;
+	padding: 0;
+	cursor: pointer;
+
+	/* 背景透明 */
+	background-color: rgba(0, 0, 0, 0);
+
+	/* 位置*/
+	bottom: 1.1em;
+	padding-right: 5em;
+	padding-left: 4.5em;
+	height: 0.3em;
+	width: 100%;
+}
+
+.video-js .vjs-control-panel .vjs-process-bar .uk-progress {
+	height: 100%;
+	line-height: 100%;
+}
+
+/* 圆形按钮 */
+.video-js .vjs-round-play-button {
+	font-size: 3em;
+	line-height: 1.5em;
+	height: 2em;
+	width: 2em;
+	display: block;
+	position: absolute;
+	padding: 0;
+	cursor: pointer;
+	opacity: 1;
+	border: 0.03em solid rgba(255, 255, 255, 0.7);
+	background-color: #2B333F;
+	background-color: rgba(43, 51, 63, 0.7);
+	border-radius: 100%;
+	transition: all 0.4s;
+}
+
+.video-js .vjs-play-normal {
+	top: 50%;
+	left: 50%;
+	height: 2em;
+	width: 2em;
+	margin-top: -1em;
+	margin-left: -1em;
+}
+
+.video-js .vjs-play-slower {
+	top: 70%;
+	left: 30%;
+	height: 1.4em;
+	width: 1.4em;
+	margin-top: -0.7em;
+	margin-left: -0.7em;
+}
+
+.video-js .vjs-play-slowest {
+	top: 70%;
+	left: 15%;
+	height: 1.4em;
+	width: 1.4em;
+	margin-top: -0.7em;
+	margin-left: -0.7em;
+}
+
+.video-js .vjs-round-play-button .vjs-icon-placeholder:before {
+	text-align: center;
+	vertical-align:middle;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+
+	font-family: VideoJS;
+	font-weight: normal;
+	font-style: normal;
+}
+
+.video-js .vjs-play-normal .vjs-icon-placeholder:before {
+	font-size: 1.5em;
+	margin-top: 0.15em;
+	content: "\\f101"; 
+}
+
+.video-js .vjs-play-slower .vjs-icon-placeholder:before {
+	font-size: 0.4em;
+	margin-top: -0.3em;
+	content: "x0.75"; 
+}
+
+.video-js .vjs-play-slowest .vjs-icon-placeholder:before {
+	font-size: 0.4em;
+	margin-top: -0.3em;
+	content: "x0.5"; 
+}
+
 
 .sentence-play-button, .sentence-record-button{
 	color: white;
@@ -106,24 +344,9 @@ var jq = jQuery.noConflict();
 var videoOptions = {
 	poster: '{$attachInfo[cover]}',
 	controls: true,
-	playbackRates: [0.5, 0.75, 1, 1.5, 2],
-	controlBar: {
-		playToggle: false,
-		volumePanel: false,
-		currentTimeDisplay: true,
-		durationDisplay: true,
-		remainingTimeDisplay: false,
-		progressControl: true,
-		fullscreenToggle: false,
-		chaptersButton: false,
-		descriptionsButton: false,
-		subsCapsButton: false,
-		AudioTrackButton: true,
-	},
-	// 禁用自带来的bigPlayButton。
-	children: ['mediaLoader', 'posterImage', 'textTrackDisplay', 'loadingSpinner', /*'bigPlayButton',*/ 'controlBar', 'errorDisplay', 'textTrackSettings', 'resizeManager', 'audioTrackButton'],
+	// 禁用自带来的控制条和播放按钮。
+	children: ['mediaLoader', 'posterImage', 'textTrackDisplay', 'loadingSpinner', 'errorDisplay', 'textTrackSettings', 'resizeManager', 'audioTrackButton'],
 	inactivityTimeout: -1, // 不要超时inactive.
-	
 };
 
 var startRecordSnd = jq('#startRecordSnd')[0]; // 录音开始提示音。
@@ -160,6 +383,9 @@ player.on("canplay", function(){
 	
 	if (!subtitleInit) {
 		subtitleInit = true;
+
+		// 在句子列表前插入一些空白，使得视频不会遮住最前面的句子。
+		jq('.sentence_wrap').css('padding-top', jq('.zhikai-player').outerHeight() - 33 + 'px');
 
 		var origTrack = player.textTracks().getTrackById("original");
 		var transTrack = player.textTracks().getTrackById("translation");
@@ -227,31 +453,115 @@ player.on("canplay", function(){
 			}
 		}
 		
-		//origTrack.mode = 'hidden';
-		//transTrack.mode = 'hidden';
+		if (origTrack) {
+			origTrack.mode = 'hidden';
+		}
+		if (transTrack) {
+			transTrack.mode = 'hidden';
+		}
 
-		// 定位于列表开始
+		// 更新播放时间。
+		jq('.vjs-current-time .vjs-icon-placeholder').html(getTimeString(0));
+		jq('.vjs-duration-time .vjs-icon-placeholder').html(getTimeString(player.duration()));
+
+		// 定位于列表开始。
 		UIkit.Utils.scrollToElement(jq('#sentence_0'), {
 			offset: $('#sentence_0').offset().top
 		});
 
+		// 句子列表尾部也填充空白，使得最后一句可以滚动到视频下面。
+		if (subtitleCount > 1) {
+			jq('#pagebottom').css('padding-bottom', $('#sentence_' + (subtitleCount - 2)).outerHeight() + 'px');
+		}
+
+		// 切换到第一条句子开始播放。
 		sentencePlay(0);
-		
+
 		// 监听触屏拖动。
 		dragSwitchSentence.init();
 	}
 });
 
-// 使用自己的大播放按钮，点击时暂停和播放视频。
-function dummyBigPlayBtnPlugin(options) {        
-	var playBtn = document.createElement('div');
-	playBtn.className = 'vjs-big-play-button';
-	playBtn.innerHTML = '<span aria-hidden="true" class="vjs-icon-placeholder"></span><span class="vjs-control-text" aria-live="polite">Play Video</span>';
-	player.el().appendChild(playBtn);
-	playBtn.onclick = function (e) {
+// 添加自定义的播放元素，点击视频时暂停和播放视频。
+function dummyBigPlayBtnPlugin(options) {
+
+	// 顶部条
+	var elTopBar = document.createElement('div');
+	elTopBar.className = 'vjs-top-bar';
+	player.el().appendChild(elTopBar);
+
+	// 顶部左边返回按钮
+	var elBackButton = document.createElement('div');
+	elBackButton.className = 'vjs-back-button';
+	elBackButton.innerHTML = '<span aria-hidden="true" class="vjs-icon-placeholder uk-icon-angle-left"></span>';
+	player.el().appendChild(elBackButton);
+
+	var elControlPanel = document.createElement('div');
+	elControlPanel.className = 'vjs-control-panel';
+
+	// 顶部中间的标题
+	var elHeadTitel = document.createElement('div');
+	elHeadTitel.className = 'vjs-head-title';
+	elHeadTitel.innerHTML = '<span aria-hidden="true" class="vjs-icon-placeholder">{$attachInfo[subject]}</span>';
+	elControlPanel.appendChild(elHeadTitel);
+
+	// 底部状态条
+	var elStatusBar = document.createElement('div');
+	elStatusBar.className = 'vjs-status-bar';
+	elControlPanel.appendChild(elStatusBar);
+
+	// 底部左侧当前时间
+	var elCurrentTime = document.createElement('div');
+	elCurrentTime.className = 'vjs-current-time';
+	elCurrentTime.innerHTML = '<span aria-hidden="true" class="vjs-icon-placeholder">00:00</span>';
+	elStatusBar.appendChild(elCurrentTime);
+
+	// 底部右侧总时间
+	var elDurationTime = document.createElement('div');
+	elDurationTime.className = 'vjs-duration-time';
+	elDurationTime.innerHTML = '<span aria-hidden="true" class="vjs-icon-placeholder">00:00</span>';
+	elStatusBar.appendChild(elDurationTime);
+
+	// 底部中央进度条
+	var elProcessBar = document.createElement('div');
+	elProcessBar.className = 'vjs-process-bar';
+	elProcessBar.innerHTML = '<div class="uk-progress uk-progress-success"><div class="uk-progress-bar" style="width: 0%;"></div></div>';
+	elStatusBar.appendChild(elProcessBar);
+
+	// 居中的播放按钮
+	var elPlayNormalBtn = document.createElement('div');
+	elPlayNormalBtn.className = 'vjs-round-play-button vjs-play-normal';
+	elPlayNormalBtn.innerHTML = '<span aria-hidden="true" class="vjs-icon-placeholder"></span>';
+	elControlPanel.appendChild(elPlayNormalBtn);
+	elPlayNormalBtn.onclick = function (e) {
 		onUserActive();
 		player.userActivity_ = false;
 	};
+
+	// 较慢速播放按钮
+	var elPlaySlowerBtn = document.createElement('div');
+	elPlaySlowerBtn.className = 'vjs-round-play-button vjs-play-slower';
+	elPlaySlowerBtn.innerHTML = '<span aria-hidden="true" class="vjs-icon-placeholder"></span>';
+	elControlPanel.appendChild(elPlaySlowerBtn);
+	elPlaySlowerBtn.onclick = function (e) {
+		onUserActive();
+		player.playbackRate(0.75);
+		player.userActivity_ = false;
+	};
+
+	// 最慢速播放按钮
+	var elPlaySlowestBtn = document.createElement('div');
+	elPlaySlowestBtn.className = 'vjs-round-play-button vjs-play-slowest';
+	elPlaySlowestBtn.innerHTML = '<span aria-hidden="true" class="vjs-icon-placeholder"></span>';
+	elControlPanel.appendChild(elPlaySlowestBtn);
+	elPlaySlowestBtn.onclick = function (e) {
+		onUserActive();
+		player.playbackRate(0.5);
+		player.userActivity_ = false;
+	};
+
+	player.el().appendChild(elControlPanel);
+
 };
 videojs.registerPlugin('dummyBigPlayBtnPlugin', dummyBigPlayBtnPlugin);
 player.dummyBigPlayBtnPlugin({});
@@ -259,22 +569,21 @@ player.dummyBigPlayBtnPlugin({});
 // 点击视频时，暂停和播放视频。
 function onUserActive() {
 	if (playStatus == 0) {
-		if (jq(".vjs-big-play-button").css("display") == "block") {
+		if (jq(".vjs-control-panel").css("display") == "block") {
 			console.log("userinactive");
 
-			//恢复播放并隐藏大播放按钮和控制条
+			// 恢复播放并隐藏面板
 			player.muted(false);
+			player.playbackRate(1);
 			player.play();
-			jq(".vjs-big-play-button").css("display","none");
-			jq(".vjs-control-bar").css("opacity","0");
+			jq(".vjs-control-panel").css("display","none");
 		}
 		else {
 			console.log("useractive");
 
-			//点击屏幕后暂停并显示大播放按钮和控制条
+			//点击屏幕后暂停并显示面板
 			player.pause();
-			jq(".vjs-big-play-button").css("display","block");
-			jq(".vjs-control-bar").css("opacity","1");
+			jq(".vjs-control-panel").css("display","block");
 		}
 	}
 }
@@ -294,8 +603,7 @@ function stopRecordOrPlay()
 		// 录音回放完毕，停止播放。
 		player.pause();
 
-		jq(".vjs-big-play-button").css("display","block");
-		jq(".vjs-control-bar").css("opacity","1");
+		jq(".vjs-control-panel").css("display","block");
 
 		if (accompanyPlayer != null) {
 			accompanyPlayer.pause();
@@ -307,12 +615,33 @@ function stopRecordOrPlay()
 	}
 }
 
-// 限制视频播放区间。
+// 格式化时间字符串。
+function getTimeString(seconds) {
+	var h = parseInt(seconds / 3600);
+	var m = parseInt((seconds - (h * 3600)) / 60);
+	var s = parseInt(seconds - ((h * 3600) + m * 60));
+
+	var strTime = '';
+	if (h > 0) {
+		strTime += (h < 10 ? '0' + h : h) + ':';
+	}
+	strTime += (m < 10 ? '0' + m : m) + ':';
+	strTime += (s < 10 ? '0' + s : s);
+
+	return strTime;
+}
+
+// 播放器时间更新回调。
 player.on('timeupdate', function() {
+	// 限制视频播放区间。
 	if (player.currentTime() >= sentenceEndTime) {
 		player.currentTime(sentenceStartTime);
 		stopRecordOrPlay();
 	}
+
+	// 更新播放进度，当前时间。
+	jq('.vjs-control-panel .uk-progress-bar').css('width', ' ' + (player.currentTime() * 100 / player.duration()) + '%')
+	jq('.vjs-current-time .vjs-icon-placeholder').html(getTimeString(player.currentTime()));
 });
 
 // 设置播放区间到句子的时间范围内。
@@ -350,9 +679,9 @@ function sentencePlay(index) {
 				sentenceEndTime = $('#sentence_' + subtitleCurrent).attr('endTime');
 				player.currentTime(sentenceStartTime);
 				player.muted(false);
+				player.playbackRate(1);
 				player.play();
-				jq(".vjs-big-play-button").css("display","none");
-				jq(".vjs-control-bar").css("opacity","0");
+				jq(".vjs-control-panel").css("display","none");
 			}
 			else {
 				//console.log("record hasn't done.")
@@ -541,10 +870,17 @@ function onStopRecord() {
 		//停止录音，触发complete()。
 		recorder.stop();
 
-		// 进度条动画在当前位置停止。
 		var elem = jq('#record_progress_' + subtitleCurrent);
-		elem.css('transition', 'width 0s linear');
-		elem.css('width', ' ' + elem[0].offsetWidth + 'px');
+		if (bPlayAfterRecord) {
+			// 录音正常结束，进度条动画在100%位置停止。
+			elem.css('transition', 'width 0s linear');
+			elem.css('width', '100%');
+		}
+		else {
+			// 录音被中断，进度条动画在当前位置停止。
+			elem.css('transition', 'width 0s linear');
+			elem.css('width', ' ' + elem[0].offsetWidth + 'px');
+		}
 	}
 }
 
@@ -563,6 +899,7 @@ function onRecordStart() {
 			jq('#record_progress_' + subtitleCurrent).css('transition', 'width ' + (sentenceEndTime - sentenceStartTime) + 's linear');
 			jq('#record_progress_' + subtitleCurrent).css('width', '100%');
 
+			player.playbackRate(1);
 			player.play();
 		}, function (e) {
 			switch (e.code || e.name) {
@@ -602,8 +939,7 @@ function onRecordBtnClick(event) {
 		// 让视频静音播放。
 		player.currentTime(sentenceStartTime);
 		player.muted(true);
-		jq(".vjs-big-play-button").css("display","none");
-		jq(".vjs-control-bar").css("opacity","0");
+		jq(".vjs-control-panel").css("display","none");
 
 		// 停止伴奏。
 		if (accompanyPlayer != null) {
@@ -651,8 +987,7 @@ function onPlayBtnClick(event) {
 	// 让视频静音播放，并隐藏大播放按钮和控制条
 	player.currentTime(sentenceStartTime);
 	player.muted(true);
-	jq(".vjs-big-play-button").css("display","none");
-	jq(".vjs-control-bar").css("opacity","0");
+	jq(".vjs-control-panel").css("display","none");
 
 	// 播放用户录音。
 	recordPlayer = jq('#record_audio_' + subtitleCurrent)[0]; // 将jquery对象转换成js对象
@@ -664,6 +999,7 @@ function onPlayBtnClick(event) {
 		accompanyPlayer.play();
 	}
 	recordPlayer.play();
+	player.playbackRate(1);
 	player.play();
 }
 

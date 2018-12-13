@@ -461,8 +461,9 @@ function reply_replace($tid)
     $video = explode('|', $config['video_bmp']);
     $voice = explode('|', $config['voice_bmp']);
     
-    $post = DB::fetch_first('SELECT message FROM %t WHERE tid=%d ', array(0 => 'forum_post', 1 => $tid));
+    $post = DB::fetch_first('SELECT message, subject FROM %t WHERE tid=%d ', array(0 => 'forum_post', 1 => $tid));
     $message = $post['message'];
+    $subject = $post['subject'];
     if (strexists($message, '[/attach]') !== false) {
         if (preg_match_all('/\\[attach\\](\\d+,\\d+,\\d*,\\d*)\\[\\/attach\\]/is', $message, $mat)) {
             $ids = explode(',', $mat[1][0]);
@@ -519,6 +520,7 @@ function reply_replace($tid)
                     $attachInfo['subtitle'] = $surl;
                     $attachInfo['tsubtitle'] = $turl;
                     $attachInfo['accompany'] = $aurl;
+                    $attachInfo['subject'] = $subject;
                     return $attachInfo;
                 }
             }
