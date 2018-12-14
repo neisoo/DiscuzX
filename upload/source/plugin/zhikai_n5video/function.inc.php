@@ -520,7 +520,8 @@ function reply_replace($tid)
                     $attachInfo['subtitle'] = $surl;
                     $attachInfo['tsubtitle'] = $turl;
                     $attachInfo['accompany'] = $aurl;
-                    $attachInfo['subject'] = $subject;
+                    $attachInfo['subject'] = $subject; // 标题
+                    $attachInfo['tid'] = $tid; // 配音视频贴的tid
                     return $attachInfo;
                 }
             }
