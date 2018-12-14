@@ -319,8 +319,15 @@
 }
 </style>
 
+<div id="dubbing_params" style="display: none">
+	<div id="tid" tid="{$attachInfo[tid]}" ></div>
+	<div id="subject" tid="{$attachInfo[subject]}"></div>
+
+	<input type="text" name="subject" value="dubbing:{$attachInfo[subject]}" id="needsubject" class="txt"/>
+</div>
+
 <div class="zhikai-player cl fixed_div">
-<video id="video_{$_G[tid]}" class="video-js vjs-default-skin vjs-big-play-centered vidoe_wrap">
+<video id="video_{$attachInfo[tid]}" class="video-js vjs-default-skin vjs-big-play-centered vidoe_wrap">
 	<source src="{$attachInfo[video]}" type='video/mp4'>
 	<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
 	<!--{if attachInfo['subtitle'] != null}-->
@@ -350,7 +357,7 @@ var videoOptions = {
 };
 
 var startRecordSnd = jq('#startRecordSnd')[0]; // 录音开始提示音。
-var player = videojs('video_{$_G[tid]}', videoOptions);
+var player = videojs('video_' + jq('#tid').attr('tid'), videoOptions);
 var subtitleInit = false;
 var subtitleCount = 0;
 var subtitleCurrent = -1;
@@ -364,6 +371,8 @@ if (jq('#accompany').length > 0) {
 }
 
 var playStatus = 0; // =0原音播放或暂停中，=1用户录音中，=2回放用户录音中
+
+var attachInfo; // 存放录音的附件id。
 
 player.on("ready", function(){
 	var origTrack = player.textTracks().getTrackById("original");
@@ -437,6 +446,8 @@ player.on("canplay", function(){
 				dom +=				'</div>';
 				dom +=				'<div id="audio_data_' + i + '" style="display: none;">'; // 在里存放录音的声音。
 				dom +=				'</div>';
+				dom +=				'<div id="attach_data_' + i + '" style="display: none;">'; // 在里存放录音的表单数据。
+				dom +=				'</div>';
 				dom +=			'</div>';
 
 				dom +=		'</div>';
@@ -458,6 +469,16 @@ player.on("canplay", function(){
 		}
 		if (transTrack) {
 			transTrack.mode = 'hidden';
+		}
+
+		// 创建数组，存放录音的附件id。
+		attachInfo = {};
+		attachInfo['type'] = 'dubbing';
+		attachInfo['data'] = {};
+		attachInfo['data']['tid'] = jq('#tid').attr('tid');
+		attachInfo['data']['record'] = new Array(subtitleCount);
+		for (var i = 0; i < subtitleCount; i++){
+			attachInfo['data']['record'][i] = "";
 		}
 
 		// 更新播放时间。
@@ -816,6 +837,48 @@ var isRecordStart = false;
 var bPlayAfterRecord = false;
 var waitRecordStopTimer = null;
 
+function uploadCallback(data) {
+	if (data.indexOf('DISCUZUPLOAD') > -1) {
+		var arr = data.split('|');
+		if (arr[1] == 0) {
+			// 记录上传文件的附件ID。
+			attachInfo['data']['record'][subtitleCurrent] = arr[2];
+
+			// 更新帖子正文中的标记。
+			jq('#needmessage').val('[dubbing]' + JSON.stringify(attachInfo) + '[/dubbing]');
+
+			// 附件提交的表单数据，表单中至少有一个attachnew['附件ID'][xxx]的表单项，
+			// 提交后附件ID对应的附件才会被视为已使用附件。
+			// 表单项的内容只是简单的填充一个字符串，暂时未使用。
+			jq('#attach_data_' + subtitleCurrent).html('').
+				append('<input type="text" value="record' + subtitleCurrent + '" name="attachnew['+ arr[2] +'][description]"/>');
+
+			// 充许提交贴子。
+			needsubject = true; // 在post.php中定义。
+			needmessage = true;
+			$('.btn_pn').removeClass('btn_pn_grey').addClass('btn_pn_blue');
+			$('.btn_pn').attr('disable', 'false');
+		}
+		else if (lang_msg[arr[1]] != undefined ) {
+			// 出错，显示出错原因。
+			var sizelimit = '';
+			if(arr[8] == 'ban') {
+				sizelimit = '{lang uploadpicatttypeban}';
+			} else if(arr[8] == 'perday') {
+				sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+			} else if(arr[8] > 0) {
+				sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+			}
+			popup.open(lang_msg[arr[1]] + sizelimit, 'alert');
+		}
+	}
+	else {
+		if (data) {
+			popup.open(lang_msg[data], 'alert');
+		}
+	}
+}
+
 //唯一影响mp3文件大小的参数为 bitRate
 //sampleRate 仅供特殊需求的人使用
 var recorder = new MP3Recorder({
@@ -836,9 +899,29 @@ var recorder = new MP3Recorder({
 				append('<a href="' + url + '" download="' + mp3Name + '">' + mp3Name + '</a>').
 				append('<audio controls src="' + url + '" id="record_audio_' + subtitleCurrent + '"></audio>');
 
+			// 上传服务器，录音数据比较小，所以一次上传不用分块。
+			var form = new FormData();
+			form.append("file_data", blob);
+			form.append("file_name", mp3Name);
+			form.append("file_total", 1)
+			form.append("file_index", 1);
+			form.append("file_size", blob.size);
+			form.append("file_id", parseInt(Math.random() * 9999 + 10001)); // 随机id，100001~19999
+
+			var xhr = new XMLHttpRequest();
+			var uploadUrl = 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}';
+			xhr.open("POST", uploadUrl, true);
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState == 4 && xhr.status == 200) {
+					uploadCallback(xhr.responseText);
+					// TODO: 录音打分。
+				}
+			}
+			xhr.send(form);
+
 			// 显示句子播放按钮
 			jq('#play_btn_' + subtitleCurrent).css('display', 'inline-block');
-			
+
 			// 录音完成。
 			isRecordStart = false;
 
@@ -950,9 +1033,24 @@ function onRecordBtnClick(event) {
 		jq('#record_progress_' + subtitleCurrent).css('transition', 'width 0s');
 		jq('#record_progress_' + subtitleCurrent).css('width', '0%');
 
-		// 播放提示音,时长100ms。
+		// 删除之前上传的录音附件。
+		if (attachInfo['data']['record'][subtitleCurrent] != null) {
+			var aid = attachInfo['data']['record'][subtitleCurrent];
+			$.ajax({
+				type:'GET',
+				url:'forum.php?mod=ajax&action=deleteattach&inajax=yes&aids[]=' + aid,
+			})
+			.success(function(s) {
+			})
+			.error(function() {
+				popup.open('{lang networkerror}', 'alert');
+			});
+
+			attachInfo['data']['record'][subtitleCurrent] = null;
+		}
+
+		// 播放提示音,时长100ms,播放完成开始录音。
 		startRecordSnd.play();
-		
 	} else {
 		//停止录音
 		bPlayAfterRecord = false;
