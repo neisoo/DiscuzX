@@ -11,6 +11,16 @@
 <script type="text/javascript" src="source/plugin/zhikai_n5video/mp3-recorder/recorder.js"></script>
 
 <style>
+
+/*
+ * 取消height:100%的定义。
+ * 原因：如果html有height:100%或具体值的定义，那么在弹出uikit的模态对话框时，
+ * uikit会添加uk-modal-page样式到html和body，这时界面会回滚到顶部。
+ */
+html {
+	height: auto;
+}
+
 ::cue {
 	background: none;
 	color: #fff;
@@ -31,12 +41,10 @@
 	top: 0;
 	z-index: 1000;
 	left: 0px;
-	border: 1px solid red;
 }
 
 .sentence_wrap {
-	padding-left: 10px;
-	padding-right: 10px;
+	padding: 10px;
 }
 
 .vidoe_wrap{
@@ -85,41 +93,6 @@
 	background: -ms-linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0)); /*IE10及IE10+*/
 
 	transition: all 0.4s;
-}
-
-/* 左上角回退按钮 */
-.video-js .vjs-back-button {
-	display: block;
-	position: absolute;
-	padding: 0;
-	cursor: pointer;
-
-	/* 背景透明 */
-	background-color: rgba(0, 0, 0, 0);
-
-	/* 位置*/
-	top: 1em;
-	left: 1em;
-	height: 2em;
-	width: 2em;
-	margin-top: -1em;
-	margin-left: -1em;
-
-	/* 文字大小 */
-	font-size: 2em;
-	line-height: 2em;
-}
-
-/* 左上角回退按钮图标*/
-.video-js .vjs-back-button .vjs-icon-placeholder:before {
-	text-align: center;
-	vertical-align:middle;
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	margin-top: 0.4em;
 }
 
 /* 点击视频时显示的按钮和状态条区域 */
@@ -300,7 +273,6 @@
 	content: "x0.5"; 
 }
 
-
 .sentence-play-button, .sentence-record-button{
 	color: white;
 	width: 48px;
@@ -317,7 +289,49 @@
     margin-top: 6px;
     margin-bottom: 6px;
 }
+
+/* 左上角回退按钮 */
+.dubbing-back-button {
+	display: block;
+	position: fixed;
+	padding: 0;
+	cursor: pointer;
+
+	/* 背景透明 */
+	background-color: rgba(0, 0, 0, 0);
+
+	/* 位置*/
+	top: 1em;
+	left: 1em;
+	height: 2em;
+	width: 2em;
+	margin-top: -1em;
+	margin-left: -1em;
+
+	/* 文字大小 */
+	font-size: 2em;
+	line-height: 2em;
+
+	/* 在对话框遮罩层的下层，视频的上层 */
+	z-index:1009;
+
+	color: white;
+}
+
+/* 左上角回退按钮图标*/
+.dubbing-back-button .vjs-icon-placeholder:before {
+	text-align: center;
+	vertical-align:middle;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	margin-top: 0.4em;
+}
+
 </style>
+
 
 <div id="dubbing_params" style="display: none">
 	<div id="tid" tid="{$attachInfo[tid]}" ></div>
@@ -326,6 +340,9 @@
 	<input type="text" name="subject" value="dubbing:{$attachInfo[subject]}" id="needsubject" class="txt"/>
 </div>
 
+<div class="dubbing-back-button">
+	<span aria-hidden="true" class="vjs-icon-placeholder uk-icon-angle-left"></span>
+</div>
 <div class="zhikai-player cl fixed_div">
 <video id="video_{$attachInfo[tid]}" class="video-js vjs-default-skin vjs-big-play-centered vidoe_wrap">
 	<source src="{$attachInfo[video]}" type='video/mp4'>
@@ -344,6 +361,24 @@
 <audio id="accompany" src="{$attachInfo[accompany]}"></audio>
 <!--{/if}--> 
 <audio id="startRecordSnd" src="source/plugin/zhikai_n5video/di.ogg"></audio>
+
+<!-- 模态对话框 -->
+<a id="back_dialog_button" class="uk-button" href="#back_dialog" data-uk-modal="{center:true}" style="display: none">Open</a>
+<div id="back_dialog" class="uk-modal">
+	<div class="uk-modal-dialog">
+		<div class="uk-modal-header">
+			<h2 class="uk-text-success">你还没有配音完成，是否继续配音？</h2>
+		</div>
+		<ul class="uk-nav uk-nav-side uk-text-large">
+			<li><a id="back_dialog_continue" href="javascript:void(0)">继续配音</a></li>
+			<li class="uk-nav-divider"></li>
+			<li><a id="back_dialog_save" href="javascript:void(0)">保存到草稿箱</a></li>
+			<li class="uk-nav-divider"></li>
+			<li><a id="back_dialog_exitonly" href="javascript:void(0)">直接返回</a></li>
+			
+		</ul>
+	</div>
+</div>
 
 <script type="text/javascript">
 var jq = jQuery.noConflict();
@@ -393,8 +428,11 @@ player.on("canplay", function(){
 	if (!subtitleInit) {
 		subtitleInit = true;
 
-		// 在句子列表前插入一些空白，使得视频不会遮住最前面的句子。
-		jq('.sentence_wrap').css('padding-top', jq('.zhikai-player').outerHeight() - 33 + 'px');
+		// 在句子列表前插入一些空白，使得列表刚好在视频下方出现。
+		var elList = jq('.sentence_wrap');
+		var oldPadding = (elList.innerWidth() - elList.width()) / 2;
+		var newPadding = oldPadding + jq('.zhikai-player').outerHeight() - jq('.n5qj_tbys').outerHeight();
+		elList.css('padding-top', newPadding + 'px');
 
 		var origTrack = player.textTracks().getTrackById("original");
 		var transTrack = player.textTracks().getTrackById("translation");
@@ -511,12 +549,6 @@ function dummyBigPlayBtnPlugin(options) {
 	elTopBar.className = 'vjs-top-bar';
 	player.el().appendChild(elTopBar);
 
-	// 顶部左边返回按钮
-	var elBackButton = document.createElement('div');
-	elBackButton.className = 'vjs-back-button';
-	elBackButton.innerHTML = '<span aria-hidden="true" class="vjs-icon-placeholder uk-icon-angle-left"></span>';
-	player.el().appendChild(elBackButton);
-
 	var elControlPanel = document.createElement('div');
 	elControlPanel.className = 'vjs-control-panel';
 
@@ -587,6 +619,57 @@ function dummyBigPlayBtnPlugin(options) {
 videojs.registerPlugin('dummyBigPlayBtnPlugin', dummyBigPlayBtnPlugin);
 player.dummyBigPlayBtnPlugin({});
 
+////////////////////////////////////////////////////////
+// 顶部左边返回按钮
+jq('.dubbing-back-button').click(function(event) {
+	var haveData = false;
+	
+	for (var i = 0; i < subtitleCount; i++){
+		if (attachInfo['data']['record'][i] != "") {
+			haveData = true;
+			break;
+		}
+	}
+
+	if (haveData) {
+		jq('#back_dialog_button').click();
+	}
+	else {
+		popup.open("do laer: goto prevent page.", 'alert');
+	}
+});
+
+// 继续配音
+jq('#back_dialog_continue').click(function(event){
+	var modal = UIkit.modal("#back_dialog");
+
+	if (modal.isActive()) {
+		modal.hide();
+	}
+});
+
+// 保存草稿并退出。
+jq('#back_dialog_save').click(function(event){
+	var modal = UIkit.modal("#back_dialog");
+
+	if (modal.isActive()) {
+		modal.hide();
+	}
+	
+	jq('#postsubmit').click();
+});
+
+// 仅退出配音界面
+jq('#back_dialog_exitonly').click(function(event){
+	var modal = UIkit.modal("#back_dialog");
+
+	if (modal.isActive()) {
+		modal.hide();
+	}
+	popup.open("do laer: exit.", 'alert');
+});
+
+///////////////////////////////////////////////////////////////
 // 点击视频时，暂停和播放视频。
 function onUserActive() {
 	if (playStatus == 0) {
