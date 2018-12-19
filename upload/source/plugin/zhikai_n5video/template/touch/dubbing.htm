@@ -338,6 +338,7 @@ html {
 	<div id="subject" tid="{$attachInfo[subject]}"></div>
 
 	<input type="text" name="subject" value="dubbing:{$attachInfo[subject]}" id="needsubject" class="txt"/>
+	<input type="hidden" id="postsave" name="save" value="">
 </div>
 
 <div class="dubbing-back-button">
@@ -636,6 +637,7 @@ jq('.dubbing-back-button').click(function(event) {
 	}
 	else {
 		popup.open("do laer: goto prevent page.", 'alert');
+		//javascript:history.back();
 	}
 });
 
@@ -656,17 +658,50 @@ jq('#back_dialog_save').click(function(event){
 		modal.hide();
 	}
 	
+	jq('#postsave').val(1); // 草稿方式保存。
 	jq('#postsubmit').click();
 });
 
 // 仅退出配音界面
 jq('#back_dialog_exitonly').click(function(event){
+	var aidsUrl = '';
+	var haveData = false;
 	var modal = UIkit.modal("#back_dialog");
 
 	if (modal.isActive()) {
 		modal.hide();
 	}
-	popup.open("do laer: exit.", 'alert');
+
+	// 找出已经提交的附件。
+	for (var i = 0, j = 0; i < subtitleCount; i++) {
+		if (attachInfo['data']['record'][i] != "") {
+			haveData = true;
+			aidsUrl += '&aids[]=' + attachInfo['data']['record'][i];
+			attachInfo['data']['record'][i] = '';
+		}
+	}
+
+	// 删除提交的附件。
+	if (haveData) {
+		$.ajax({
+			type:'GET',
+			url:'forum.php?mod=ajax&action=deleteattach&inajax=yes' + aidsUrl,
+		})
+		.success(function(s) {
+			for (var i = 0, j = 0; i < subtitleCount; i++) {
+				if (attachInfo['data']['record'][i] != "") {
+					attachInfo['data']['record'][i] = '';
+				}
+			}
+			history.back(-1);
+		})
+		.error(function() {
+			popup.open('{lang networkerror}', 'alert');
+		});
+	}
+	else {
+		history.back(-1);
+	}
 });
 
 ///////////////////////////////////////////////////////////////
