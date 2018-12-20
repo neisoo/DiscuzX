@@ -330,6 +330,231 @@ html {
 	margin-top: 0.4em;
 }
 
+/********************************************************************
+ * 預览相关
+ ********************************************************************/
+/* 所有控件的容器 */
+.zyh-preview-top {
+	position: absolute;
+	top:0em;
+	width: 100%;
+	height: 3em;
+	overflow: hidden;
+	/*border: 0.03em solid rgba(255, 255, 255, 0.7);*/
+}
+
+.zyh-preview-bottom {
+	position: absolute;
+	bottom:0em;
+	width: 100%;
+	height: 2.5em;
+	overflow: hidden;
+	/*border: 0.03em solid rgba(255, 255, 255, 0.7);*/
+}
+
+/* 顶部的功能条 */
+.zyh-preview-top-bar {
+	display: block;
+	font-size: 0.5em;
+	line-height: 3em; /* 使文字垂直居中：文字行高与容器高一样 */
+	height: 3em;
+	width: 100%;
+	text-align: center;
+	vertical-align:middle;
+	color: white;
+
+	/*顶部对齐*/
+	position: absolute;
+	top:0em;
+
+	padding: 0;
+	margin: 0;
+	cursor: pointer;
+	opacity: 1;
+	
+	/* 背景透明渐变 */
+	background: #000;
+	background: -webkit-linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0));
+	background: -moz-linear-gradient(top,rgba(255,255,255,1) 50%, rgba(255,255,255,0) 0%);; /*FireFox*/
+	background: -o-linear-gradient(top,rgba(255,255,255,1) 50%, rgba(255,255,255,0) 0%);  /* Opear */
+	background: -ms-linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0)); /*IE10及IE10+*/
+
+	transition: all 0.4s;
+	/*border: 0.03em solid rgba(255, 255, 255, 0.7);*/
+}
+
+/* 左上角回退按钮 */
+.zyh-preview-back-button {
+	cursor: pointer;
+	float: left;
+
+	/* 背景透明 */
+	background-color: rgba(0, 0, 0, 0);
+
+	/* 位置*/
+	height: 100%;
+	width: 1em;
+
+	font-size: 5em;
+	/*border: 0.03em solid rgba(255, 255, 255, 0.7);*/
+}
+
+/* 左上角回退按钮图标*/
+.zyh-preview-back-button .zyh-icon-placeholder {
+	text-align: center;
+	vertical-align: middle;
+	width: 100%;
+	height: 100%;
+}
+
+/* 右上角菜单按钮 */
+.zyh-preview-menu-button {
+	cursor: pointer;
+	float: right;
+
+	/* 背景透明 */
+	background-color: rgba(0, 0, 0, 0);
+
+	/* 位置*/
+	height: 100%;
+	width: 3em;
+
+	/*border: 0.03em solid rgba(255, 255, 255, 0.7);*/
+}
+
+/* 顶部中央的标题 */
+.zyh-preview-head-title {
+	/* 背景透明 */
+	background-color: rgba(0, 0, 0, 0);
+
+	/* 位置居中 */
+	margin: 0 1.5em;
+	/*border: 0.03em solid rgba(255, 255, 255, 0.7);*/
+}
+
+/* 顶部中央的标题文字 */
+.zyh-preview-head-title .zyh-icon-placeholder {
+	width: 100%;
+	height: 100%;
+	font-size: 0.8em;
+
+	/*border: 0.03em solid rgba(255, 255, 255, 0.7);*/
+}
+
+/* 底部的状态条 */
+.zyh-preview-bottom-bar {
+	display: block;
+	font-size: 0.5em;
+	height: 2.5em;
+	line-height: 2.5em; /* 使文字垂直居中：文字行高与容器高一样 */
+	width: 100%;
+	text-align: center;
+	vertical-align:middle;
+	color: white;
+
+	/*底部对齐*/
+	position: absolute;
+	bottom: 0em;
+
+	padding: 0;
+	margin: 0;
+	cursor: pointer;
+	opacity: 1;
+	
+	/* 背景透明渐变 */
+	background: #000;
+	background: -webkit-linear-gradient(rgba(0,0,0,0.2),rgba(0,0,0,1));
+	background: -moz-linear-gradient(top,rgba(255,255,255,0) 20%,rgba(255,255,255,1) 100%);; /*FireFox*/
+	background: -o-linear-gradient(top,rgba(255,255,255,0) 20%,rgba(255,255,255,1) 100%);  /* Opear */
+	background: -ms-linear-gradient(rgba(0,0,0,0.2),rgba(0,0,0,1)); /*IE10及IE10+*/
+
+	transition: all 0.4s;
+	/*border: 0.03em solid rgba(255, 255, 255, 0.7);*/
+}
+
+/* 左下角当前时间 */
+.zyh-preview-current-time {
+	/* 位置*/
+	float: left;
+	width: 4.5em;
+}
+
+/* 右下角总时间 */
+.zyh-preview-duration-time {
+	/* 位置*/
+	float: right;
+	width: 4.5em;
+}
+
+/* 底部中间的进度条 */
+.zyh-preview-process-bar {
+	display: block;
+	position: absolute;
+
+	/* 背景透明 */
+	background-color: rgba(0, 0, 0, 0);
+
+	/* 位置*/
+	bottom: 1.1em;
+	padding-right: 5em;
+	padding-left: 4.5em;
+	height: 0.3em;
+	width: 100%;
+	/*border: 0.03em solid rgba(255, 255, 255, 0.7);*/
+}
+
+.zyh-preview-process-bar .uk-progress {
+	height: 100%;
+	line-height: 100%;
+}
+
+/* 中间的圆形按钮 */
+.zyh-round-play-button {
+	font-size: 3em;
+	line-height: 1.5em;
+	height: 2em;
+	width: 2em;
+	display: block;
+	position: absolute;
+	padding: 0;
+	cursor: pointer;
+	opacity: 1;
+	border: 0.03em solid rgba(255, 255, 255, 0.7);
+	background-color: #2B333F;
+	background-color: rgba(43, 51, 63, 0.7);
+	border-radius: 100%;
+	transition: all 0.4s;
+}
+
+.zyh-preview-play-normal {
+	top: 50%;
+	left: 50%;
+	height: 2em;
+	width: 2em;
+	margin-top: -1em;
+	margin-left: -1em;
+}
+
+.zyh-round-play-button .zyh-icon-placeholder:before {
+	text-align: center;
+	vertical-align:middle;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+
+	font-family: VideoJS;
+	font-weight: normal;
+	font-style: normal;
+}
+
+.zyh-preview-play-normal .zyh-icon-placeholder:before {
+	font-size: 1.5em;
+	margin-top: 0.15em;
+	content: "\\f101"; 
+}
+
 </style>
 
 
@@ -339,46 +564,75 @@ html {
 
 	<input type="text" name="subject" value="dubbing:{$attachInfo[subject]}" id="needsubject" class="txt"/>
 	<input type="hidden" id="postsave" name="save" value="">
+
+	<!--{if $attachInfo['accompany'] != null}-->
+	<audio id="accompany" src="{$attachInfo[accompany]}"></audio>
+	<!--{/if}--> 
+	<audio id="startRecordSnd" src="source/plugin/zhikai_n5video/di.ogg"></audio>
+
 </div>
 
-<div class="dubbing-back-button">
-	<span aria-hidden="true" class="vjs-icon-placeholder uk-icon-angle-left"></span>
-</div>
-<div class="zhikai-player cl fixed_div">
-<video id="video_{$attachInfo[tid]}" class="video-js vjs-default-skin vjs-big-play-centered vidoe_wrap">
-	<source src="{$attachInfo[video]}" type='video/mp4'>
-	<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
-	<!--{if attachInfo['subtitle'] != null}-->
-	<track kind="subtitles" src="{$attachInfo[subtitle]}" srclang="en" id="original" label="{lang zhikai_n5video:lang_068}" default></track>
-	<!--{/if}--> 
-	<!--{if $attachInfo['tsubtitle'] != null}-->
-	<track kind="subtitles" src="{$attachInfo[tsubtitle]}" srclang="zh" id="translation" label="{lang zhikai_n5video:lang_069}"></track>
-	<!--{/if}--> 
-</video>
-</div>
-<div id="sutitle_list" class="sentence_wrap">
-</div>
-<!--{if $attachInfo['accompany'] != null}-->
-<audio id="accompany" src="{$attachInfo[accompany]}"></audio>
-<!--{/if}--> 
-<audio id="startRecordSnd" src="source/plugin/zhikai_n5video/di.ogg"></audio>
-
-<!-- 模态对话框 -->
-<a id="back_dialog_button" class="uk-button" href="#back_dialog" data-uk-modal="{center:true}" style="display: none">Open</a>
-<div id="back_dialog" class="uk-modal">
-	<div class="uk-modal-dialog">
-		<div class="uk-modal-header">
-			<h2 class="uk-text-success">你还没有配音完成，是否继续配音？</h2>
-		</div>
-		<ul class="uk-nav uk-nav-side uk-text-large">
-			<li><a id="back_dialog_continue" href="javascript:void(0)">继续配音</a></li>
-			<li class="uk-nav-divider"></li>
-			<li><a id="back_dialog_save" href="javascript:void(0)">保存到草稿箱</a></li>
-			<li class="uk-nav-divider"></li>
-			<li><a id="back_dialog_exitonly" href="javascript:void(0)">直接返回</a></li>
-			
-		</ul>
+<!-- 配音界面 -->
+<div id="dubbing_ui">
+	<!-- 后退按钮 -->
+	<div class="dubbing-back-button">
+		<span aria-hidden="true" class="vjs-icon-placeholder uk-icon-angle-left"></span>
 	</div>
+	<!-- 配音播放器 -->
+	<div class="dubbing-player cl fixed_div">
+		<video id="video_{$attachInfo[tid]}" class="video-js vjs-default-skin vjs-big-play-centered vidoe_wrap">
+			<source src="{$attachInfo[video]}" type='video/mp4'>
+			<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
+			<!--{if attachInfo['subtitle'] != null}-->
+			<track kind="subtitles" src="{$attachInfo[subtitle]}" srclang="en" id="original" label="{lang zhikai_n5video:lang_068}" default></track>
+			<!--{/if}--> 
+			<!--{if $attachInfo['tsubtitle'] != null}-->
+			<track kind="subtitles" src="{$attachInfo[tsubtitle]}" srclang="zh" id="translation" label="{lang zhikai_n5video:lang_069}"></track>
+			<!--{/if}--> 
+		</video>
+	</div>
+	<!-- 句子列表 -->
+	<div id="sutitle_list" class="sentence_wrap">
+	</div>
+	<!-- 配音预览 -->
+	<div class="uk-panel uk-width-1-2 uk-container-center uk-text-center">
+		<button id="preview_button" class="preview-button uk-button uk-button-success uk-button-large uk-width-1-1" type="button" disabled>预览发布</button>
+	</div>
+
+	<!-- 点击退出时弹出的模态对话框 -->
+	<a id="back_dialog_button" class="uk-button" href="#back_dialog" data-uk-modal="{center:true}" style="display: none">Open</a>
+	<div id="back_dialog" class="uk-modal">
+		<div class="uk-modal-dialog">
+			<div class="uk-modal-header">
+				<h2 class="uk-text-success">你还没有配音完成，是否继续配音？</h2>
+			</div>
+			<ul class="uk-nav uk-nav-side uk-text-large">
+				<li><a id="back_dialog_continue" href="javascript:void(0)">继续配音</a></li>
+				<li class="uk-nav-divider"></li>
+				<li><a id="back_dialog_save" href="javascript:void(0)">保存到草稿箱</a></li>
+				<li class="uk-nav-divider"></li>
+				<li><a id="back_dialog_exitonly" href="javascript:void(0)">直接返回</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</div>
+
+<!-- 预览界面 -->
+<div id="preview_ui" style="display: none;">
+	<div class="p-player cl fixed_div">
+	<video id="video-preview" class="video-js vjs-default-skin vjs-big-play-centered vidoe_wrap">
+		<source src="{$attachInfo[video]}" type='video/mp4'>
+		<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
+		<!--{if attachInfo['subtitle'] != null}-->
+		<track kind="subtitles" src="{$attachInfo[subtitle]}" srclang="en" id="original" label="{lang zhikai_n5video:lang_068}" default></track>
+		<!--{/if}--> 
+		<!--{if $attachInfo['tsubtitle'] != null}-->
+		<track kind="subtitles" src="{$attachInfo[tsubtitle]}" srclang="zh" id="translation" label="{lang zhikai_n5video:lang_069}"></track>
+		<!--{/if}--> 
+	</video>
+	</div>
+
 </div>
 
 <script type="text/javascript">
@@ -406,7 +660,7 @@ if (jq('#accompany').length > 0) {
 	accompanyPlayer = jq('#accompany')[0];
 }
 
-var playStatus = 0; // =0原音播放或暂停中，=1用户录音中，=2回放用户录音中
+var playStatus = 0; // =0原音播放或暂停中，=1用户录音中，=2回放用户录音中, =3预览中。
 
 var attachInfo; // 存放录音的附件id。
 
@@ -432,7 +686,7 @@ player.on("canplay", function(){
 		// 在句子列表前插入一些空白，使得列表刚好在视频下方出现。
 		var elList = jq('.sentence_wrap');
 		var oldPadding = (elList.innerWidth() - elList.width()) / 2;
-		var newPadding = oldPadding + jq('.zhikai-player').outerHeight() - jq('.n5qj_tbys').outerHeight();
+		var newPadding = oldPadding + jq('.dubbing-player').outerHeight() - jq('.n5qj_tbys').outerHeight();
 		elList.css('padding-top', newPadding + 'px');
 
 		var origTrack = player.textTracks().getTrackById("original");
@@ -636,8 +890,7 @@ jq('.dubbing-back-button').click(function(event) {
 		jq('#back_dialog_button').click();
 	}
 	else {
-		popup.open("do laer: goto prevent page.", 'alert');
-		//javascript:history.back();
+		history.back(-1);
 	}
 });
 
@@ -837,94 +1090,103 @@ var dragSwitchSentence = {
 	isInTouch : false,
 	isInScroll : false,
 
-	init : function() {
-		var pos = {};
-		var status = false;
-		var _self = this;
+	pos : {},
+	status : false,
 
-		$('body').on('touchstart', function(e) {
-			//console.log('touchstart');
+	onTouchStart : function(e) {
+		//console.log('touchstart');
+		var _self = dragSwitchSentence;
 
-			e = mygetnativeevent(e);
-			pos.startx = e.touches[0].clientX;
-			pos.starty = e.touches[0].clientY;
-			_self.isInTouch = true;
-		})
-		.on('touchmove', function(e) {
-			//console.log('touchmove');
+		e = mygetnativeevent(e);
+		_self.pos.startx = e.touches[0].clientX;
+		_self.pos.starty = e.touches[0].clientY;
+		_self.isInTouch = true;
+	},
 
-			e = mygetnativeevent(e);
-			pos.curposx = e.touches[0].clientX;
-			pos.curposy = e.touches[0].clientY;
+	onTouchMove : function(e) {
+		//console.log('touchmove');
+		var _self = dragSwitchSentence;
 
-			// 垂直方向移动距离超过50，确认开始滚动。
-			var pullheight = pos.curposy - pos.starty;
-			if (!status && Math.abs(pullheight) > 50) {
-				status = true;
+		e = mygetnativeevent(e);
+		_self.pos.curposx = e.touches[0].clientX;
+		_self.pos.curposy = e.touches[0].clientY;
 
-				// 拖动开始，停止录音和录音回放。
-				stopRecordOrPlay();
-			}
-		})
-		.on('touchend', function(e) {
-			//console.log('touchend');
+		// 垂直方向移动距离超过50，确认开始滚动。
+		var pullheight = _self.pos.curposy - _self.pos.starty;
+		if (!_self.status && Math.abs(pullheight) > 50) {
+			_self.status = true;
 
-			_self.isInTouch = false;
+			// 拖动开始，停止录音和录音回放。
+			stopRecordOrPlay();
+		}
+	},
 
-			// 拖动结束，准备切换句子。
-			if (pos.curposy != pos.starty){
-				onScrollStop();
-			}
+	onTouchEnd : function(e) {
+		//console.log('touchend');
+		var _self = dragSwitchSentence;
 
-			status = false;
-			pos = {};
-		});
+		_self.isInTouch = false;
 
-		// 滚动结束事件处理
-		// 句子列表滚动结束后进行对齐和切换当前句子。
-		function onScrollStop(e) {
-			//console.log('onScrollStop');
+		// 拖动结束，准备切换句子。
+		if (_self.pos.curposy != _self.pos.starty){
+			_self.onScrollStop();
+		}
 
-			if (dragSwitchSentence.isInScroll) {
-				dragSwitchSentence.isInScroll = false;
-			}
+		_self.status = false;
+		_self.pos = {};
+	},
 
-			if (!dragSwitchSentence.isInTouch && subtitleCount > 0) {
-				var x, h;
-				var i;
-				var top = $('#sentence_0').offset().top;
-				var align = $(window).scrollTop() + top;
+	// 滚动结束事件处理
+	// 句子列表滚动结束后进行对齐和切换当前句子。
+	onScrollStop : function(e) {
+		//console.log('onScrollStop');
+		var _self = dragSwitchSentence;
 
-				for (i = 0; i < subtitleCount; i++) {
-					x = $('#sentence_' + i).offset().top;
-					h = $('#sentence_' + i).outerHeight();
+		if (_self.isInScroll) {
+			_self.isInScroll = false;
+		}
 
-					if (align >= x && align < (x + h)) {
+		if (!_self.isInTouch && subtitleCount > 0) {
+			var x, h;
+			var i;
+			var top = $('#sentence_0').offset().top;
+			var align = $(window).scrollTop() + top;
 
-						if (align <= x + h / 2) {
-							// 向上对齐当前
-							UIkit.Utils.scrollToElement(jq('#sentence_' + i), {
+			for (i = 0; i < subtitleCount; i++) {
+				x = $('#sentence_' + i).offset().top;
+				h = $('#sentence_' + i).outerHeight();
+
+				if (align >= x && align < (x + h)) {
+
+					if (align <= x + h / 2) {
+						// 向上对齐当前
+						UIkit.Utils.scrollToElement(jq('#sentence_' + i), {
+							offset: top
+						});
+						
+						sentencePlay(i);
+					}
+					else {
+						// 向下对齐下一个
+						if (i < (subtitleCount - 1)) {
+							UIkit.Utils.scrollToElement(jq('#sentence_' + (i + 1)), {
 								offset: top
 							});
-							
-							sentencePlay(i);
 						}
-						else {
-							// 向下对齐下一个
-							if (i < (subtitleCount - 1)) {
-								UIkit.Utils.scrollToElement(jq('#sentence_' + (i + 1)), {
-									offset: top
-								});
-							}
-							
-							sentencePlay(i + 1);
-						}
-
-						break;
+						
+						sentencePlay(i + 1);
 					}
+
+					break;
 				}
 			}
-		};
+		}
+	},
+	
+	init : function() {
+		jq('body').on('touchstart', this.onTouchStart)
+		.on('touchmove', this.onTouchMove)
+		.on('touchend', this.onTouchEnd);
 
 		// 监听滚动事件，在滚动结束时处理。
 		var scrollTimer = null;
@@ -943,10 +1205,17 @@ var dragSwitchSentence = {
 			//500ms后，假定认为停止滚动
 			scrollTimer = window.setTimeout(function() {
 				dragSwitchSentence.isInScroll = false;
-				onScrollStop();
+				dragSwitchSentence.onScrollStop();
 			}, 500);
-		};
-	}
+		}
+	},
+	
+	deinit : function() {
+		jq('body').off('touchend', this.onTouchEnd);
+		jq('body').off('touchmove', this.onTouchMove);
+		jq('body').off('touchstart', this.onTouchStart);
+		document.onscroll = null;
+	} 
 };
 
 ////////////////////////////////////////////////////////////////
@@ -970,6 +1239,9 @@ function uploadCallback(data) {
 			// 表单项的内容只是简单的填充一个字符串，暂时未使用。
 			jq('#attach_data_' + subtitleCurrent).html('').
 				append('<input type="text" value="record' + subtitleCurrent + '" name="attachnew['+ arr[2] +'][description]"/>');
+
+			// 使能预览按钮。
+			jq('#preview_button').removeAttr('disabled');
 
 			// 充许提交贴子。
 			needsubject = true; // 在post.php中定义。
@@ -1219,6 +1491,161 @@ function onPlayBtnClick(event) {
 	player.play();
 }
 
+////////////////////////////////////////////////////////////////////////////
+// 预览部分
+var previewVideoOptions = {
+	poster: '{$attachInfo[cover]}',
+	controls: true,
+	// 禁用自带来的控制条和播放按钮。
+	children: ['mediaLoader', 'posterImage', 'textTrackDisplay', 'loadingSpinner', 'errorDisplay', 'textTrackSettings', 'resizeManager', 'audioTrackButton'],
+	inactivityTimeout: -1, // 不要超时inactive.
+};
+
+var previewPlayer = videojs('video-preview', previewVideoOptions);
+var stopRecTimer = null; // 等待录音完成的定时器。
+
+jq('#preview_button').click(function(e){
+
+	// 切换之前关闭录音和录音回放。
+	bPlayAfterRecord = false;
+	stopRecordOrPlay();
+
+	// 等待录音完成后，才能切换，因为保存录音是在一个后台work中。
+	if (stopRecTimer != null) {
+		window.clearInterval(stopRecTimer);
+		stopRecTimer = null;
+	}
+	stopRecTimer = window.setInterval(function(){
+		if (!isRecordStart) {
+			//console.log("record has done.")
+			window.clearInterval(stopRecTimer);
+			stopRecTimer = null;
+
+			// 不处理句子列表的滚动。
+			dragSwitchSentence.deinit();
+
+			// 不让屏幕可以滚动。
+			jq('html').addClass("uk-modal-page");
+
+			// 暂停播放
+			player.pause();
+			jq(".vjs-control-panel").css("display","block");
+			if (accompanyPlayer != null) {
+				accompanyPlayer.pause();
+			}
+			if (recordPlayer != null) {
+				recordPlayer.pause();
+			}
+			playStatus = 3;
+
+			// 切换到预览界面。
+			jq('#dubbing_ui').css('display', 'none');
+			jq('#preview_ui').css('display', 'block');
+		}
+		else {
+			//console.log("record hasn't done.")
+		}
+	}, 100);
+});
+
+// 添加自定义的播放元素，点击视频时暂停和播放视频。
+function previewPlayBtnPlugin(options) {
+	var elTop = document.createElement('div');
+	elTop.className = 'zyh-preview-top';
+
+	// 顶部条
+	var elTopBar = document.createElement('div');
+	elTopBar.className = 'zyh-preview-top-bar';
+
+	// 顶部左边返回按钮
+	var elBackButton = document.createElement('div');
+	elBackButton.className = 'zyh-preview-back-button';
+	elBackButton.innerHTML = '<span aria-hidden="true" class="zyh-icon-placeholder uk-icon-angle-left"></span>';
+	elTopBar.appendChild(elBackButton);
+
+	// 右上角菜单按钮
+	var elMenuButton = document.createElement('div');
+	elMenuButton.className = 'zyh-preview-menu-button';
+	elMenuButton.innerHTML = '<span aria-hidden="true" class="zyh-icon-placeholder"></span>';
+	elTopBar.appendChild(elMenuButton);
+
+	// 顶部中间的标题
+	var elHeadTitel = document.createElement('div');
+	elHeadTitel.className = 'zyh-preview-head-title';
+	elHeadTitel.innerHTML = '<span aria-hidden="true" class="zyh-icon-placeholder">{$attachInfo[subject]}</span>';
+	elTopBar.appendChild(elHeadTitel);
+
+	var elBottom = document.createElement('div');
+	elBottom.className = 'zyh-preview-bottom';
+
+	// 底部条
+	var elBottomBar = document.createElement('div');
+	elBottomBar.className = 'zyh-preview-bottom-bar';
+
+	// 底部左侧当前时间
+	var elCurrentTime = document.createElement('div');
+	elCurrentTime.className = 'zyh-preview-current-time';
+	elCurrentTime.innerHTML = '<span aria-hidden="true" class="zyh-icon-placeholder">00:00</span>';
+	elBottomBar.appendChild(elCurrentTime);
+
+	// 底部右侧总时间
+	var elDurationTime = document.createElement('div');
+	elDurationTime.className = 'zyh-preview-duration-time';
+	elDurationTime.innerHTML = '<span aria-hidden="true" class="zyh-icon-placeholder">00:00</span>';
+	elBottomBar.appendChild(elDurationTime);
+
+	// 底部中央进度条
+	var elProcessBar = document.createElement('div');
+	elProcessBar.className = 'zyh-preview-process-bar';
+	elProcessBar.innerHTML = '<div class="uk-progress uk-progress-success"><div class="uk-progress-bar" style="width: 0%;"></div></div>';
+	elBottomBar.appendChild(elProcessBar);
+
+	// 居中的播放按钮
+	var elPlayNormalBtn = document.createElement('div');
+	elPlayNormalBtn.className = 'zyh-preview-play-normal zyh-round-play-button';
+	elPlayNormalBtn.innerHTML = '<span aria-hidden="true" class="zyh-icon-placeholder"></span>';
+	elPlayNormalBtn.onclick = function (e) {
+		//onUserActive();
+		//player.userActivity_ = false;
+	};
+
+	elTop.appendChild(elTopBar);
+	elBottom.appendChild(elBottomBar);
+	previewPlayer.el().appendChild(elPlayNormalBtn);
+	previewPlayer.el().appendChild(elTop);
+	previewPlayer.el().appendChild(elBottom);
+};
+videojs.registerPlugin('previewPlayBtnPlugin', previewPlayBtnPlugin);
+previewPlayer.previewPlayBtnPlugin({});
+
+function onPreviewUserActive() {
+	if (playStatus == 3) {
+		if (previewPlayer.userActive()) {
+			console.log("useractive preview");
+
+			//点击屏幕后暂停并显示面板
+			previewPlayer.pause();
+			jq(".zyh-preview-bottom-bar").css("bottom","0em");
+			jq(".zyh-preview-top-bar").css("top","0em");
+			jq(".zyh-preview-play-normal").css("display","block");
+		}
+		else {
+			console.log("userinactive preview");
+
+			// 恢复播放并隐藏面板
+			previewPlayer.muted(false);
+			previewPlayer.playbackRate(1);
+			previewPlayer.play();
+			jq(".zyh-preview-bottom-bar").css("bottom","-2.5em");
+			jq(".zyh-preview-top-bar").css("top","-3em");
+			jq(".zyh-preview-play-normal").css("display","none");
+		}
+	}
+}
+
+previewPlayer.userActive(false);
+previewPlayer.on("useractive", onPreviewUserActive);
+previewPlayer.on("userinactive", onPreviewUserActive);
 
 </script>
 
