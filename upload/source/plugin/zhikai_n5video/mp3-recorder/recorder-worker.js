@@ -24,12 +24,11 @@
 
     //导入lame.js以实现mp3编码
     //Worker 内可以使用 importScripts 导入js
-    importScripts('./lame.all.js');
+    importScripts('./lame.min.js');
 
     var dataBuffer = [],     //数据缓冲区
         mp3Encoder,          //mp3编码器
         numChannels,         //通道数
-        //sampleBits,          //采样位数
         inputSampleRate,     //输入采样率
         outputSampleRate;    //输出采样率
 
@@ -51,8 +50,9 @@
 
         clearBuffer();
 
-        var lame = new lamejs();
-        mp3Encoder = new lame.Mp3Encoder(numChannels, outputSampleRate, data.bitRate || 128);
+        //var lame = new lamejs();
+        //mp3Encoder = new lame.Mp3Encoder(numChannels, outputSampleRate, data.bitRate || 128);
+		mp3Encoder = new lamejs.Mp3Encoder(numChannels, outputSampleRate, data.bitRate || 128);
     }
 
     //数据压缩与转换

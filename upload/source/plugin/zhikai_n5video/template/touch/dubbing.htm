@@ -9,6 +9,8 @@
 <script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/mp3-recorder/recorder.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/mp3-recorder/mp3encoder.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/mp3-recorder/wavencoder.js"></script>
 
 <style>
 
@@ -568,6 +570,7 @@ html {
 	<!--{if $attachInfo['accompany'] != null}-->
 	<audio id="accompany" src="{$attachInfo[accompany]}"></audio>
 	<!--{/if}--> 
+	<audio id="dubbing"></audio>
 	<audio id="startRecordSnd" src="source/plugin/zhikai_n5video/di.ogg"></audio>
 
 </div>
@@ -632,12 +635,18 @@ html {
 		<!--{/if}--> 
 	</video>
 	</div>
+	<!-- 保存混音后的声音 -->
+	<div id="audio-dubbing">
+	</div>
 
 </div>
 
 <script type="text/javascript">
 var jq = jQuery.noConflict();
+window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.msAudioContext;
+var audioCtx  = new AudioContext();
 
+///////////////////////////////////////////////////////////////////////////////////////
 var videoOptions = {
 	poster: '{$attachInfo[cover]}',
 	controls: true,
@@ -654,11 +663,46 @@ var subtitleCurrent = -1;
 var sentenceStartTime = 0;
 var sentenceEndTime = 0;
 
-var recordPlayer = null;
-var accompanyPlayer = null;
+
+// 录音声音
+var recordRawData = null; // 存放录音信息，开始和结束时间，mp3帧数据。
+var recordPlayer = null; // 录音播放器
+
+// 伴奏声音
+var accompanyBuffer = null; // 伴奏解码后声音数据, AudioBuffer类型
+var accompanyPlayer = null; // 伴奏播放器
 if (jq('#accompany').length > 0) {
 	accompanyPlayer = jq('#accompany')[0];
+
+	// 伴奏声音文件加载完成时，解码声音数据到缓存。
+	accompanyPlayer.addEventListener("canplaythrough", function() {
+
+		// 请求伴奏声音文件数据。
+		// TODO: 有没有办法直接从元素中获取声音数据？
+		var request = new XMLHttpRequest();
+		request.responseType = "arraybuffer";
+		request.open("GET", jq('#accompany').attr('src'), true);
+
+		request.addEventListener("load", function(e) {
+			// 解码数据到accompanyBuffer。
+
+			if (audioCtx.decodeAudioData) {
+				audioCtx.decodeAudioData(request.response, function(audioBuffer) {
+					// 初始化伴奏数据缓存。
+					accompanyBuffer = audioBuffer;
+				});
+			}
+		}, false);
+
+		request.send(null);
+	}, false);
 }
+
+// 配音声音
+var dubbingBuffer = null; // 存放伴奏和录音的混合后的声音数据，AudioBuffer类型。
+var dubbingPlayer = null; // 伴奏和录音混合好的配音播放器。
+dubbingPlayer = jq('#dubbing')[0];
+
 
 var playStatus = 0; // =0原音播放或暂停中，=1用户录音中，=2回放用户录音中, =3预览中。
 
@@ -695,6 +739,27 @@ player.on("canplay", function(){
 		// 获取原文、译文和时间段。
 		if (origTrack) {
 			subtitleCount = origTrack.cues.length;
+
+			// 创建数组，存放录音的附件id。
+			attachInfo = {};
+			attachInfo['type'] = 'dubbing';
+			attachInfo['data'] = {};
+			attachInfo['data']['tid'] = jq('#tid').attr('tid');
+			attachInfo['data']['record'] = new Array(subtitleCount);
+			for (var i = 0; i < subtitleCount; i++){
+				attachInfo['data']['record'][i] = "";
+			}
+
+			// 创建数组，用于存放录音压缩声音数据。
+			recordRawData = new Array(subtitleCount);
+			for (var i = 0; i < subtitleCount; i++) {
+				var cue = origTrack.cues[i];
+				recordRawData[i] = {};
+				recordRawData[i]['startTime'] = cue.startTime;
+				recordRawData[i]['endTime'] = cue.endTime;
+				recordRawData[i]['data'] = null;
+			}
+
 			for (var i = 0; i < subtitleCount; i++) {
 				var cue = origTrack.cues[i];
 
@@ -762,16 +827,6 @@ player.on("canplay", function(){
 		}
 		if (transTrack) {
 			transTrack.mode = 'hidden';
-		}
-
-		// 创建数组，存放录音的附件id。
-		attachInfo = {};
-		attachInfo['type'] = 'dubbing';
-		attachInfo['data'] = {};
-		attachInfo['data']['tid'] = jq('#tid').attr('tid');
-		attachInfo['data']['record'] = new Array(subtitleCount);
-		for (var i = 0; i < subtitleCount; i++){
-			attachInfo['data']['record'][i] = "";
 		}
 
 		// 更新播放时间。
@@ -1275,9 +1330,10 @@ var recorder = new MP3Recorder({
 	WORKER_PATH: 'source/plugin/zhikai_n5video/mp3-recorder/recorder-worker.js',
 	//numChannels: 1,     //声道数,默认为1
 	//sampleRate: 8000,   //采样率,一般由设备提供,比如 48000
-	bitRate: 64,        //比特率,不要低于64,否则可能录制无声音（人声）
+	bitRate: 128,//64,        //比特率,不要低于64,否则可能录制无声音（人声）
 
-	//录音结束事件
+	// 录音结束事件, data中返回的是一个Array数组，
+	// 数组的每个元素是Ini8Array来存放一个mp3帧数据。
 	complete: function (data, type) {
 		var blob = new Blob(data, { type: type });
 		if (blob.size > 0) {
@@ -1288,6 +1344,20 @@ var recorder = new MP3Recorder({
 			jq('#audio_data_' + subtitleCurrent).html('').
 				append('<a href="' + url + '" download="' + mp3Name + '">' + mp3Name + '</a>').
 				append('<audio controls src="' + url + '" id="record_audio_' + subtitleCurrent + '"></audio>');
+
+			// 将录音mp3数据转成ArrayBuffer，并保存到recordRawData。
+			// 用于最终的伴奏和录音的合并。
+			var length = 0;
+			for (var i = 0; i < data.length; i++) {
+				length += data[i].length;
+			}
+			var buffer = new ArrayBuffer(length);
+			var dstData = new Int8Array(buffer);
+			for (var i = 0, offset = 0; i < data.length; i++) {
+				dstData.set(data[i], offset);
+				offset += data[i].length;
+			}
+			recordRawData[subtitleCurrent]['data'] = buffer;
 
 			// 上传服务器，录音数据比较小，所以一次上传不用分块。
 			var form = new FormData();
@@ -1504,6 +1574,212 @@ var previewVideoOptions = {
 var previewPlayer = videojs('video-preview', previewVideoOptions);
 var stopRecTimer = null; // 等待录音完成的定时器。
 
+// 返回合并buffer1和buffer2的声音数据。
+function mergeAudioBuffer(context, buffer1, buffer2) {
+	if (buffer1.sampleRate != buffer2.sampleRate) {
+		// TODO: support resample.
+		return;
+	}
+
+	var sampleRate = Math.min(buffer1.sampleRate, buffer2.sampleRate);
+	var length = Math.max(buffer1.length, buffer2.length);
+	var channelCount = Math.max(buffer1.numberOfChannels, buffer2.numberOfChannels);
+	var dstAudioBuffer = context.createBuffer(channelCount, length, sampleRate);
+
+	// 合并左声道
+	var srcData1 = buffer1.getChannelData(0);
+	var srcData2 = buffer2.getChannelData(0);
+	var dstData = dstAudioBuffer.getChannelData(0);
+
+	var src1 = new Float32Array(srcData1);
+	var src2 = new Float32Array(srcData2);
+	var dst = new Float32Array(dstData);
+	var count = Math.min(src1.length, src2.length);
+
+	for (i = 0; i < count; i++) {
+		dst[i] = (src1[i] + src2[i]) / 2;
+	}
+	if (src1.length > src2.length) {
+		dst.set(src1.subarray(i), i);
+	}
+	else if (src1.length < src2.length) {
+		dst.set(src2.subarray(i), i);
+	}
+	dstAudioBuffer.copyToChannel (dst, 0, 0);
+
+	// 合并右声道
+	if (dstAudioBuffer.numberOfChannels > 1) {
+		srcData1 = buffer1.numberOfChannels > 1 ? buffer1.getChannelData(1) : null;
+		srcData2 = buffer2.numberOfChannels > 1 ? buffer2.getChannelData(1) : null;
+		dstData = dstAudioBuffer.numberOfChannels > 1 ? dstAudioBuffer.getChannelData(1) : null;
+		
+		src1 = srcData1 == null ? null : new Float32Array(srcData1);
+		src2 = srcData2 == null ? null : new Float32Array(srcData2);
+		dst = new Float32Array(dstData);
+		
+		if (src1 != null && src2 != null) {
+			count = Math.min(src1.length, src2.length);
+			for (i = 0; i < count; i++) {
+				dst[i] = (src1[i] + src2[i]) / 2;
+			}
+			if (src1.length > src2.length) {
+				dst.set(src1.subarray(i), i);
+			}
+			else if (src1.length < src2.length) {
+				dst.set(src2.subarray(i), i);
+			}
+		}
+		else if (src1 != null) {
+			dst.set(src1);
+		}
+		else if (src2 != null) {
+			dst.set(src2);
+		}
+		dstAudioBuffer.copyToChannel (dst, 1, 0);
+	}
+
+	return dstAudioBuffer;
+}
+
+// 将buffer2合并到buffer1，开始合并时间为startTime。
+// 合并后buffer1的时长不会改变，超出的部分会丢弃。
+function mixAudioBuffer(context, buffer1, buffer2, startTime) {
+	if (buffer1.sampleRate != buffer2.sampleRate) {
+		// TODO: support resample.
+		return;
+	}
+
+	var sampleRate = Math.min(buffer1.sampleRate, buffer2.sampleRate);
+	var offset = Math.floor(startTime * buffer1.sampleRate);
+	var length = Math.max(buffer1.length, offset + buffer2.length);
+	var channelCount = Math.max(buffer1.numberOfChannels, buffer2.numberOfChannels);
+	var dstAudioBuffer = context.createBuffer(channelCount, length, sampleRate);
+
+	// 合并左声道
+	var srcData1 = buffer1.getChannelData(0);
+	var srcData2 = buffer2.getChannelData(0);
+
+	var src1 = new Float32Array(srcData1);
+	var src2 = new Float32Array(srcData2);
+	var count = Math.min(src1.length - offset, src2.length);
+
+	// 合并重合的数据
+	for (var i = offset, j = 0; j < count; i++, j++) {
+		src1[i] = (src1[i] + src2[j]) / 2;
+	}
+	buffer1.copyToChannel(src1, 0, 0);
+
+	// 合并右声道
+	if (buffer1.numberOfChannels > 1 && buffer2.numberOfChannels > 1) {
+		srcData1 = buffer1.getChannelData(1);
+		srcData2 = buffer2.getChannelData(1);
+
+		src1 = new Float32Array(srcData1);
+		src2 = new Float32Array(srcData2);
+		count = Math.min(src1.length - offset, src2.length);
+
+		// 合并重合的数据
+		for (var i = offset, j = 0; j < count; i++, j++) {
+			src1[i] = (src1[i] + src2[j]) / 2;
+		}
+		buffer1.copyToChannel(src1, 1, 0);
+	}
+}
+
+function mergeRecord2Commpany()
+{
+	// 先混合伴奏。
+	dubbingBuffer = audioCtx.createBuffer(accompanyBuffer.numberOfChannels, accompanyBuffer.length, accompanyBuffer.sampleRate);
+	dubbingBuffer.copyToChannel(accompanyBuffer.getChannelData(0), 0, 0);
+	if (accompanyBuffer.numberOfChannels > 1) {
+		dubbingBuffer.copyToChannel(accompanyBuffer.getChannelData(1), 1, 0);
+	}
+
+	var i = 0;
+	function mergeStack() {
+		// 是否还有要混合的录音。
+		if (recordRawData.hasOwnProperty(i)) {
+			// 解码录音并混合到伴奏中。
+			if (recordRawData[i]['data'] != null) {
+				audioCtx.decodeAudioData(recordRawData[i]['data'], function(audioBuffer) {
+					mixAudioBuffer(audioCtx, dubbingBuffer, audioBuffer, recordRawData[i]['startTime']);
+
+					i++;
+					mergeStack();
+				});
+			}
+			else {
+				i++;
+				mergeStack();
+			}
+		}
+		else {
+			// for test.
+			//var source = audioCtx.createBufferSource();
+			//source.buffer = dubbingBuffer;
+			//source.connect(audioCtx.destination);
+			//source.start();
+			
+			// 全部混合完成后，先将audiobuffer转成wav数据存放在ArrayBuffer中。
+			// 并产生<audio>供用户预览使用。这样是为了尽快给用户提供能播放的
+			// 声音用于预览。然后在后台进行耗时的mp3格式编码，用户确认时，
+			// 编码应该早就结束了，这里就可以立即上传mp3格式的声音到服务器。
+			
+			// 转wav格式。
+			var wav = new WAVEncoder({float32: 1});
+			var wavArrayBuffer = wav.encode(dubbingBuffer);
+
+			var blob = new Blob([wavArrayBuffer], { type: 'audio/wav' });
+			if (blob.size > 0) {
+				var url = URL.createObjectURL(blob);
+				var wavName = 'dubbing_' + Date.now() + '.wav';
+
+				// 绑定声音
+				dubbingPlayer.src = url;
+
+				// 生成audio界面元素。
+				jq('#audio-mixer').html('').
+					append('<a href="' + url + '" download="' + wavName + '">' + wavName + '</a>').
+					append('<audio controls src="' + url + '" id="dubbing_wav"></audio>');
+
+				// 在后台编码成mp3格式。
+				var encoder = new MP3Encoder({
+					WORKER_PATH: 'source/plugin/zhikai_n5video/mp3-recorder/recorder-worker.js',
+					bitRate: 128,//64,        //比特率,不要低于64,否则可能录制无声音（人声）
+
+					complete: function (data, type) {
+						var blob = new Blob(data, { type: type });
+						if (blob.size > 0) {
+							var url = URL.createObjectURL(blob);
+							var mp3Name = 'dubbing_' + Date.now() + '.mp3';
+
+							// 生成audio界面元素。
+							jq('#audio-mixer').
+								append('<a href="' + url + '" download="' + mp3Name + '">' + mp3Name + '</a>').
+								append('<audio controls src="' + url + '" id="dubbing_mp3"></audio>');
+
+						}
+
+					},
+
+					error: function (data) {
+						console.log("mp3 encode error.");
+					}
+				});
+				encoder.encode(dubbingBuffer);
+
+			}
+			else {
+				console.log("encode wave error.");
+			}
+
+		}
+	}
+	
+	// 开始混合录音。
+	mergeStack();
+
+}
 jq('#preview_button').click(function(e){
 
 	// 切换之前关闭录音和录音回放。
@@ -1537,6 +1813,13 @@ jq('#preview_button').click(function(e){
 				recordPlayer.pause();
 			}
 			playStatus = 3;
+
+			// 生成合并声音。
+			mergeRecord2Commpany();
+
+			previewPlayer.muted(true);
+			previewPlayer.pause();
+			dubbingPlayer.pause()
 
 			// 切换到预览界面。
 			jq('#dubbing_ui').css('display', 'none');
@@ -1633,8 +1916,6 @@ function onPreviewUserActive() {
 			console.log("userinactive preview");
 
 			// 恢复播放并隐藏面板
-			previewPlayer.muted(false);
-			previewPlayer.playbackRate(1);
 			previewPlayer.play();
 			jq(".zyh-preview-bottom-bar").css("bottom","-2.5em");
 			jq(".zyh-preview-top-bar").css("top","-3em");
@@ -1646,6 +1927,39 @@ function onPreviewUserActive() {
 previewPlayer.userActive(false);
 previewPlayer.on("useractive", onPreviewUserActive);
 previewPlayer.on("userinactive", onPreviewUserActive);
+
+//////////////////////////////////
+// 下面这一段用来保持声音和画面同步。
+
+// 开始或恢复播放
+previewPlayer.on("play", function() {
+	dubbingPlayer.play()
+});
+
+// 暂停播放
+previewPlayer.on("pause", function() {
+	dubbingPlayer.pause()
+});
+
+// 视频跳转
+previewPlayer.on("seeked", function() {
+	dubbingPlayer.currentTime = previewPlayer.currentTime();
+});
+
+//调整音量
+previewPlayer.on('volumechange', function() {
+	dubbingPlayer.volume = previewPlayer.volume();
+});
+
+// 播放结束
+previewPlayer.on('timeupdate', function () {
+	if (previewPlayer.duration() != 0 && previewPlayer.currentTime() == previewPlayer.duration()) {
+		dubbingPlayer.currentTime = 0;
+		dubbingPlayer.pause();
+	}
+});
+////////////////////////////////////
+
 
 </script>
 

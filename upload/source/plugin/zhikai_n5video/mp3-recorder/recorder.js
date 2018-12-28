@@ -64,7 +64,6 @@
                 cmd: "init",
                 data: {
                     numChannels: self.numChannels,
-                    sampleBits: self.sampleBits,
                     inputSampleRate: self.inputSampleRate,
                     outputSampleRate: self.outputSampleRate,
                     bitRate: self.bitRate
