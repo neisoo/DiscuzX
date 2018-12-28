@@ -1822,7 +1822,7 @@ jq('#preview_button').click(function(e){
 			dubbingPlayer.pause()
 
 			// 切换到预览界面。
-			jq('#dubbing_ui').css('display', 'none');
+			jq('#dubbing_ui').css('visibility', 'hidden');
 			jq('#preview_ui').css('display', 'block');
 		}
 		else {
@@ -1845,6 +1845,16 @@ function previewPlayBtnPlugin(options) {
 	elBackButton.className = 'zyh-preview-back-button';
 	elBackButton.innerHTML = '<span aria-hidden="true" class="zyh-icon-placeholder uk-icon-angle-left"></span>';
 	elTopBar.appendChild(elBackButton);
+	elBackButton.onclick = function (e) {
+		// 切换回配音界面。
+		previewPlayer.pause();
+		dubbingPlayer.pause();
+		jq('#dubbing_ui').css('visibility', 'visible');
+		jq('#preview_ui').css('display', 'none');
+		dragSwitchSentence.init();
+		jq('html').removeClass("uk-modal-page");
+		playStatus = 0;
+	};
 
 	// 右上角菜单按钮
 	var elMenuButton = document.createElement('div');
