@@ -1,11 +1,13 @@
 <!--{block file}-->
 <link href="source/plugin/zhikai_n5video/static/css/style.css" rel="stylesheet" />
+<link href="source/plugin/zhikai_n5video/static/css/jquery.seekbar.css" rel="stylesheet" />
 <link href="source/plugin/zhikai_n5video/uikit/css/uikit.docs.min.css" rel="stylesheet" />
 <link href="source/plugin/zhikai_n5video/uikit/css/components/progress.css " rel="stylesheet" />
 <link rel="stylesheet" href="source/plugin/zhikai_n5video/video-js/video-js.min.css">
 
-<script type="text/javascript"src="source/plugin/zhikai_n5video/static/js/jquery.min.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.shardupload.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.seekbar.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/mp3-recorder/recorder.js"></script>
@@ -489,7 +491,7 @@ html {
 }
 
 /* 底部中间的进度条 */
-.zyh-preview-process-bar {
+.zyh-preview-seekbar-container {
 	display: block;
 	position: absolute;
 
@@ -497,17 +499,12 @@ html {
 	background-color: rgba(0, 0, 0, 0);
 
 	/* 位置*/
-	bottom: 1.1em;
+	bottom: 25%;
 	padding-right: 5em;
 	padding-left: 4.5em;
-	height: 0.3em;
+	height: 50%;
 	width: 100%;
 	/*border: 0.03em solid rgba(255, 255, 255, 0.7);*/
-}
-
-.zyh-preview-process-bar .uk-progress {
-	height: 100%;
-	line-height: 100%;
 }
 
 /* 中间的圆形按钮 */
@@ -622,8 +619,9 @@ html {
 </div>
 
 <!-- 预览界面 -->
-<div id="preview_ui" style="display: none;">
-	<div class="p-player cl fixed_div">
+<div id="preview_ui" style="visibility: hidden;">
+	<div class="preview-player cl fixed_div">
+	<!-- 预览播放器 -->
 	<video id="video-preview" class="video-js vjs-default-skin vjs-big-play-centered vidoe_wrap">
 		<source src="{$attachInfo[video]}" type='video/mp4'>
 		<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
@@ -1568,11 +1566,13 @@ var previewVideoOptions = {
 	controls: true,
 	// 禁用自带来的控制条和播放按钮。
 	children: ['mediaLoader', 'posterImage', 'textTrackDisplay', 'loadingSpinner', 'errorDisplay', 'textTrackSettings', 'resizeManager', 'audioTrackButton'],
-	inactivityTimeout: -1, // 不要超时inactive.
+	inactivityTimeout: 5000, // 在active状态会显示控制面板，用户5秒不操作视频，进入inactive收起控制面板。
 };
 
 var previewPlayer = videojs('video-preview', previewVideoOptions);
 var stopRecTimer = null; // 等待录音完成的定时器。
+var previewSeekBar = null; // 进度条
+var previewInit = false;
 
 // 返回合并buffer1和buffer2的声音数据。
 function mergeAudioBuffer(context, buffer1, buffer2) {
@@ -1823,7 +1823,7 @@ jq('#preview_button').click(function(e){
 
 			// 切换到预览界面。
 			jq('#dubbing_ui').css('visibility', 'hidden');
-			jq('#preview_ui').css('display', 'block');
+			jq('#preview_ui').css('visibility', 'visible');
 		}
 		else {
 			//console.log("record hasn't done.")
@@ -1850,7 +1850,7 @@ function previewPlayBtnPlugin(options) {
 		previewPlayer.pause();
 		dubbingPlayer.pause();
 		jq('#dubbing_ui').css('visibility', 'visible');
-		jq('#preview_ui').css('display', 'none');
+		jq('#preview_ui').css('visibility', 'hidden');
 		dragSwitchSentence.init();
 		jq('html').removeClass("uk-modal-page");
 		playStatus = 0;
@@ -1888,18 +1888,21 @@ function previewPlayBtnPlugin(options) {
 	elBottomBar.appendChild(elDurationTime);
 
 	// 底部中央进度条
-	var elProcessBar = document.createElement('div');
-	elProcessBar.className = 'zyh-preview-process-bar';
-	elProcessBar.innerHTML = '<div class="uk-progress uk-progress-success"><div class="uk-progress-bar" style="width: 0%;"></div></div>';
-	elBottomBar.appendChild(elProcessBar);
+	var elSeekBar = document.createElement('div');
+	elSeekBar.className = 'zyh-preview-seekbar-container';
+	elBottomBar.appendChild(elSeekBar);
 
 	// 居中的播放按钮
 	var elPlayNormalBtn = document.createElement('div');
 	elPlayNormalBtn.className = 'zyh-preview-play-normal zyh-round-play-button';
 	elPlayNormalBtn.innerHTML = '<span aria-hidden="true" class="zyh-icon-placeholder"></span>';
 	elPlayNormalBtn.onclick = function (e) {
-		//onUserActive();
-		//player.userActivity_ = false;
+		if (previewPlayer.paused()) {
+			previewPlayer.play();
+		}
+		else {
+			previewPlayer.pause();
+		}
 	};
 
 	elTop.appendChild(elTopBar);
@@ -1908,6 +1911,7 @@ function previewPlayBtnPlugin(options) {
 	previewPlayer.el().appendChild(elTop);
 	previewPlayer.el().appendChild(elBottom);
 };
+
 videojs.registerPlugin('previewPlayBtnPlugin', previewPlayBtnPlugin);
 previewPlayer.previewPlayBtnPlugin({});
 
@@ -1917,7 +1921,7 @@ function onPreviewUserActive() {
 			console.log("useractive preview");
 
 			//点击屏幕后暂停并显示面板
-			previewPlayer.pause();
+			//previewPlayer.pause();
 			jq(".zyh-preview-bottom-bar").css("bottom","0em");
 			jq(".zyh-preview-top-bar").css("top","0em");
 			jq(".zyh-preview-play-normal").css("display","block");
@@ -1926,7 +1930,7 @@ function onPreviewUserActive() {
 			console.log("userinactive preview");
 
 			// 恢复播放并隐藏面板
-			previewPlayer.play();
+			//previewPlayer.play();
 			jq(".zyh-preview-bottom-bar").css("bottom","-2.5em");
 			jq(".zyh-preview-top-bar").css("top","-3em");
 			jq(".zyh-preview-play-normal").css("display","none");
@@ -1970,7 +1974,39 @@ previewPlayer.on('timeupdate', function () {
 });
 ////////////////////////////////////
 
+// 播放器时间更新回调。
+previewPlayer.on('timeupdate', function() {
+	// 更新播放进度，当前时间。
+	previewSeekBar.setValue(previewPlayer.currentTime());
+	
+	jq('.zyh-preview-process-bar .uk-progress-bar').css('width', ' ' + (previewPlayer.currentTime() * 100 / previewPlayer.duration()) + '%')
+	jq('.zyh-preview-current-time .zyh-icon-placeholder').html(getTimeString(previewPlayer.currentTime()));
+});
 
+
+previewPlayer.on("canplay", function() {
+	if (!previewInit) {
+		previewInit = true;
+
+		// 初始化播放时间。
+		jq('.zyh-preview-current-time .zyh-icon-placeholder').html(getTimeString(0));
+		jq('.zyh-preview-duration-time .zyh-icon-placeholder').html(getTimeString(previewPlayer.duration()));
+
+		// 初始化进度条
+		previewSeekBar = new Seekbar.Seekbar({
+			renderTo: ".zyh-preview-seekbar-container",
+			minValue: 0, maxValue: previewPlayer.duration(),
+			valueListener: function (value) {
+				previewPlayer.currentTime(value);
+				previewPlayer.reportUserActivity(null);
+			},
+			thumbColor: '#82bb42',
+			negativeColor: '#82bb42',
+			positiveColor: '#CCC',
+			value: 0
+		});
+	}
+});
 </script>
 
 
