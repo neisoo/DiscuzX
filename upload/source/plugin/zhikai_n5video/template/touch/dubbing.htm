@@ -369,7 +369,7 @@ html {
 
 	/*顶部对齐*/
 	position: absolute;
-	top:0em;
+	top: 0em;
 
 	padding: 0;
 	margin: 0;
@@ -385,6 +385,11 @@ html {
 
 	transition: all 0.4s;
 	/*border: 0.03em solid rgba(255, 255, 255, 0.7);*/
+}
+
+/* 不活动时隐藏顶部功能条 */
+.vjs-user-inactive .zyh-preview-top-bar {
+	top: -3em;
 }
 
 /* 左上角回退按钮 */
@@ -476,6 +481,11 @@ html {
 	/*border: 0.03em solid rgba(255, 255, 255, 0.7);*/
 }
 
+/* 不活动时隐藏底部功能条 */
+.vjs-user-inactive .zyh-preview-bottom-bar {
+	bottom: -2.5em;
+}
+
 /* 左下角当前时间 */
 .zyh-preview-current-time {
 	/* 位置*/
@@ -517,12 +527,18 @@ html {
 	position: absolute;
 	padding: 0;
 	cursor: pointer;
-	opacity: 1;
 	border: 0.03em solid rgba(255, 255, 255, 0.7);
 	background-color: #2B333F;
 	background-color: rgba(43, 51, 63, 0.7);
 	border-radius: 100%;
+
+	opacity: 1;
 	transition: all 0.4s;
+}
+
+/* 不活动时隐藏按钮 */
+.vjs-has-started.vjs-user-inactive .zyh-round-play-button {
+	opacity: 0;
 }
 
 .zyh-preview-play-normal {
@@ -546,14 +562,22 @@ html {
 	font-family: VideoJS;
 	font-weight: normal;
 	font-style: normal;
-}
-
-.zyh-preview-play-normal .zyh-icon-placeholder:before {
 	font-size: 1.5em;
 	margin-top: 0.15em;
+}
+
+/* 播放状态图标 */
+.vjs-playing .zyh-preview-play-normal .zyh-icon-placeholder:before {
+	content: "\\f103"; 
+}
+
+/* 暂停状态图标 */
+.vjs-paused .zyh-preview-play-normal .zyh-icon-placeholder:before {
 	content: "\\f101"; 
 }
 
+
+  
 </style>
 
 
@@ -622,7 +646,7 @@ html {
 <div id="preview_ui" style="visibility: hidden;">
 	<div class="preview-player cl fixed_div">
 	<!-- 预览播放器 -->
-	<video id="video-preview" class="video-js vjs-default-skin vjs-big-play-centered vidoe_wrap">
+	<video id="video-preview" class="video-js vjs-default-skin vidoe_wrap">
 		<source src="{$attachInfo[video]}" type='video/mp4'>
 		<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
 		<!--{if attachInfo['subtitle'] != null}-->
@@ -1897,11 +1921,13 @@ function previewPlayBtnPlugin(options) {
 	elPlayNormalBtn.className = 'zyh-preview-play-normal zyh-round-play-button';
 	elPlayNormalBtn.innerHTML = '<span aria-hidden="true" class="zyh-icon-placeholder"></span>';
 	elPlayNormalBtn.onclick = function (e) {
-		if (previewPlayer.paused()) {
-			previewPlayer.play();
-		}
-		else {
-			previewPlayer.pause();
+		if (previewPlayer.userActive() || !previewPlayer.hasStarted()) {
+			if (previewPlayer.paused()) {
+				previewPlayer.play();
+			}
+			else {
+				previewPlayer.pause();
+			}
 		}
 	};
 
@@ -1915,33 +1941,7 @@ function previewPlayBtnPlugin(options) {
 videojs.registerPlugin('previewPlayBtnPlugin', previewPlayBtnPlugin);
 previewPlayer.previewPlayBtnPlugin({});
 
-function onPreviewUserActive() {
-	if (playStatus == 3) {
-		if (previewPlayer.userActive()) {
-			console.log("useractive preview");
-
-			//点击屏幕后暂停并显示面板
-			//previewPlayer.pause();
-			jq(".zyh-preview-bottom-bar").css("bottom","0em");
-			jq(".zyh-preview-top-bar").css("top","0em");
-			jq(".zyh-preview-play-normal").css("display","block");
-		}
-		else {
-			console.log("userinactive preview");
-
-			// 恢复播放并隐藏面板
-			//previewPlayer.play();
-			jq(".zyh-preview-bottom-bar").css("bottom","-2.5em");
-			jq(".zyh-preview-top-bar").css("top","-3em");
-			jq(".zyh-preview-play-normal").css("display","none");
-		}
-	}
-}
-
 previewPlayer.userActive(false);
-previewPlayer.on("useractive", onPreviewUserActive);
-previewPlayer.on("userinactive", onPreviewUserActive);
-
 //////////////////////////////////
 // 下面这一段用来保持声音和画面同步。
 
