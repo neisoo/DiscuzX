@@ -453,13 +453,17 @@ html {
 /* 底部的状态条 */
 .zyh-preview-bottom-bar {
 	display: block;
-	font-size: 0.5em;
 	height: 2.5em;
 	line-height: 2.5em; /* 使文字垂直居中：文字行高与容器高一样 */
 	width: 100%;
 	text-align: center;
 	vertical-align:middle;
 	color: white;
+
+	font-family: VideoJS;
+	font-weight: normal;
+	font-style: normal;
+	font-size: 0.5em;
 
 	/*底部对齐*/
 	position: absolute;
@@ -500,8 +504,25 @@ html {
 	width: 4.5em;
 }
 
+/* 右下角全屏 */
+.zyh-preview-fullscreen {
+	/* 位置*/
+	float: right;
+	width: 2.5em;
+}
+
+/* 正常显示进入全屏图标 */
+.zyh-preview-fullscreen .zyh-icon-placeholder:before {
+	content: "\\f108"; 
+}
+
+/* 全屏状态下显示退出全屏图标 */
+.vjs-fullscreen .zyh-preview-fullscreen .zyh-icon-placeholder:before {
+	content: "\\f109"; 
+}
+
 /* 底部中间的进度条 */
-.zyh-preview-seekbar-container {
+.zyh-preview-seekbar {
 	display: block;
 	position: absolute;
 
@@ -510,10 +531,10 @@ html {
 
 	/* 位置*/
 	bottom: 25%;
-	padding-right: 5em;
-	padding-left: 4.5em;
+	left:4.5em;
+	right: 7em;
 	height: 50%;
-	width: 100%;
+	width: auto;
 	/*border: 0.03em solid rgba(255, 255, 255, 0.7);*/
 }
 
@@ -575,8 +596,6 @@ html {
 .vjs-paused .zyh-preview-play-normal .zyh-icon-placeholder:before {
 	content: "\\f101"; 
 }
-
-
   
 </style>
 
@@ -1899,22 +1918,36 @@ function previewPlayBtnPlugin(options) {
 	var elBottomBar = document.createElement('div');
 	elBottomBar.className = 'zyh-preview-bottom-bar';
 
+	// 底部中央进度条
+	var elSeekBar = document.createElement('div');
+	elSeekBar.className = 'zyh-preview-seekbar';
+	elBottomBar.appendChild(elSeekBar);
+
 	// 底部左侧当前时间
 	var elCurrentTime = document.createElement('div');
 	elCurrentTime.className = 'zyh-preview-current-time';
 	elCurrentTime.innerHTML = '<span aria-hidden="true" class="zyh-icon-placeholder">00:00</span>';
 	elBottomBar.appendChild(elCurrentTime);
 
+	// 底部右侧全屏
+	var elFullScreen = document.createElement('div');
+	elFullScreen.className = 'zyh-preview-fullscreen';
+	elFullScreen.innerHTML = '<span aria-hidden="true" class="zyh-icon-placeholder"></span>';
+	elBottomBar.appendChild(elFullScreen);
+	elFullScreen.onclick = function (e) {
+		if (previewPlayer.isFullscreen()) {
+			previewPlayer.exitFullscreen();
+		}
+		else {
+			previewPlayer.requestFullscreen();
+		}
+	};
+
 	// 底部右侧总时间
 	var elDurationTime = document.createElement('div');
 	elDurationTime.className = 'zyh-preview-duration-time';
 	elDurationTime.innerHTML = '<span aria-hidden="true" class="zyh-icon-placeholder">00:00</span>';
 	elBottomBar.appendChild(elDurationTime);
-
-	// 底部中央进度条
-	var elSeekBar = document.createElement('div');
-	elSeekBar.className = 'zyh-preview-seekbar-container';
-	elBottomBar.appendChild(elSeekBar);
 
 	// 居中的播放按钮
 	var elPlayNormalBtn = document.createElement('div');
@@ -1994,7 +2027,7 @@ previewPlayer.on("canplay", function() {
 
 		// 初始化进度条
 		previewSeekBar = new Seekbar.Seekbar({
-			renderTo: ".zyh-preview-seekbar-container",
+			renderTo: ".zyh-preview-seekbar",
 			minValue: 0, maxValue: previewPlayer.duration(),
 			valueListener: function (value) {
 				previewPlayer.currentTime(value);
