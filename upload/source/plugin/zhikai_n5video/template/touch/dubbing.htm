@@ -38,19 +38,35 @@ html {
 	color: red;
 }
 
-.fixed_div {
+/****************************************************************
+ * 配音界面滚动区域
+ ****************************************************************/
+.zyh-dubbing-ui {
+	display: block;
+	position: absolute;
 	width: 100%;
-	position: fixed;
-	background: #e5e5e5;
-	top: 0;
-	z-index: 1000;
-	left: 0px;
+	top: 0px;
+	bottom: 0px;
+	overflow: hidden;
+	background-color: #eeeeee;
 }
 
-.sentence_wrap {
-	padding: 10px;
+.zyh-player-area {
+	display: block;
+	position: static;
 }
 
+.zyh-dubbing-scroll-area {
+	display: block;
+	position: absolute;
+	top: -1000rem;
+	padding: 1rem;
+	overflow: scroll;
+}
+
+.zyh-dubbing-done-button {
+	margin-top: 1rem;
+}
 .vidoe_wrap{
 	width:100%;
 	position:relative;
@@ -677,7 +693,8 @@ html {
 	font-size: 3rem;
 	content: "\\f101"; 
 }
-  
+
+
 </style>
 
 
@@ -697,9 +714,9 @@ html {
 </div>
 
 <!-- 配音界面 -->
-<div id="dubbing_ui">
+<div class="zyh-dubbing-ui">
 	<!-- 配音播放器 -->
-	<div class="dubbing-player cl fixed_div">
+	<div class="zyh-player-area">
 		<video id="video_{$attachInfo[tid]}" class="video-js vjs-default-skin vjs-big-play-centered vidoe_wrap">
 			<source src="{$attachInfo[video]}" type='video/mp4'>
 			<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
@@ -711,12 +728,12 @@ html {
 			<!--{/if}--> 
 		</video>
 	</div>
-	<!-- 句子列表 -->
-	<div id="sutitle_list" class="sentence_wrap">
-	</div>
-	<!-- 配音预览 -->
-	<div class="uk-panel uk-width-1-2 uk-container-center uk-text-center">
-		<button id="preview_button" class="preview-button uk-button uk-button-success uk-button-large uk-width-1-1" type="button" disabled>预览发布</button>
+	<!-- 配音列表滚动区域 -->
+	<div class="zyh-dubbing-scroll-area">
+		<div id="dubbing-done" class="uk-panel uk-width-1-2 uk-container-center uk-text-center">
+			<!-- 配音预览 -->
+			<button class="zyh-dubbing-done-button preview-button uk-button uk-button-success uk-button-large uk-width-1-1" type="button" disabled>预览发布</button>
+		</div>
 	</div>
 
 	<!-- 点击退出时弹出的模态对话框 -->
@@ -739,8 +756,8 @@ html {
 </div>
 
 <!-- 预览界面 -->
-<div id="preview_ui" style="visibility: hidden;">
-	<div class="preview-player cl fixed_div">
+<div class="zyh-preview-ui" style="visibility: hidden;">
+	<div class="preview-player cl">
 	<!-- 预览播放器 -->
 	<video id="video-preview" class="video-js vjs-default-skin vidoe_wrap">
 		<source src="{$attachInfo[video]}" type='video/mp4'>
@@ -755,6 +772,10 @@ html {
 	</div>
 	<!-- 保存混音后的声音 -->
 	<div id="audio-dubbing">
+	</div>
+	<div class="uk-button-group uk-width-1-1">
+		<button class="uk-button uk-button-large uk-width-1-4 uk-icon-download"> 存本地</button>
+		<button class="uk-button uk-button-success uk-button-large uk-width-3-4 uk-icon-share"> 发布并分享</button>
 	</div>
 
 </div>
@@ -826,6 +847,9 @@ dubbingPlayer = jq('#dubbing')[0];
 
 var attachInfo; // 存放录音的附件id。
 
+// 隐藏不需要的界面元素。
+jq('.n5qj_tbys').css('display', 'none');
+
 player.on("ready", function(){
 	var origTrack = player.textTracks().getTrackById("original");
 	var transTrack = player.textTracks().getTrackById("translation");
@@ -844,12 +868,6 @@ player.on("canplay", function(){
 	
 	if (!subtitleInit) {
 		subtitleInit = true;
-
-		// 在句子列表前插入一些空白，使得列表刚好在视频下方出现。
-		var elList = jq('.sentence_wrap');
-		var oldPadding = (elList.innerWidth() - elList.width()) / 2;
-		var newPadding = oldPadding + jq('.dubbing-player').outerHeight() - jq('.n5qj_tbys').outerHeight();
-		elList.css('padding-top', newPadding + 'px');
 
 		var origTrack = player.textTracks().getTrackById("original");
 		var transTrack = player.textTracks().getTrackById("translation");
@@ -881,7 +899,7 @@ player.on("canplay", function(){
 			for (var i = 0; i < subtitleCount; i++) {
 				var cue = origTrack.cues[i];
 
-				var dom ='<div class="uk-grid data-uk-grid-margin uk-grid-small">'
+				var dom ='<div id="dubbing_list_item_' + i + '" class="uk-grid data-uk-grid-margin uk-grid-small">'
 					+	'<div class="uk-width-1-1 uk-row-first">'
 					+		'<div class="uk-panel uk-panel-box" id="sentence_' + i + '" startTime="' + cue.startTime + '" endTime="' + cue.endTime + '">'
 					+			'<div class="uk-panel-badge uk-badge">Hot</div>'
@@ -930,7 +948,7 @@ player.on("canplay", function(){
 				dom +=	'</div>';
 				dom += '</div>';
 
-				jq('#sutitle_list').append(dom);
+				jq('#dubbing-done').before(dom);
 
 				// 设置句子的播放和录音回调。
 				jq('#play_btn_' + i).click(onPlayBtnClick);
@@ -956,10 +974,13 @@ player.on("canplay", function(){
 			offset: $('#sentence_0').offset().top
 		});
 
-		// 句子列表尾部也填充空白，使得最后一句可以滚动到视频下面。
-		if (subtitleCount > 1) {
-			jq('#pagebottom').css('padding-bottom', $('#sentence_' + (subtitleCount - 2)).outerHeight() + 'px');
-		}
+		// 定位滚动区域的开始位置。
+		var elScroll = jq('.zyh-dubbing-scroll-area');
+		elScroll.css('top', (jq('.zyh-player-area').outerHeight()) + 'px');
+		elScroll.css('bottom', '0px');
+		
+		var elDubbingDoneBtn = jq('.zyh-dubbing-done-button');
+		elDubbingDoneBtn.css('margin-bottom', (elScroll.outerHeight() - elDubbingDoneBtn.outerHeight()) + 'px');
 
 		// 切换到第一条句子开始播放。
 		sentencePlay(0);
@@ -1273,55 +1294,31 @@ function sentencePlay(index) {
 ///////////////////////////////////////////////////////////////////////////////////
 // 句子列表滚动
 
-// 监听触屏：结束拖动名子列表时，切换句子。
+// 监听触屏：结束拖动句子列表时，切换句子。
 var dragSwitchSentence = {
-	isInTouch : false,
-	isInScroll : false,
+
+	isInTouch : false, // 用户的Touch还没有松开。
+	isInScroll : false, // 正在进行对齐滚动。
 
 	pos : {},
-	status : false,
+	start : false, // =true 用户开始滚动。
+	needStop : false, // =true 用户开始滚动后，滚动距离达到一定时要停止录音和录音回放。
+	delayTimer : null,
 
 	onTouchStart : function(e) {
 		//console.log('touchstart');
 		var _self = dragSwitchSentence;
-
-		e = mygetnativeevent(e);
-		_self.pos.startx = e.touches[0].clientX;
-		_self.pos.starty = e.touches[0].clientY;
 		_self.isInTouch = true;
 	},
 
 	onTouchMove : function(e) {
 		//console.log('touchmove');
-		var _self = dragSwitchSentence;
-
-		e = mygetnativeevent(e);
-		_self.pos.curposx = e.touches[0].clientX;
-		_self.pos.curposy = e.touches[0].clientY;
-
-		// 垂直方向移动距离超过50，确认开始滚动。
-		var pullheight = _self.pos.curposy - _self.pos.starty;
-		if (!_self.status && Math.abs(pullheight) > 50) {
-			_self.status = true;
-
-			// 拖动开始，停止录音和录音回放。
-			stopRecordOrPlay();
-		}
 	},
 
 	onTouchEnd : function(e) {
 		//console.log('touchend');
 		var _self = dragSwitchSentence;
-
 		_self.isInTouch = false;
-
-		// 拖动结束，准备切换句子。
-		if (_self.pos.curposy != _self.pos.starty){
-			_self.onScrollStop();
-		}
-
-		_self.status = false;
-		_self.pos = {};
 	},
 
 	// 滚动结束事件处理
@@ -1330,38 +1327,46 @@ var dragSwitchSentence = {
 		//console.log('onScrollStop');
 		var _self = dragSwitchSentence;
 
-		if (_self.isInScroll) {
-			_self.isInScroll = false;
-		}
-
-		if (!_self.isInTouch && subtitleCount > 0) {
+		if (subtitleCount > 0) {
+			var top = jq('.zyh-dubbing-scroll-area').scrollTop(); // 当前滚动到的位置
 			var x, h;
 			var i;
-			var top = $('#sentence_0').offset().top;
-			var align = $(window).scrollTop() + top;
 
 			for (i = 0; i < subtitleCount; i++) {
-				x = $('#sentence_' + i).offset().top;
-				h = $('#sentence_' + i).outerHeight();
+				var elItem = jq('#dubbing_list_item_' + i);
+				x = elItem.position().top;
+				h = elItem.outerHeight();
 
-				if (align >= x && align < (x + h)) {
+				if (i == (subtitleCount - 1)) {
+					$('.zyh-dubbing-scroll-area').animate({scrollTop: top + x}, 500);
+					sentencePlay(i);
+					break;
+				}
 
-					if (align <= x + h / 2) {
-						// 向上对齐当前
-						UIkit.Utils.scrollToElement(jq('#sentence_' + i), {
-							offset: top
-						});
-						
+				if (x + h > 0) {
+					if ((x + h / 2) >= 0) {
+						// 向上对齐当前顶部
+						if (i == 0) {
+							$('.zyh-dubbing-scroll-area').animate({scrollTop: 0}, 500);
+						} 
+						else {
+							$('.zyh-dubbing-scroll-area').animate({scrollTop: top + x}, 500);
+						}
+
 						sentencePlay(i);
 					}
 					else {
-						// 向下对齐下一个
+						// 向下对齐下一个顶部
 						if (i < (subtitleCount - 1)) {
-							UIkit.Utils.scrollToElement(jq('#sentence_' + (i + 1)), {
-								offset: top
-							});
+							if (i == 0) {
+								$('.zyh-dubbing-scroll-area').animate({scrollTop: h + 10}, 500);
+							}
+							else {
+								$('.zyh-dubbing-scroll-area').animate({scrollTop: top + x + h + 10}, 500);
+							}
+
 						}
-						
+
 						sentencePlay(i + 1);
 					}
 
@@ -1370,39 +1375,96 @@ var dragSwitchSentence = {
 			}
 		}
 	},
-	
+
 	init : function() {
-		jq('body').on('touchstart', this.onTouchStart)
+		var _self = dragSwitchSentence;
+
+		jq('.zyh-dubbing-scroll-area').on('touchstart', this.onTouchStart)
 		.on('touchmove', this.onTouchMove)
 		.on('touchend', this.onTouchEnd);
 
 		// 监听滚动事件，在滚动结束时处理。
-		var scrollTimer = null;
-		document.onscroll = function() {
+		jq('.zyh-dubbing-scroll-area').scroll(function() {
 			//console.log('scroll');
-			if (dragSwitchSentence.isInTouch) {
+
+			// scroll事件是在对齐过程的时间段中产生，就有可能是onScrollStop触发的，
+			// 这时延时处理scroll事件。
+			if (_self.isInScroll) {
+				if (_self.delayTimer != null) {
+					window.clearInterval(_self.delayTimer);
+					_self.delayTimer = null;
+				}
+
+				_self.delayTimer = window.setInterval(function() {
+					window.clearInterval(_self.delayTimer);
+					_self.delayTimer = null;
+					_self.isInScroll = false;
+					jq('.zyh-dubbing-scroll-area').trigger('scroll');
+				}, 500);
+
 				return;
 			}
-			dragSwitchSentence.isInScroll = true;
 
-			if (scrollTimer != null){
-			   window.clearTimeout(scrollTimer);
+			if (!_self.start) {
+				_self.start = true;
+				_self.needStop = true;
+				_self.pos.startTop = jq('.zyh-dubbing-scroll-area').scrollTop();
+			}
+			else {
+				//_self.pos.curTop = jq('.zyh-dubbing-scroll-area').scrollTop();
+                //
+				//// 垂直方向移动距离超过50，确认开始滚动，停止录音或录音回放。
+				//var pullheight = _self.pos.curTop - _self.pos.startTop;
+				////console.log('pullheight:' + pullheight);
+				//if (_self.needStop && Math.abs(pullheight) > 50) {
+				//	//console.log('stop');
+				//	_self.needStop = false;
+				//	stopRecordOrPlay();
+				//}
 			}
 
-			window.canAutoScroll = false;
-			//500ms后，假定认为停止滚动
-			scrollTimer = window.setTimeout(function() {
-				dragSwitchSentence.isInScroll = false;
-				dragSwitchSentence.onScrollStop();
-			}, 500);
-		}
+			if (_self.delayTimer != null) {
+				window.clearInterval(_self.delayTimer);
+				_self.delayTimer = null;
+			}
+
+			function timerProcess() {
+				window.clearInterval(_self.delayTimer);
+				_self.delayTimer = null;
+
+				if (!_self.isInTouch) {
+					// 滚动到对齐的位置。
+					_self.isInScroll = true;
+					_self.onScrollStop();
+					_self.start = false;
+					_self.pos = {};
+
+					// 因为上面的操作会触发scroll事件
+					// 所以在滚动的过程（一秒钟）中要取消对scroll事件的响应。
+					jq('.zyh-dubbing-scroll-area').scroll(null);
+					_self.delayTimer = window.setInterval(function() {
+						window.clearInterval(_self.delayTimer);
+						_self.delayTimer = null;
+						_self.isInScroll = false;
+					}, 500);
+				}
+				else {
+					// Touch没有松开前，减少定时间隔到100ms，以便快速知道Touch松开。
+					_self.delayTimer = window.setInterval(timerProcess, 100);
+				}
+			}
+
+			// 设置定时器 500ms后，假定认为停止滚动
+			_self.delayTimer = window.setInterval(timerProcess, 500);
+		});
 	},
 	
 	deinit : function() {
-		jq('body').off('touchend', this.onTouchEnd);
-		jq('body').off('touchmove', this.onTouchMove);
-		jq('body').off('touchstart', this.onTouchStart);
-		document.onscroll = null;
+		var elScroll = jq('.zyh-dubbing-scroll-area');
+		elScroll.off('touchend', this.onTouchEnd);
+		elScroll.off('touchmove', this.onTouchMove);
+		elScroll.off('touchstart', this.onTouchStart);
+		elScroll.scroll(null);
 	} 
 };
 
@@ -1429,7 +1491,7 @@ function uploadCallback(data) {
 				append('<input type="text" value="record' + subtitleCurrent + '" name="attachnew['+ arr[2] +'][description]"/>');
 
 			// 使能预览按钮。
-			jq('#preview_button').removeAttr('disabled');
+			jq('.zyh-dubbing-done-button').removeAttr('disabled');
 
 			// 充许提交贴子。
 			needsubject = true; // 在post.php中定义。
@@ -1912,7 +1974,7 @@ function mergeRecord2Commpany()
 	mergeStack();
 
 }
-jq('#preview_button').click(function(e){
+jq('.zyh-dubbing-done-button').click(function(e){
 
 	// 切换之前关闭录音和录音回放。
 	bPlayAfterRecord = false;
@@ -1956,8 +2018,8 @@ jq('#preview_button').click(function(e){
 			previewPlayer.userActive(true);
 
 			// 切换到预览界面。
-			jq('#dubbing_ui').css('visibility', 'hidden');
-			jq('#preview_ui').css('visibility', 'visible');
+			jq('.zyh-dubbing-ui').css('visibility', 'hidden');
+			jq('.zyh-preview-ui').css('visibility', 'visible');
 		}
 		else {
 			//console.log("record hasn't done.")
@@ -1983,8 +2045,8 @@ function previewPlayBtnPlugin(options) {
 		// 切换回配音界面。
 		previewPlayer.pause();
 		dubbingPlayer.pause();
-		jq('#dubbing_ui').css('visibility', 'visible');
-		jq('#preview_ui').css('visibility', 'hidden');
+		jq('.zyh-dubbing-ui').css('visibility', 'visible');
+		jq('.zyh-preview-ui').css('visibility', 'hidden');
 		dragSwitchSentence.init();
 		jq('html').removeClass("uk-modal-page");
 		playStatus = 0;
