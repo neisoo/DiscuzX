@@ -16,15 +16,6 @@
 
 <style>
 
-/*
- * 取消height:100%的定义。
- * 原因：如果html有height:100%或具体值的定义，那么在弹出uikit的模态对话框时，
- * uikit会添加uk-modal-page样式到html和body，这时界面会回滚到顶部。
- */
-html {
-	height: auto;
-}
-
 ::cue {
 	background: none;
 	color: #fff;
@@ -67,6 +58,7 @@ html {
 .zyh-dubbing-done-button {
 	margin-top: 1rem;
 }
+
 .vidoe_wrap{
 	width:100%;
 	position:relative;
@@ -765,12 +757,12 @@ html {
 	<div class="zyh-dubbing-scroll-area">
 		<div id="dubbing-done" class="uk-panel uk-width-1-2 uk-container-center uk-text-center">
 			<!-- 配音预览 -->
-			<button class="zyh-dubbing-done-button preview-button uk-button uk-button-success uk-button-large uk-width-1-1" type="button" disabled>预览发布</button>
+			<button class="zyh-dubbing-done-button uk-button uk-button-success uk-button-large uk-width-1-1" type="button" disabled>预览发布</button>
 		</div>
 	</div>
 
 	<!-- 点击退出时弹出的模态对话框 -->
-	<div class="zyh-back-dialog uk-modal">
+	<div class="zyh-dubbing-back-dialog uk-modal">
 		<div class="uk-modal-dialog">
 			<div class="uk-modal-header">
 				<h2 class="uk-text-success">你还没有配音完成，是否继续配音？</h2>
@@ -799,6 +791,12 @@ html {
 		</div>
 	</div>
 
+	<!-- 提示框 -->
+	<div class="zyh-dubbing-merging-alert uk-modal">
+		<div class="uk-modal-dialog">
+			<p><i class="uk-icon-spinner uk-icon-spin"></i> 正在合成，请稍等下哦。</p>
+		</div>
+	</div>
 </div>
 
 <!-- 预览界面 -->
@@ -824,8 +822,15 @@ html {
 	</div>
 	<!-- 预览完成按钮组 -->
 	<div class="zyh-preview-done uk-button-group uk-width-1-1">
-		<button class="zyh-preview-private-button uk-button uk-button-large uk-width-1-4 uk-icon-download" disabled> 存本地</button>
-		<button class="zyh-preview-publish-button uk-button uk-button-success uk-button-large uk-width-3-4 uk-icon-share" disabled> 发布并分享</button>
+		<button class="zyh-preview-private-button uk-button uk-button-large uk-width-1-4 uk-icon-download"> 存本地</button>
+		<button class="zyh-preview-publish-button uk-button uk-button-success uk-button-large uk-width-3-4 uk-icon-share"> 发布并分享</button>
+	</div>
+
+	<!-- 提示框 -->
+	<div class="zyh-preview-saving-alert uk-modal">
+		<div class="uk-modal-dialog">
+			<p><i class="uk-icon-spinner uk-icon-spin"></i> 正在保存，请稍等下哦。</p>
+		</div>
 	</div>
 
 </div>
@@ -891,15 +896,36 @@ if (jq('#accompany').length > 0) {
 }
 
 // 配音声音
+var dubbingBlob = null; // 存放伴奏和录音的混合并压缩后的mp3数据 blob类型。
+var dubbingBlobName = null;
 var dubbingBuffer = null; // 存放伴奏和录音的混合后的声音数据，AudioBuffer类型。
 var dubbingPlayer = null; // 伴奏和录音混合好的配音播放器。
 dubbingPlayer = jq('#dubbing')[0];
+
 
 var attachInfo; // 存放录音的附件id。
 
 // 隐藏不需要的界面元素。
 jq('.n5qj_tbys').css('display', 'none');
 
+/////////////////////////////////////////////////////////////////////////////
+// 用到的提示框或对话框。
+var mergingAlert = UIkit.modal(".zyh-dubbing-merging-alert", {center:true, bgclose:false});
+var savingAlert = UIkit.modal(".zyh-preview-saving-alert", {center:true, bgclose:false});
+var backDialog = UIkit.modal(".zyh-dubbing-back-dialog", {center:true});
+var completeDialog = UIkit.modal(".zyh-dubbing-complete-dialog", {center:true, bgclose:false});
+
+// 显示或隐藏对话框。
+function toggleDialog(modal, force) {
+	if (modal.isActive() ) {
+		modal.hide(force);
+	}
+	else {
+		modal.show();
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
 player.on("ready", function(){
 	var origTrack = player.textTracks().getTrackById("original");
 	var transTrack = player.textTracks().getTrackById("translation");
@@ -1060,8 +1086,7 @@ function dummyBigPlayBtnPlugin(options) {
 
 		if (haveData) {
 			// 弹出对话框让用户选择是否退出。
-			var modal = UIkit.modal(".zyh-back-dialog", {center:true});
-			modal.show();
+			toggleDialog(backDialog);
 		}
 		else {
 			history.back(-1);
@@ -1197,32 +1222,20 @@ function removeAllRecordAttach(callback) {
 
 // 继续配音
 jq('#back_dialog_continue').click(function(event){
-	var modal = UIkit.modal("#back_dialog");
-
-	if (modal.isActive()) {
-		modal.hide();
-	}
+	toggleDialog(backDialog);
 });
 
 // 保存草稿并退出。
 jq('#back_dialog_save').click(function(event){
-	var modal = UIkit.modal("#back_dialog");
+	toggleDialog(backDialog);
 
-	if (modal.isActive()) {
-		modal.hide();
-	}
-	
 	jq('#postsave').val(1); // 草稿方式保存。
 	jq('#postsubmit').click();
 });
 
 // 仅退出配音界面
 jq('#back_dialog_exitonly').click(function(event){
-	var modal = UIkit.modal("#back_dialog");
-
-	if (modal.isActive()) {
-		modal.hide();
-	}
+	toggleDialog(backDialog);
 
 	removeAllRecordAttach(function() {
 		history.back(-1); 
@@ -1967,9 +1980,11 @@ function uploadDubbingCallback(data) {
 			jq('#zyh-attach-dubbing').html('').
 				append('<input type="text" value="dubbing" name="attachnew['+ arr[2] +'][description]"/>');
 
-			// 使能发布按钮
-			jq('.zyh-preview-private-button').removeAttr('disabled');
-			jq('.zyh-preview-publish-button').removeAttr('disabled');
+			// 删除所有录音附件
+			removeAllRecordAttach(function() {
+				// 提交
+				jq('#postsubmit').click();
+			});
 		}
 		else if (lang_msg[arr[1]] != undefined ) {
 			// 出错，显示出错原因。
@@ -1989,6 +2004,8 @@ function uploadDubbingCallback(data) {
 			popup.open(lang_msg[data], 'alert');
 		}
 	}
+
+	toggleDialog(savingAlert);
 }
 
 function mergeRecord2Commpany()
@@ -2053,24 +2070,16 @@ function mergeRecord2Commpany()
 					bitRate: 128,//64,        //比特率,不要低于64,否则可能录制无声音（人声）
 
 					complete: function (data, type) {
-						var blob = new Blob(data, { type: type });
-						if (blob.size > 0) {
-							var url = URL.createObjectURL(blob);
-							var mp3Name = 'dubbing_' + Date.now() + '.mp3';
+						// 得到mp3数据。
+						dubbingBlob = new Blob(data, { type: type });
+						dubbingBlobName = 'dubbing_' + Date.now() + '.mp3';
 
-							// 生成audio界面元素。
-							jq('#audio-mixer').
-								append('<a href="' + url + '" download="' + mp3Name + '">' + mp3Name + '</a>').
-								append('<audio controls src="' + url + '" id="dubbing_mp3"></audio>');
+						// 取消等待显示。
+						toggleDialog(mergingAlert);
 
-							// mp3上传服务器。
-							blobShardUpload(blob, {
-								url: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
-								name: mp3Name,
-								stepCallback: uploadDubbingCallback,
-							});
-						}
-
+						// 切换到预览界面。
+						jq('.zyh-dubbing-ui').css('visibility', 'hidden');
+						jq('.zyh-preview-ui').css('visibility', 'visible');
 					},
 
 					error: function (data) {
@@ -2108,9 +2117,6 @@ function switch2PreviewUI() {
 			// 不处理句子列表的滚动。
 			dragSwitchSentence.deinit();
 
-			// 不让屏幕可以滚动。
-			jq('html').addClass("uk-modal-page");
-
 			// 暂停播放
 			player.pause();
 			jq(".vjs-control-panel").css("display","block");
@@ -2122,28 +2128,39 @@ function switch2PreviewUI() {
 			}
 			playStatus = 3;
 
-			// 先禁止发布按钮，当配音上传完毕后在使能。
-			jq('.zyh-preview-private-button').attr('disabled', 1);
-			jq('.zyh-preview-publish-button').attr('disabled', 1);
-
-			// 生成合并声音。
-			mergeRecord2Commpany();
-
 			dubbingPlayer.pause();
 			previewPlayer.muted(true);
 			previewPlayer.pause();
 			previewPlayer.currentTime(0);
 			previewPlayer.userActive(true);
 
-			// 切换到预览界面。
-			jq('.zyh-dubbing-ui').css('visibility', 'hidden');
-			jq('.zyh-preview-ui').css('visibility', 'visible');
+			// 清除以前的配音
+			dubbingBlob = null;
+
+			// 显示等待合成。
+			toggleDialog(mergingAlert);
+
+			// 生成合并声音。
+			mergeRecord2Commpany();
 		}
 		else {
 			//console.log("record hasn't done.")
 		}
 	}, 100);
 }
+
+jq('.zyh-dubbing-complete-dialog-cancel').click(function(e) {
+	toggleDialog(completeDialog);
+	return false;
+});
+
+jq('.zyh-dubbing-complete-dialog-ok').click(function(e) {
+	// 关闭对话框，这里设置为true是为了避免因与mergingAlert对话框在同一函数中设置，
+	// 导致下次打开时自动关闭。true可以直接关闭，不显示关闭动画。
+	toggleDialog(completeDialog, true);
+	switch2PreviewUI();
+	return false;
+});
 
 jq('.zyh-dubbing-done-button').click(function(e){
 	// 切换之前关闭录音和录音回放。
@@ -2170,22 +2187,7 @@ jq('.zyh-dubbing-done-button').click(function(e){
 	}
 	else {
 		// 弹出对话框让用户选择是否继续。
-		var modal = UIkit.modal(".zyh-dubbing-complete-dialog", {center:true});
-		if ( modal.isActive() ) {
-			modal.hide();
-		} else {
-			modal.show();
-			
-			jq('.zyh-dubbing-complete-dialog-cancel').click(function(e) {
-				modal.hide();
-				return false;
-			});
-
-			jq('.zyh-dubbing-complete-dialog-ok').click(function(e) {
-				switch2PreviewUI();
-				return false;
-			});
-		}
+		toggleDialog(completeDialog);
 	}
 
 	return;
@@ -2213,7 +2215,6 @@ function previewPlayBtnPlugin(options) {
 		jq('.zyh-dubbing-ui').css('visibility', 'visible');
 		jq('.zyh-preview-ui').css('visibility', 'hidden');
 		dragSwitchSentence.init();
-		jq('html').removeClass("uk-modal-page");
 		playStatus = 0;
 	};
 
@@ -2460,10 +2461,13 @@ jq('.zyh-preview-publish-button').click(function() {
 	// 阅读权限为全体可见
 	jq('#readperm').val('');
 
-	// 删除所有录音附件
-	removeAllRecordAttach(function() {
-		// 提交
-		jq('#postsubmit').click();
+	toggleDialog(savingAlert);
+
+	// mp3上传服务器。
+	blobShardUpload(dubbingBlob, {
+		url: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
+		name: dubbingBlobName,
+		stepCallback: uploadDubbingCallback,
 	});
 
 	// 禁止提交，由上面的回调函数进行提交。
@@ -2474,10 +2478,13 @@ jq('.zyh-preview-private-button').click(function() {
 	// 阅读权限为自己或版主及以上可见。
 	jq('#readperm').val('100');
 
-	// 删除所有录音附件
-	removeAllRecordAttach(function() {
-		// 提交
-		jq('#postsubmit').click();
+	toggleDialog(savingAlert);
+
+	// mp3上传服务器。
+	blobShardUpload(dubbingBlob, {
+		url: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
+		name: dubbingBlobName,
+		stepCallback: uploadDubbingCallback,
 	});
 
 	// 禁止提交，由上面的回调函数进行提交。
