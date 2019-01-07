@@ -1963,6 +1963,36 @@ function mixAudioBuffer(context, buffer1, buffer2, startTime) {
 	}
 }
 
+// 上传最终的mp3 blob到服务器。
+function uploadDubbing() {
+	// 显示正在保存提示
+	toggleDialog(savingAlert);
+
+	// 如果mp3还没有生成，等待。
+	if (dubbingBlob == null) {
+		var timer = window.setInterval(function() {
+			if (dubbingBlob != null) {
+				window.clearInterval(timer);
+
+				// mp3上传服务器。
+				blobShardUpload(dubbingBlob, {
+					url: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
+					name: dubbingBlobName,
+					stepCallback: uploadDubbingCallback,
+				});
+			}
+		}, 1000);
+	}
+	else {
+		// mp3已经生成完毕，立即上传服务器。
+		blobShardUpload(dubbingBlob, {
+			url: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
+			name: dubbingBlobName,
+			stepCallback: uploadDubbingCallback,
+		});
+	}
+}
+
 // 上传完配音文件后的回调。
 function uploadDubbingCallback(data) {
 	if (data.indexOf('DISCUZUPLOAD') > -1) {
@@ -2064,6 +2094,13 @@ function mergeRecord2Commpany()
 					append('<a href="' + url + '" download="' + wavName + '">' + wavName + '</a>').
 					append('<audio controls src="' + url + '" id="dubbing_wav"></audio>');
 
+				// 到这里用户已经可以进行预览了，取消等待显示。
+				toggleDialog(mergingAlert);
+
+				// 切换到预览界面。
+				jq('.zyh-dubbing-ui').css('visibility', 'hidden');
+				jq('.zyh-preview-ui').css('visibility', 'visible');
+
 				// 在后台编码成mp3格式。
 				var encoder = new MP3Encoder({
 					WORKER_PATH: 'source/plugin/zhikai_n5video/mp3-recorder/recorder-worker.js',
@@ -2074,12 +2111,6 @@ function mergeRecord2Commpany()
 						dubbingBlob = new Blob(data, { type: type });
 						dubbingBlobName = 'dubbing_' + Date.now() + '.mp3';
 
-						// 取消等待显示。
-						toggleDialog(mergingAlert);
-
-						// 切换到预览界面。
-						jq('.zyh-dubbing-ui').css('visibility', 'hidden');
-						jq('.zyh-preview-ui').css('visibility', 'visible');
 					},
 
 					error: function (data) {
@@ -2461,14 +2492,8 @@ jq('.zyh-preview-publish-button').click(function() {
 	// 阅读权限为全体可见
 	jq('#readperm').val('');
 
-	toggleDialog(savingAlert);
-
-	// mp3上传服务器。
-	blobShardUpload(dubbingBlob, {
-		url: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
-		name: dubbingBlobName,
-		stepCallback: uploadDubbingCallback,
-	});
+	// 上传最终的mp3 blob到服务器。
+	uploadDubbing();
 
 	// 禁止提交，由上面的回调函数进行提交。
 	return false;
@@ -2478,14 +2503,8 @@ jq('.zyh-preview-private-button').click(function() {
 	// 阅读权限为自己或版主及以上可见。
 	jq('#readperm').val('100');
 
-	toggleDialog(savingAlert);
-
-	// mp3上传服务器。
-	blobShardUpload(dubbingBlob, {
-		url: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
-		name: dubbingBlobName,
-		stepCallback: uploadDubbingCallback,
-	});
+	// 上传最终的mp3 blob到服务器。
+	uploadDubbing();
 
 	// 禁止提交，由上面的回调函数进行提交。
 	return false;
