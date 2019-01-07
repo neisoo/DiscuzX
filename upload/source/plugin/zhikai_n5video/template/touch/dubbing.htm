@@ -51,7 +51,7 @@ html {
 	background-color: #eeeeee;
 }
 
-.zyh-player-area {
+.zyh-dubbing-player-area {
 	display: block;
 	position: static;
 }
@@ -80,13 +80,35 @@ html {
 		height: 100%
 	}
 }
-
-/* 显示当前时间和总时间 */
-.video-js .vjs-time-control {
-    display: block;
+/*********************************************************************
+ * 预览界面
+ *********************************************************************/
+.zyh-preview-ui {
+	display: block;
+	position: absolute;
+	width: 100%;
+	top: 0px;
+	bottom: 0px;
+	overflow: hidden;
+	background-color: #eeeeee;
 }
-.video-js .vjs-remaining-time {
-    display: none;
+
+.zyh-preview-player-area {
+	display: block;
+	position: static;
+}
+
+.zyh-preview-scroll-area {
+	display: block;
+	position: absolute;
+	top: -1000rem;
+	padding: 1rem;
+	overflow: scroll;
+}
+
+.zyh-preview-done {
+	position: absolute;
+	bottom: 0px;
 }
 
 /*******************************************************************
@@ -703,6 +725,8 @@ html {
 	<div id="subject" tid="{$attachInfo[subject]}"></div>
 
 	<input type="text" name="subject" value="dubbing:{$attachInfo[subject]}" id="needsubject" class="txt"/>
+	
+	<!--保存方式，value=1表示以草稿方式保存 -->
 	<input type="hidden" id="postsave" name="save" value="">
 
 	<!--{if $attachInfo['accompany'] != null}-->
@@ -710,13 +734,22 @@ html {
 	<!--{/if}--> 
 	<audio id="dubbing"></audio>
 	<audio id="startRecordSnd" src="source/plugin/zhikai_n5video/di.ogg"></audio>
-
+	<div id="zyh-attach-dubbing"></div>
+	
+	<!-- 帖子权限 --> 
+	<select name="readperm" id="readperm"">
+		<option value="">{lang unlimited}</option>
+		<!--{loop $_G['cache']['groupreadaccess'] $val}-->
+			<option value="$val[readaccess]" title="{lang readperm}: $val[readaccess]"{if $thread['readperm'] == $val[readaccess]} selected="selected"{/if}>$val[grouptitle]</option>
+		<!--{/loop}-->
+		<option value="255"{if $thread['readperm'] == 255} selected="selected"{/if}>{lang highest_right}</option>
+	</select>
 </div>
 
 <!-- 配音界面 -->
 <div class="zyh-dubbing-ui">
 	<!-- 配音播放器 -->
-	<div class="zyh-player-area">
+	<div class="zyh-dubbing-player-area">
 		<video id="video_{$attachInfo[tid]}" class="video-js vjs-default-skin vjs-big-play-centered vidoe_wrap">
 			<source src="{$attachInfo[video]}" type='video/mp4'>
 			<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
@@ -753,29 +786,47 @@ html {
 			</ul>
 		</div>
 	</div>
+	
+	<!-- 点预览时，如果配音没有全部完成，弹出对话框询问。-->
+	<div class="zyh-dubbing-complete-dialog uk-modal">
+		<div class="uk-modal-dialog">
+			<div class="uk-modal-header">
+				<h3 class="uk-text-success">录音未全部完成，确定继续预览？</h2>
+			</div>
+			<div class="uk-button-group uk-width-1-1">
+				<button class="zyh-dubbing-complete-dialog-cancel uk-button uk-button-large uk-width-1-2">取消</button>
+				<button class="zyh-dubbing-complete-dialog-ok uk-button uk-button-success uk-button-large uk-width-1-2">确定</button>
+			</div>
+		</div>
+	</div>
+
 </div>
 
 <!-- 预览界面 -->
 <div class="zyh-preview-ui" style="visibility: hidden;">
-	<div class="preview-player cl">
 	<!-- 预览播放器 -->
-	<video id="video-preview" class="video-js vjs-default-skin vidoe_wrap">
-		<source src="{$attachInfo[video]}" type='video/mp4'>
-		<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
-		<!--{if attachInfo['subtitle'] != null}-->
-		<track kind="subtitles" src="{$attachInfo[subtitle]}" srclang="en" id="original" label="{lang zhikai_n5video:lang_068}" default></track>
-		<!--{/if}--> 
-		<!--{if $attachInfo['tsubtitle'] != null}-->
-		<track kind="subtitles" src="{$attachInfo[tsubtitle]}" srclang="zh" id="translation" label="{lang zhikai_n5video:lang_069}"></track>
-		<!--{/if}--> 
-	</video>
+	<div class="zyh-preview-player-area">
+		<video id="video-preview" class="video-js vjs-default-skin vidoe_wrap">
+			<source src="{$attachInfo[video]}" type='video/mp4'>
+			<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
+			<!--{if attachInfo['subtitle'] != null}-->
+			<track kind="subtitles" src="{$attachInfo[subtitle]}" srclang="en" id="original" label="{lang zhikai_n5video:lang_068}" default></track>
+			<!--{/if}--> 
+			<!--{if $attachInfo['tsubtitle'] != null}-->
+			<track kind="subtitles" src="{$attachInfo[tsubtitle]}" srclang="zh" id="translation" label="{lang zhikai_n5video:lang_069}"></track>
+			<!--{/if}--> 
+		</video>
 	</div>
 	<!-- 保存混音后的声音 -->
 	<div id="audio-dubbing">
 	</div>
-	<div class="uk-button-group uk-width-1-1">
-		<button class="uk-button uk-button-large uk-width-1-4 uk-icon-download"> 存本地</button>
-		<button class="uk-button uk-button-success uk-button-large uk-width-3-4 uk-icon-share"> 发布并分享</button>
+	<!-- 预览列表滚动区域 -->
+	<div class="zyh-preview-scroll-area">
+	</div>
+	<!-- 预览完成按钮组 -->
+	<div class="zyh-preview-done uk-button-group uk-width-1-1">
+		<button class="zyh-preview-private-button uk-button uk-button-large uk-width-1-4 uk-icon-download" disabled> 存本地</button>
+		<button class="zyh-preview-publish-button uk-button uk-button-success uk-button-large uk-width-3-4 uk-icon-share" disabled> 发布并分享</button>
 	</div>
 
 </div>
@@ -976,7 +1027,7 @@ player.on("canplay", function(){
 
 		// 定位滚动区域的开始位置。
 		var elScroll = jq('.zyh-dubbing-scroll-area');
-		elScroll.css('top', (jq('.zyh-player-area').outerHeight()) + 'px');
+		elScroll.css('top', (jq('.zyh-dubbing-player-area').outerHeight()) + 'px');
 		elScroll.css('bottom', '0px');
 		
 		var elDubbingDoneBtn = jq('.zyh-dubbing-done-button');
@@ -1094,6 +1145,54 @@ videojs.registerPlugin('dummyBigPlayBtnPlugin', dummyBigPlayBtnPlugin);
 player.dummyBigPlayBtnPlugin({});
 
 ////////////////////////////////////////////////////////
+// 删除所有录音附件。
+function removeAllRecordAttach(callback) {
+	var haveData = false;
+	var aidsUrl = '';
+
+	// 找出已经提交的附件。
+	for (var i = 0, j = 0; i < subtitleCount; i++) {
+		if (attachInfo['data']['record'][i] != "") {
+			haveData = true;
+			aidsUrl += '&aids[]=' + attachInfo['data']['record'][i];
+			attachInfo['data']['record'][i] = '';
+		}
+	}
+
+	// 删除提交的附件。
+	if (haveData) {
+		$.ajax({
+			type:'GET',
+			url:'forum.php?mod=ajax&action=deleteattach&inajax=yes' + aidsUrl,
+		})
+		.success(function(s) {
+			for (var i = 0, j = 0; i < subtitleCount; i++) {
+				if (attachInfo['data']['record'][i] != "") {
+					attachInfo['data']['record'][i] = '';
+				}
+			}
+			delete attachInfo['data']['record'];
+
+			// 更新帖子正文中的标记。
+			jq('#needmessage').val('[dubbing]' + JSON.stringify(attachInfo) + '[/dubbing]');
+
+			var timer = window.setInterval(function(){
+				window.clearInterval(timer);
+				if (typeof callback == 'function') {
+					callback();
+				}
+			}, 100);
+		})
+		.error(function() {
+			popup.open('{lang networkerror}', 'alert');
+		});
+	}
+	else {
+		if (typeof callback == 'function') {
+			callback();
+		}
+	}
+}
 
 // 继续配音
 jq('#back_dialog_continue').click(function(event){
@@ -1118,44 +1217,15 @@ jq('#back_dialog_save').click(function(event){
 
 // 仅退出配音界面
 jq('#back_dialog_exitonly').click(function(event){
-	var aidsUrl = '';
-	var haveData = false;
 	var modal = UIkit.modal("#back_dialog");
 
 	if (modal.isActive()) {
 		modal.hide();
 	}
 
-	// 找出已经提交的附件。
-	for (var i = 0, j = 0; i < subtitleCount; i++) {
-		if (attachInfo['data']['record'][i] != "") {
-			haveData = true;
-			aidsUrl += '&aids[]=' + attachInfo['data']['record'][i];
-			attachInfo['data']['record'][i] = '';
-		}
-	}
-
-	// 删除提交的附件。
-	if (haveData) {
-		$.ajax({
-			type:'GET',
-			url:'forum.php?mod=ajax&action=deleteattach&inajax=yes' + aidsUrl,
-		})
-		.success(function(s) {
-			for (var i = 0, j = 0; i < subtitleCount; i++) {
-				if (attachInfo['data']['record'][i] != "") {
-					attachInfo['data']['record'][i] = '';
-				}
-			}
-			history.back(-1);
-		})
-		.error(function() {
-			popup.open('{lang networkerror}', 'alert');
-		});
-	}
-	else {
-		history.back(-1);
-	}
+	removeAllRecordAttach(function() {
+		history.back(-1); 
+	});
 });
 
 ///////////////////////////////////////////////////////////////
@@ -1474,7 +1544,7 @@ var isRecordStart = false;
 var bPlayAfterRecord = false;
 var waitRecordStopTimer = null;
 
-function uploadCallback(data) {
+function uploadRecordCallback(data) {
 	if (data.indexOf('DISCUZUPLOAD') > -1) {
 		var arr = data.split('|');
 		if (arr[1] == 0) {
@@ -1568,7 +1638,7 @@ var recorder = new MP3Recorder({
 			xhr.open("POST", uploadUrl, true);
 			xhr.onreadystatechange = function () {
 				if (xhr.readyState == 4 && xhr.status == 200) {
-					uploadCallback(xhr.responseText);
+					uploadRecordCallback(xhr.responseText);
 					// TODO: 录音打分。
 				}
 			}
@@ -1600,7 +1670,6 @@ var recorder = new MP3Recorder({
 		console.log("encode error.");
 	}
 });
-
 
 // 录音时间到结束录音
 function onStopRecord() {
@@ -1880,6 +1949,47 @@ function mixAudioBuffer(context, buffer1, buffer2, startTime) {
 	}
 }
 
+// 上传完配音文件后的回调。
+function uploadDubbingCallback(data) {
+	if (data.indexOf('DISCUZUPLOAD') > -1) {
+		var arr = data.split('|');
+		if (arr[1] == 0) {
+			// 记录上传文件的附件ID。
+			attachInfo['data']['dubbing'] = arr[2];
+
+			// 更新帖子正文中的标记。
+			jq('#needmessage').val('[dubbing]' + JSON.stringify(attachInfo) + '[/dubbing]');
+
+			// 附件提交的表单数据，表单中至少有一个attachnew['附件ID'][xxx]的表单项，
+			// 提交后附件ID对应的附件才会被视为已使用附件。
+			// 表单项的内容只是简单的填充一个字符串，暂时未使用。
+			jq('#zyh-attach-dubbing').html('').
+				append('<input type="text" value="dubbing" name="attachnew['+ arr[2] +'][description]"/>');
+
+			// 使能发布按钮
+			jq('.zyh-preview-private-button').removeAttr('disabled');
+			jq('.zyh-preview-publish-button').removeAttr('disabled');
+		}
+		else if (lang_msg[arr[1]] != undefined ) {
+			// 出错，显示出错原因。
+			var sizelimit = '';
+			if(arr[8] == 'ban') {
+				sizelimit = '{lang uploadpicatttypeban}';
+			} else if(arr[8] == 'perday') {
+				sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+			} else if(arr[8] > 0) {
+				sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+			}
+			popup.open(lang_msg[arr[1]] + sizelimit, 'alert');
+		}
+	}
+	else {
+		if (data) {
+			popup.open(lang_msg[data], 'alert');
+		}
+	}
+}
+
 function mergeRecord2Commpany()
 {
 	// 先混合伴奏。
@@ -1952,6 +2062,12 @@ function mergeRecord2Commpany()
 								append('<a href="' + url + '" download="' + mp3Name + '">' + mp3Name + '</a>').
 								append('<audio controls src="' + url + '" id="dubbing_mp3"></audio>');
 
+							// mp3上传服务器。
+							blobShardUpload(blob, {
+								url: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
+								name: mp3Name,
+								stepCallback: uploadDubbingCallback,
+							});
 						}
 
 					},
@@ -1974,12 +2090,9 @@ function mergeRecord2Commpany()
 	mergeStack();
 
 }
-jq('.zyh-dubbing-done-button').click(function(e){
 
-	// 切换之前关闭录音和录音回放。
-	bPlayAfterRecord = false;
-	stopRecordOrPlay();
-
+// 切换到预览界面。
+function switch2PreviewUI() {
 	// 等待录音完成后，才能切换，因为保存录音是在一个后台work中。
 	if (stopRecTimer != null) {
 		window.clearInterval(stopRecTimer);
@@ -2008,6 +2121,10 @@ jq('.zyh-dubbing-done-button').click(function(e){
 			}
 			playStatus = 3;
 
+			// 先禁止发布按钮，当配音上传完毕后在使能。
+			jq('.zyh-preview-private-button').attr('disabled', 1);
+			jq('.zyh-preview-publish-button').attr('disabled', 1);
+
 			// 生成合并声音。
 			mergeRecord2Commpany();
 
@@ -2025,6 +2142,53 @@ jq('.zyh-dubbing-done-button').click(function(e){
 			//console.log("record hasn't done.")
 		}
 	}, 100);
+}
+
+jq('.zyh-dubbing-done-button').click(function(e){
+	// 切换之前关闭录音和录音回放。
+	bPlayAfterRecord = false;
+	stopRecordOrPlay();
+
+	// 确认所有录音都已经完成。
+	function allRecordDone() {
+		var result = true;
+
+		for (var i = 0; i < subtitleCount; i++) {
+			if (attachInfo['data']['record'][i] == "") {
+				result = false;
+				break;
+			}
+		}
+
+		return result;
+	}
+
+	if (allRecordDone()) {
+		// 录音全部完成，切换到预览界面。
+		switch2PreviewUI();
+	}
+	else {
+		// 弹出对话框让用户选择是否继续。
+		var modal = UIkit.modal(".zyh-dubbing-complete-dialog", {center:true});
+		if ( modal.isActive() ) {
+			modal.hide();
+		} else {
+			modal.show();
+			
+			jq('.zyh-dubbing-complete-dialog-cancel').click(function(e) {
+				modal.hide();
+				return false;
+			});
+
+			jq('.zyh-dubbing-complete-dialog-ok').click(function(e) {
+				switch2PreviewUI();
+				return false;
+			});
+		}
+	}
+
+	return;
+
 });
 
 // 添加自定义的播放元素，点击视频时暂停和播放视频。
@@ -2176,7 +2340,6 @@ previewPlayer.on('timeupdate', function() {
 	jq('.zyh-preview-current-time .zyh-icon-placeholder').html(getTimeString(previewPlayer.currentTime()));
 });
 
-
 previewPlayer.on("canplay", function() {
 	if (!previewInit) {
 		previewInit = true;
@@ -2210,6 +2373,116 @@ previewPlayer.on("canplay", function() {
 
 	}
 });
+
+// blob分片上传。
+// url, name, shardSize, progressCallback, stepCallback, userData
+function blobShardUpload(blob, options) {
+	var succeed = 0;
+	var size = blob.size;
+	var file_id = parseInt(Math.random() * 9999 + 10001);
+
+	// 切片大小和切片数量
+	var _shardSize = options.shardSize || 2;
+	_shardSize = _shardSize * 1024 * 1024;
+	var shardCount = Math.ceil(size / _shardSize);
+	if (size == 0){
+		return false;
+	}
+
+	// 回调：显示进度条。
+	if (typeof options.progressCallback == 'function') {
+		options.progressCallback(0, options.userData);
+	}
+
+	// 将文件切片，分成几块放在re数组中上传。
+	var re = [], start, end = null;
+	for (var i = 0; i < shardCount; ++i) {
+		re[i] = [];
+		start = i * _shardSize,
+		end = Math.min(size, start + _shardSize);
+		re[i]["file_data"] = blob.slice(start, end);
+		re[i]["file_name"] = options.name;
+		re[i]["file_size"] = size;
+		re[i]["file_id"] = file_id;
+		re[i]["file_total"] = shardCount;
+		re[i]["file_index"] = i + 1;
+	}
+
+	// 将数组中的切片依次上传。
+	var i = 0;
+	var xhr = new XMLHttpRequest();
+	function ajaxStack(stack) {
+		// 数组中是否还要有要上传的切片。
+		if (stack.hasOwnProperty(i)) {
+			// 新建表单来上传当前切片。
+			var fcs = stack[i];
+			var form = new FormData();
+			form.append("file_data", fcs['file_data']);
+			form.append("file_name", fcs['file_name']);
+			form.append("file_total", fcs['file_total']);
+			form.append("file_index", fcs['file_index']);
+			form.append("file_size", fcs['file_size']);
+			form.append("file_id", fcs['file_id']);
+			xhr.open('POST', options.url, true);
+			xhr.onload = function () {
+				// 当前切片上传完成，继续上传下一切片。
+				ajaxStack(stack);
+			}
+			xhr.onreadystatechange = function () {
+				// 更新状态信息和上传进度。
+				if (xhr.readyState == 4 && xhr.status == 200) {
+					// 回调：显示状态信息。
+					if (typeof options.stepCallback == 'function'){
+						options.stepCallback(xhr.responseText, options.userData);
+					}
+
+					++succeed;
+
+					// 回调：更新进度条进度显示。
+					if (typeof options.progressCallback == 'function') {
+						var percnt = Math.round(succeed / shardCount * 10000) / 100.00;
+						options.progressCallback(percnt, options.userData);
+					}
+				}
+			}
+			// 上传记录了切片数据的表单。
+			xhr.send(form);
+			// 下一切片。
+			i++;
+		}
+	}
+	// 开始上传第一个切片。
+	ajaxStack(re);
+}
+
+jq('.zyh-preview-publish-button').click(function() {
+	// 阅读权限为全体可见
+	jq('#readperm').val('');
+
+	// 删除所有录音附件
+	removeAllRecordAttach(function() {
+		// 提交
+		jq('#postsubmit').click();
+	});
+
+	// 禁止提交，由上面的回调函数进行提交。
+	return false;
+});
+
+jq('.zyh-preview-private-button').click(function() {
+	// 阅读权限为自己或版主及以上可见。
+	jq('#readperm').val('100');
+
+	// 删除所有录音附件
+	removeAllRecordAttach(function() {
+		// 提交
+		jq('#postsubmit').click();
+	});
+
+	// 禁止提交，由上面的回调函数进行提交。
+	return false;
+});
+
 </script>
 
 
