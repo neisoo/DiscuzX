@@ -770,8 +770,7 @@ html {
 	</div>
 
 	<!-- 点击退出时弹出的模态对话框 -->
-	<a id="back_dialog_button" class="uk-button" href="#back_dialog" data-uk-modal="{center:true}" style="display: none">Open</a>
-	<div id="back_dialog" class="uk-modal">
+	<div class="zyh-back-dialog uk-modal">
 		<div class="uk-modal-dialog">
 			<div class="uk-modal-header">
 				<h2 class="uk-text-success">你还没有配音完成，是否继续配音？</h2>
@@ -1060,7 +1059,9 @@ function dummyBigPlayBtnPlugin(options) {
 		}
 
 		if (haveData) {
-			jq('#back_dialog_button').click();
+			// 弹出对话框让用户选择是否退出。
+			var modal = UIkit.modal(".zyh-back-dialog", {center:true});
+			modal.show();
 		}
 		else {
 			history.back(-1);
