@@ -902,6 +902,8 @@ var dubbingBuffer = null; // 存放伴奏和录音的混合后的声音数据，
 var dubbingPlayer = null; // 伴奏和录音混合好的配音播放器。
 dubbingPlayer = jq('#dubbing')[0];
 
+// mp3编码器
+var mp3Encoder = null;
 
 var attachInfo; // 存放录音的附件id。
 
@@ -1974,6 +1976,12 @@ function uploadDubbing() {
 			if (dubbingBlob != null) {
 				window.clearInterval(timer);
 
+				// 释放后台worker.
+				if (mp3Encoder != null) {
+					mp3Encoder.worker.terminate();
+					mp3Encoder = null;
+				}
+
 				// mp3上传服务器。
 				blobShardUpload(dubbingBlob, {
 					url: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
@@ -2102,7 +2110,8 @@ function mergeRecord2Commpany()
 				jq('.zyh-preview-ui').css('visibility', 'visible');
 
 				// 在后台编码成mp3格式。
-				var encoder = new MP3Encoder({
+				mp3Encoder = null;
+				mp3Encoder = new MP3Encoder({
 					WORKER_PATH: 'source/plugin/zhikai_n5video/mp3-recorder/recorder-worker.js',
 					bitRate: 128,//64,        //比特率,不要低于64,否则可能录制无声音（人声）
 
@@ -2110,14 +2119,13 @@ function mergeRecord2Commpany()
 						// 得到mp3数据。
 						dubbingBlob = new Blob(data, { type: type });
 						dubbingBlobName = 'dubbing_' + Date.now() + '.mp3';
-
 					},
 
 					error: function (data) {
 						console.log("mp3 encode error.");
 					}
 				});
-				encoder.encode(dubbingBuffer);
+				mp3Encoder.encode(dubbingBuffer);
 
 			}
 			else {
@@ -2240,13 +2248,24 @@ function previewPlayBtnPlugin(options) {
 	elBackButton.innerHTML = '<span aria-hidden="true" class="zyh-icon-placeholder uk-icon-angle-left"></span>';
 	elTopBar.appendChild(elBackButton);
 	elBackButton.onclick = function (e) {
+
 		// 切换回配音界面。
-		previewPlayer.pause();
-		dubbingPlayer.pause();
-		jq('.zyh-dubbing-ui').css('visibility', 'visible');
-		jq('.zyh-preview-ui').css('visibility', 'hidden');
-		dragSwitchSentence.init();
-		playStatus = 0;
+		function backForDubbing() {
+			previewPlayer.pause();
+			dubbingPlayer.pause();
+			jq('.zyh-dubbing-ui').css('visibility', 'visible');
+			jq('.zyh-preview-ui').css('visibility', 'hidden');
+			dragSwitchSentence.init();
+			playStatus = 0;
+		}
+
+		// 释放后台worker.
+		if (mp3Encoder != null) {
+			mp3Encoder.worker.terminate();
+			mp3Encoder = null;
+		}
+
+		backForDubbing();
 	};
 
 	// 右上角菜单按钮
