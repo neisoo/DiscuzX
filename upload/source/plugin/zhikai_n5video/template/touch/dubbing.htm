@@ -1949,9 +1949,9 @@ function mixAudioBuffer(context, buffer1, buffer2, startTime) {
 	buffer1.copyToChannel(src1, 0, 0);
 
 	// 合并右声道
-	if (buffer1.numberOfChannels > 1 && buffer2.numberOfChannels > 1) {
+	if (buffer1.numberOfChannels > 1) {
 		srcData1 = buffer1.getChannelData(1);
-		srcData2 = buffer2.getChannelData(1);
+		srcData2 = buffer2.numberOfChannels > 1 ? buffer2.getChannelData(1) : buffer2.getChannelData(0);
 
 		src1 = new Float32Array(srcData1);
 		src2 = new Float32Array(srcData2);
