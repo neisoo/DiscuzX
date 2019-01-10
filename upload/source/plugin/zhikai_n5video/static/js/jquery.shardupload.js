@@ -56,8 +56,8 @@
 			this.config = $.extend({}, this.defaults, this.options, this.metadata);
 
 			// 绑定事件，触发上传操作。
-			this.$elem.on('change.shardUpload', $.proxy(this.upload, this))
-			
+			this.$elem.on('change.shardUpload', $.proxy(this.onchange, this))
+
 			return this;
 		},
 
@@ -80,12 +80,35 @@
 			} 
 		},
 
-		// 使用切片上传方式，且js不会阻塞。
-		upload: function (){
+		onchange: function (e, blob, filename) {
 			var self = this;
 			var succeed = 0;
-			var file = self.$elem[0].files[0];
-			var name = file.name;
+
+			var file;
+			var name;
+			if (typeof blob == 'undefined') {
+				// 从input中取文件
+				file = self.$elem[0].files[0];
+				name = file.name;
+			}
+			else {
+				// 从参数中取文件
+				file = blob;
+				name = filename || 'file_' + Date.now();
+			}
+
+			// 用户可以在这里修改图片文件大小。
+			if (typeof self.config.fileCallback == 'function') {
+				self.config.fileCallback(self, file, name, self.upload);
+			}
+			else {
+				self.upload(self, file, name);
+			}
+		},
+
+		// 使用切片上传方式，且js不会阻塞。
+		upload: function (self, file, name){
+			var succeed = 0;
 			var size = file.size;
 			var file_id = self.randomBy(1000,9999);
 

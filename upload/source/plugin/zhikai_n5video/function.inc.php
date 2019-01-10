@@ -52,77 +52,72 @@ function attach_replace($matches, $is_match = FALSE)
         loadcache('plugin');
     }
     $config = $_G['cache']['plugin']['zhikai_n5video'];
-    $ids = $is_match ? explode(',', $matches) : explode(',', $matches[2]);
-    $aid = $ids[0];
 
     $video = explode('|', $config['video_bmp']);
     $voice = explode('|', $config['voice_bmp']);
-    if (empty($aid)) {
+
+    $jsonData = $is_match ? json_decode($matches, false) : json_decode($matches[2], false);
+    if (!isset($jsonData->type) || $jsonData->type != 'video') {
         return $is_match ? '' : $matches[0];
     }
-    $aidtb = getattachtablebyaid($aid);
-    if ($aidtb == 'forum_attachment_unused') {
-        return $is_match ? '' : $matches[0];
-    }
-    $attachlist = DB::fetch_all('SELECT readperm,price,attachment,filename,remote,dateline,filesize FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $aid));
-    $furl = DB::result_first('SELECT furl FROM %t WHERE faid=%d', array(0 => 'zhikai_vdocover', 1 => $aid));
 
-    $surl = null;
-    if (isset($ids[1])) {
-        $saidtb = getattachtablebyaid($ids[1]);
-        $surl = DB::result_first('SELECT attachment FROM %t WHERE aid=%d', array(0 => $saidtb, 1 => $ids[1]));
-    }
+    // 获取id列表。
+    $ids = array(
+        $jsonData->data->video,
+        $jsonData->data->poster,
+        $jsonData->data->subtitle,
+        $jsonData->data->tsubtitle,
+        $jsonData->data->accompany);
 
-    $turl = null;
-    if (isset($ids[2])) {
-        $taidtb = getattachtablebyaid($ids[2]);
-        $turl = DB::result_first('SELECT attachment FROM %t WHERE aid=%d', array(0 => $taidtb, 1 => $ids[2]));
-    }
-
-    require_once libfile('function/attachment');
-    foreach ($attachlist as $k => $attach) {
+    // 视频
+    $video_url = null;
+    if (isset($ids[0])) {
+        $aidtb = getattachtablebyaid($ids[0]);
+        $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[0]));
         $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
-        $attachext = strtolower(fileext($attach['filename']));
-        $attachicon = attachtype($attachext . "\t");
-        $attachdate = dgmdate($attach['dateline'], 'u');
-        $attachsize = sizecount($attach['filesize']);
-        $readperm = $attach['readperm'] ? lang('plugin/zhikai_n5video', 'lang_vdo002') . '<strong>' . $attach['readperm'] . '</strong>' : '';
-        $price = $attach['price'] ? lang('plugin/zhikai_n5video', 'lang_vdo003') . '<strong>' . $attach['price'] . '&nbsp;' . $_G['setting']['extcredits'][$_G['setting']['creditstransextra'][1]]['unit'] . $_G['setting']['extcredits'][$_G['setting']['creditstransextra'][1]]['title'] . '</strong>' : '';
-        if (!$config['media_analysis'] && ($attach['readperm'] || $attach['price'])) {
-            if (checkmobile() && CURMODULE == 'viewthread') {
-                $attachhtml = '<div style="margin:10px 0px;"><dd><p class="attnm"> ' . $attachicon . '<a href="javascript:;" id="">' . $attach['filename'] . '</a></p><p class="xglc">(' . $attachdate . lang('plugin/zhikai_n5video', 'lang_vdo004') . ')&nbsp;' . $attachsize . '&nbsp;' . $readperm . ',&nbsp; ' . $price . '&nbsp;&nbsp;' . lang('plugin/zhikai_n5video', 'lang_vdo005') . '</p></dd></div>';
-                return $attachhtml;
-            }
-            return $is_match ? '' : $matches[0];
-        }
-        if (in_array($attachext, $voice)) {
-            return player($attachurl . $attach['attachment'], 'voice', $aid, $attach['filename']);
-        }
-        if (in_array($attachext, $video)) {
-            $furl = $furl ? $furl : $config['cover_init'];
-            if ($surl != null) {
-                $surl = $attachurl . $surl;
-            }
-            if ($turl != null) {
-                $turl = $attachurl . $turl;
-            }
-            // 删除回车换行符。
-            $htmlPlayer = player($attachurl . $attach['attachment'], 'video', $aid, '', $furl, $surl, $turl);
-            $htmlPlayer = str_replace(array("\r\n", "\r", "\n"), '', $htmlPlayer);
-            return $htmlPlayer;
-        }
-
-        if (!$attach['readperm']) {
-            if ($attach['price']) {
-                if (checkmobile() && CURMODULE == 'viewthread') {
-                    $attachhtml = '<div style="margin:10px 0px;"><dd><p class="attnm"> ' . $attachicon . '<a href="javascript:;" id="">' . $attach['filename'] . '</a></p><p class="xglc">(' . $attachdate . lang('plugin/zhikai_n5video', 'lang_vdo004') . ')&nbsp;' . $attachsize . '&nbsp;' . $readperm . ',&nbsp; ' . $price . '&nbsp;&nbsp;' . lang('plugin/zhikai_n5video', 'lang_vdo005') . '</p></dd></div>';
-                    return $attachhtml;
-                }
-              return $is_match ? '' : $matches[0];
-            }
-        }
-      return $is_match ? '' : $matches[0];
+        $video_url = $attachurl . $attach['attachment'];
     }
+
+    // 封面
+    $poster_url = null;
+    if (isset($ids[1])) {
+        $aidtb = getattachtablebyaid($ids[1]);
+        $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[1]));
+        $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
+        $poster_url = $attachurl . $attach['attachment'];
+    }
+
+    // 原文
+    $subtitle_url = null;
+    if (isset($ids[2])) {
+        $aidtb = getattachtablebyaid($ids[2]);
+        $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[2]));
+        $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
+        $subtitle_url = $attachurl . $attach['attachment'];
+    }
+
+    // 译文
+    $tsubtitle_url = null;
+    if (isset($ids[3])) {
+        $aidtb = getattachtablebyaid($ids[3]);
+        $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[3]));
+        $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
+        $tsubtitle_url = $attachurl . $attach['attachment'];
+    }
+
+    // 伴奏
+    $accompany_url = null;
+    if (isset($ids[4])) {
+        $aidtb = getattachtablebyaid($ids[4]);
+        $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[4]));
+        $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
+        $accompany_url = $attachurl . $attach['attachment'];
+    }
+
+    // 删除回车换行符。
+    $htmlPlayer = player($video_url, 'video', $ids[0], '', $poster_url, $subtitle_url, $tsubtitle_url);
+    $htmlPlayer = str_replace(array("\r\n", "\r", "\n"), '', $htmlPlayer);
+    return $htmlPlayer;
 }
 
 // 替换帖子内容[attach]标记以外的内容。
@@ -141,8 +136,20 @@ function noattach_replace($postlist, $isforumdisplay = FALSE)
     $video = explode('|', $config['video_bmp']);
     $voice = explode('|', $config['voice_bmp']);
     $post = DB::fetch_first('SELECT message FROM %t WHERE tid=%d and pid=%d and fid=%d ', array(0 => 'forum_post', 1 => $tid, 2 => $pid, 3 => $fid));
-    preg_match_all('/\\[attach(.*?)\\](\\d+,\\d+,\\d*,\\d*)\\[\\/attach\\]/i', $post['message'], $mat);
-    $mat = explode(',', $mat[2][0]);
+    preg_match_all('/\\[attach(.*?)\\](.*?)\\[\\/attach\\]/i', $post['message'], $mat);
+
+    $jsonData = json_decode($mat[2][0], false);
+    if (!isset($jsonData->type) || $jsonData->type != 'video') {
+        $mat = array();
+    }
+    else {
+        $mat = array(
+            $jsonData->data->video,
+            $jsonData->data->poster,
+            $jsonData->data->subtitle,
+            $jsonData->data->tsubtitle,
+            $jsonData->data->accompany);
+    }
 
     $aidtb = getattachtablebytid($tid);
     if ($aidtb == 'forum_attachment_unused') {
@@ -392,6 +399,8 @@ function sortbytids($result, $tids)
     }
     return $resultlist;
 }
+
+// 帖子列表显示时的内容替换
 function forumdisplay_replace($message, $tid = null, $pid = null, $fid = null)
 {
     global $_G;
@@ -415,8 +424,9 @@ function forumdisplay_replace($message, $tid = null, $pid = null, $fid = null)
             }
         }
     }
+
     if (strexists($message, '[/attach]') !== false) {
-        if (preg_match_all('/\\[attach\\](\\d+,\\d+,\\d*,\\d*)\\[\\/attach\\]/is', $message, $matc)) {
+        if (preg_match_all('/\\[attach\\](.*?)\\[\\/attach\\]/is', $message, $matc)) {
             array_unique($matc[1]);
             foreach (array_unique($matc[1]) as $val) {
                 if (!empty($val)) {
@@ -465,66 +475,74 @@ function reply_replace($tid)
     $message = $post['message'];
     $subject = $post['subject'];
     if (strexists($message, '[/attach]') !== false) {
-        if (preg_match_all('/\\[attach\\](\\d+,\\d+,\\d*,\\d*)\\[\\/attach\\]/is', $message, $mat)) {
-            $ids = explode(',', $mat[1][0]);
-            $aid = $ids[0];
-
-            $aidtb = getattachtablebyaid($aid);
-            if ($aidtb == 'forum_attachment_unused') {
+        if (preg_match_all('/\\[attach\\](.*?)\\[\\/attach\\]/is', $message, $mat)) {
+            $jsonData = json_decode($mat[1][0], false);
+            if (!isset($jsonData->type) || $jsonData->type != 'video') {
                 return null;
             }
 
+            // 获取id列表。
+            $ids = array(
+                $jsonData->data->video,
+                $jsonData->data->poster,
+                $jsonData->data->subtitle,
+                $jsonData->data->tsubtitle,
+                $jsonData->data->accompany);
+
+            // 视频
+            $video_url = null;
+            if (isset($ids[0])) {
+                $aidtb = getattachtablebyaid($ids[0]);
+                $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[0]));
+                $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
+                $video_url = $attachurl . $attach['attachment'];
+            }
+
             // 封面
-            $attachlist = DB::fetch_all('SELECT readperm,price,attachment,filename,remote,dateline,filesize FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $aid));
-            $furl = DB::result_first('SELECT furl FROM %t WHERE faid=%d', array(0 => 'zhikai_vdocover', 1 => $aid));
+            $poster_url = null;
+            if (isset($ids[1])) {
+                $aidtb = getattachtablebyaid($ids[1]);
+                $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[1]));
+                $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
+                $poster_url = $attachurl . $attach['attachment'];
+            }
 
             // 原文
-            $surl = null;
-            if (isset($ids[1])) {
-                $saidtb = getattachtablebyaid($ids[1]);
-                $surl = DB::result_first('SELECT attachment FROM %t WHERE aid=%d', array(0 => $saidtb, 1 => $ids[1]));
+            $subtitle_url = null;
+            if (isset($ids[2])) {
+                $aidtb = getattachtablebyaid($ids[2]);
+                $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[2]));
+                $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
+                $subtitle_url = $attachurl . $attach['attachment'];
             }
 
             // 译文
-            $turl = null;
-            if (isset($ids[2])) {
-                $taidtb = getattachtablebyaid($ids[2]);
-                $turl = DB::result_first('SELECT attachment FROM %t WHERE aid=%d', array(0 => $taidtb, 1 => $ids[2]));
+            $tsubtitle_url = null;
+            if (isset($ids[3])) {
+                $aidtb = getattachtablebyaid($ids[3]);
+                $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[3]));
+                $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
+                $tsubtitle_url = $attachurl . $attach['attachment'];
             }
 
             // 伴奏
-            $aurl = null;
-            if (isset($ids[3])) {
-                $taidtb = getattachtablebyaid($ids[3]);
-                $aurl = DB::result_first('SELECT attachment FROM %t WHERE aid=%d', array(0 => $taidtb, 1 => $ids[3]));
+            $accompany_url = null;
+            if (isset($ids[4])) {
+                $aidtb = getattachtablebyaid($ids[4]);
+                $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[4]));
+                $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
+                $accompany_url = $attachurl . $attach['attachment'];
             }
 
-            require_once libfile('function/attachment');
-            foreach ($attachlist as $k => $attach) {
-                $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
-                $attachext = strtolower(fileext($attach['filename']));
-                if (in_array($attachext, $video)) {
-                    $furl = $furl ? $furl : $config['cover_init'];
-                    if ($surl != null) {
-                        $surl = $attachurl . $surl;
-                    }
-                    if ($turl != null) {
-                        $turl = $attachurl . $turl;
-                    }
-                    if ($aurl != null) {
-                        $aurl = $attachurl . $aurl;
-                    }
-                    
-                    $attachInfo['video'] = $attachurl . $attach['attachment'];
-                    $attachInfo['cover'] = $furl;
-                    $attachInfo['subtitle'] = $surl;
-                    $attachInfo['tsubtitle'] = $turl;
-                    $attachInfo['accompany'] = $aurl;
-                    $attachInfo['subject'] = $subject; // 标题
-                    $attachInfo['tid'] = $tid; // 配音视频贴的tid
-                    return $attachInfo;
-                }
-            }
+            $attachInfo['video'] = $video_url;
+            $attachInfo['cover'] = $poster_url;
+            $attachInfo['subtitle'] = $subtitle_url;
+            $attachInfo['tsubtitle'] = $tsubtitle_url;
+            $attachInfo['accompany'] = $accompany_url;
+            $attachInfo['subject'] = $subject; // 标题
+            $attachInfo['tid'] = $tid; // 配音视频贴的tid
+
+            return $attachInfo;
         }
     }
 

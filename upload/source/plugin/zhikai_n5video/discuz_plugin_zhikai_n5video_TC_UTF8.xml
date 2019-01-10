@@ -407,6 +407,7 @@
 				<item id="lang_069"><![CDATA[譯文]]></item>
 				<item id="lang_070"><![CDATA[伴奏音頻]]></item>
 				<item id="lang_071"><![CDATA[必填]]></item>
+				<item id="lang_072"><![CDATA[封面]]></item>
 			</item>
 		</item>
 		<item id="installfile"><![CDATA[install.php]]></item>
