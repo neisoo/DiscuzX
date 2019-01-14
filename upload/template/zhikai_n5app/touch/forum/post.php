@@ -24,6 +24,8 @@ function dzlang(){
 	return $dlang;
 }
 {/eval}
+
+
 <script type="text/javascript" src="template/zhikai_n5app/js/common.js"></script>
 <script type="text/javascript">
 	var allowpostattach = parseInt('{$_G['group']['allowpostattach']}');
@@ -70,6 +72,7 @@ function dzlang(){
 <div class="n5sq_ztfb cl">
 <!--{eval $adveditor = $isfirstpost && $special || $special == 2 && ($_GET['action'] == 'newthread' || $_GET['action'] == 'reply' && !empty($_GET['addtrade']) || $_GET['action'] == 'edit' && $thread['special'] == 2);}--> 
 <!--{eval $advmore = !$showthreadsorts && !$special || $_GET['action'] == 'reply' && empty($_GET['addtrade']) || $_GET['action'] == 'edit' && !$isfirstpost && ($thread['special'] == 2 && !$special || $thread['special'] != 2);}-->
+<!--{eval include_once DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/nvbing5.php'}-->
 	<form method="post" id="postform" enctype="multipart/form-data"
 		{if $_GET[action] == 'newthread'}action="forum.php?mod=post&action={if $special != 2}newthread{else}newtrade{/if}&fid=$_G[fid]&extra=$extra&topicsubmit=yes&mobile=2"
 		{elseif $_GET[action] == 'reply'}action="forum.php?mod=post&action=reply&fid=$_G[fid]&tid=$_G[tid]&extra=$extra&replysubmit=yes&mobile=2"
@@ -110,15 +113,18 @@ function dzlang(){
 			<input type="hidden" name="specialextra" value="$specialextra" />
 		<!--{/if}-->
 
-	<!--{subtemplate forum/post_editor_extra}-->
-	<script src="template/zhikai_n5app/js/jquery.femoticons.js" type="text/javascript"></script>
-	<div class="ztfb_nrsr cl" style="display:none">
-		<textarea class="pt" id="needmessage" tabindex="3" autocomplete="off" id="{$editorid}_textarea" name="$editor[textarea]" cols="80" rows="2"  placeholder="{$n5app['lang']['sqftktishi']}" fwin="reply">$postinfo[message]</textarea>
-	</div>
-
-	<!--{if in_array('zhikai_n5video',$_G['setting']['plugins']['available'])}-->
-		<!--{hook/post_n5bottom_mobile}-->
+	<!-- {if n5video_template()} -->
+		<div class="ztfb_nrsr cl" style="display:none">
+			<textarea class="pt" id="needmessage" tabindex="3" autocomplete="off" id="{$editorid}_textarea" name="$editor[textarea]" cols="80" rows="2"  placeholder="{$n5app['lang']['sqftktishi']}" fwin="reply">$postinfo[message]</textarea>
+		</div>
+		<!--{hook/post_dubbing_mobile}-->
 	<!--{else}-->
+		<!--{subtemplate forum/post_editor_extra}-->
+		<script src="template/zhikai_n5app/js/jquery.femoticons.js" type="text/javascript"></script>
+		<div class="ztfb_nrsr cl">
+			<textarea class="pt" id="needmessage" tabindex="3" autocomplete="off" id="{$editorid}_textarea" name="$editor[textarea]" cols="80" rows="2"  placeholder="{$n5app['lang']['sqftktishi']}" fwin="reply">$postinfo[message]</textarea>
+		</div>
+
 		<div class="n5sp_wats cl">
 			<i class="iconfont icon-ftgnsq"></i>{$n5app['lang']['fbszgnatss']}
 		</div>
@@ -133,10 +139,11 @@ function dzlang(){
 		<!--{subtemplate common/seccheck}-->
 	<!--{/if}-->
 	
+<!-- {if n5video_template()} -->
+	<div class="ztfb_fban cl" style="display:none"><button id="postsubmit" class="btn_pn <!--{if $_GET[action] == 'edit'}-->btn_pn_blue" disable="false"<!--{else}-->btn_pn_grey" disable="true"<!--{/if}-->><!--{if $_GET[action] == 'newthread'}-->{lang send_thread}<!--{elseif $_GET[action] == 'reply'}-->{lang join_thread}<!--{elseif $_GET[action] == 'edit'}-->{lang edit_save}<!--{/if}--></button></div>	
+<!--{else}-->
 	<div class="ztfb_fban cl"><button id="postsubmit" class="btn_pn <!--{if $_GET[action] == 'edit'}-->btn_pn_blue" disable="false"<!--{else}-->btn_pn_grey" disable="true"<!--{/if}-->><!--{if $_GET[action] == 'newthread'}-->{lang send_thread}<!--{elseif $_GET[action] == 'reply'}-->{lang join_thread}<!--{elseif $_GET[action] == 'edit'}-->{lang edit_save}<!--{/if}--></button></div>	
-	<!--{if in_array('zhikai_n5video',$_G['setting']['plugins']['available'])}-->
-		<div id="pagebottom"></div>
-	<!--{/if}-->
+<!--{/if}-->
 	<style type="text/css">
 		.zhikai-form-radios {display:none;}
 	</style>

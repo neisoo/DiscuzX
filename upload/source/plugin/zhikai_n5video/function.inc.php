@@ -542,6 +542,11 @@ function reply_replace($tid)
             $attachInfo['subject'] = $subject; // 标题
             $attachInfo['tid'] = $tid; // 配音视频贴的tid
 
+            $attachInfo['description'] = '';
+            if (isset($jsonData->data->description)) {
+                $attachInfo['description'] = $jsonData->data->description; // 配音视频的说明文字
+            }
+
             return $attachInfo;
         }
     }

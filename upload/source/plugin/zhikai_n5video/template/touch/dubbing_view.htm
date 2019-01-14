@@ -40,21 +40,33 @@
 /*********************************************************************
  * 预览界面
  *********************************************************************/
+/* 整个界面 */
 .zyh-preview-ui {
 	display: block;
 	position: absolute;
 	width: 100%;
+	height: 100%;
 	top: 0px;
 	bottom: 0px;
 	overflow: hidden;
 	background-color: #eeeeee;
 }
 
+/* 顶部的播放区域 */
 .zyh-preview-player-area {
 	display: block;
 	position: static;
 }
 
+/* 中间可滚动的部分 */
+.zyh-preview-scroll-area {
+	display: block;
+	position: absolute;
+	padding: 1rem;
+	overflow: scroll;
+}
+
+/* 固定在底部的按钮区 */
 .zyh-dubbing-start {
 	display: block;
 	position: absolute;
@@ -89,7 +101,6 @@
 .vjs-user-inactive .zyh-dubbing-round-button {
 	opacity: 0;
 }
-
 
 /********************************************************************
  * 預览视频播放相关
@@ -368,38 +379,10 @@
 /* 暂停状态图标 */
 .vjs-paused .zyh-preview-play-normal .zyh-icon-placeholder:before {
 	font-size: 3rem;
-	content: "\\f101"; 
+	content: "\\f101";
 }
 
-
 </style>
-
-
-<div id="dubbing_params" style="display: none">
-	<div id="tid" tid="{$attachInfo[tid]}" ></div>
-	<div id="subject" tid="{$attachInfo[subject]}"></div>
-
-	<input type="text" name="subject" value="dubbing:{$attachInfo[subject]}" id="needsubject" class="txt"/>
-	
-	<!--保存方式，value=1表示以草稿方式保存 -->
-	<input type="hidden" id="postsave" name="save" value="">
-
-	<!--{if $attachInfo['accompany'] != null}-->
-	<audio id="accompany" src="{$attachInfo[accompany]}"></audio>
-	<!--{/if}--> 
-	<audio id="dubbing"></audio>
-	<audio id="startRecordSnd" src="source/plugin/zhikai_n5video/di.ogg"></audio>
-	<div id="zyh-attach-dubbing"></div>
-	
-	<!-- 帖子权限 --> 
-	<select name="readperm" id="readperm"">
-		<option value="">{lang unlimited}</option>
-		<!--{loop $_G['cache']['groupreadaccess'] $val}-->
-			<option value="$val[readaccess]" title="{lang readperm}: $val[readaccess]"{if $thread['readperm'] == $val[readaccess]} selected="selected"{/if}>$val[grouptitle]</option>
-		<!--{/loop}-->
-		<option value="255"{if $thread['readperm'] == 255} selected="selected"{/if}>{lang highest_right}</option>
-	</select>
-</div>
 
 <!-- 预览界面 -->
 <div class="zyh-preview-ui">
@@ -415,6 +398,14 @@
 			<track kind="subtitles" src="{$attachInfo[tsubtitle]}" srclang="zh" id="translation" label="{lang zhikai_n5video:lang_069}"></track>
 			<!--{/if}--> 
 		</video>
+	</div>
+
+	<div class="zyh-preview-scroll-area">
+		<article  class="zyh-dubbing-info uk-article">
+			<div class="zyh-dubbing-title uk-article-lead"><p>{$attachInfo[subject]}</p></div>
+			<div class="zyh-dubbing-starlevel"></div>
+			<div class="zyh-dubbing-description uk-article-lead"><p>{$attachInfo[description]}</p></div>
+		</article >
 	</div>
 
 	<!-- 开启配音 -->
@@ -440,6 +431,11 @@ var previewVideoOptions = {
 var previewPlayer = videojs('video-preview', previewVideoOptions);
 var previewSeekBar = null; // 进度条
 var previewInit = false;
+
+// 隐藏不需要的界面元素。
+jq('.n5qj_tbys').css('display', 'none');
+// 不要让整个页面滚动
+jq('body').css('padding-top', '0px');
 
 // 添加自定义的播放元素，点击视频时暂停和播放视频。
 function previewPlayBtnPlugin(options) {

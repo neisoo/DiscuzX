@@ -1,5 +1,6 @@
 <?php exit;?>
 <script type="text/javascript" src="template/zhikai_n5app/js/supload.js"></script>
+
 <!--{if $_GET['action'] != 'reply'}-->
 	<!--{if $_GET['tid'] != null}-->
 	<!--{else}-->

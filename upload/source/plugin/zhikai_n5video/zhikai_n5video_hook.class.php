@@ -228,7 +228,7 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 		}
 	}
 
-	function post_n5bottom_mobile(){
+	function post_dubbing_mobile(){
 		global $_G;
 		$config = self::$config;
 		if(!in_array('zhikai_n5appgl',$_G['setting']['plugins']['available']))return;
@@ -246,8 +246,8 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 					include template('zhikai_n5video:dubbing');
 				}
 				else {
-					// 配音视频贴
-					include template('zhikai_n5video:up_file');
+					// 新增或修改配音视频贴
+					include template('zhikai_n5video:dubbing_new');
 				}
 			}
 			else if($_GET['action'] == 'reply') {
@@ -264,7 +264,8 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 		}
 	}
 
-	// 在帖子列表中点击后进入看贴页面。
+
+	// 查看配音资源贴。
 	function viewthread_dubbing_mobile_output() {
 		global $_G;
 		$attachInfo = reply_replace($_G['tid']);
