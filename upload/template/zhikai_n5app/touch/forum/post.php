@@ -59,11 +59,15 @@ function dzlang(){
 </script>
 <script type="text/javascript" src="template/zhikai_n5app/js/threadsort.js"></script>
 <!--{/if}-->
+<!--{eval include_once DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/nvbing5.php'}-->
+<!-- {if n5video_template()} -->
+<!--{else}-->
 <div class="n5qj_tbys nbg cl">
 	<a href="javascript:history.back();" class="n5qj_zcan"><div class="zcanfh">{$n5app['lang']['qjfanhui']}</div></a>
 	<a href="forum.php?forumlist=1&mobile=2" class="n5qj_ycan shouye"></a>
 	<span><!--{if $_GET[action] == 'newthread'}-->{$n5app['lang']['sqfabusssq']}<!--{elseif $_GET[action] == 'reply'}-->{lang join_thread}<!--{elseif $_GET[action] == 'edit'}-->{$n5app['lang']['sqdengjibj']}<!--{/if}--></span>
 </div>
+<!--{/if}-->
 <script src="template/zhikai_n5app/js/mobiscroll_002.js" type="text/javascript"></script>
 <link href="template/zhikai_n5app/common/mobiscroll_002.css" rel="stylesheet" type="text/css">
 <script src="template/zhikai_n5app/js/mobiscroll.js" type="text/javascript"></script>
@@ -72,7 +76,6 @@ function dzlang(){
 <div class="n5sq_ztfb cl">
 <!--{eval $adveditor = $isfirstpost && $special || $special == 2 && ($_GET['action'] == 'newthread' || $_GET['action'] == 'reply' && !empty($_GET['addtrade']) || $_GET['action'] == 'edit' && $thread['special'] == 2);}--> 
 <!--{eval $advmore = !$showthreadsorts && !$special || $_GET['action'] == 'reply' && empty($_GET['addtrade']) || $_GET['action'] == 'edit' && !$isfirstpost && ($thread['special'] == 2 && !$special || $thread['special'] != 2);}-->
-<!--{eval include_once DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/nvbing5.php'}-->
 	<form method="post" id="postform" enctype="multipart/form-data"
 		{if $_GET[action] == 'newthread'}action="forum.php?mod=post&action={if $special != 2}newthread{else}newtrade{/if}&fid=$_G[fid]&extra=$extra&topicsubmit=yes&mobile=2"
 		{elseif $_GET[action] == 'reply'}action="forum.php?mod=post&action=reply&fid=$_G[fid]&tid=$_G[tid]&extra=$extra&replysubmit=yes&mobile=2"

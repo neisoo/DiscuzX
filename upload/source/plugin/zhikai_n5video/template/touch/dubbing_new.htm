@@ -1,0 +1,443 @@
+<!--{block file}-->
+<link href="source/plugin/zhikai_n5video/static/css/style.css" rel="stylesheet" />
+<link href="source/plugin/zhikai_n5video/uikit/css/uikit.docs.min.css" rel="stylesheet" />
+<link href="source/plugin/zhikai_n5video/uikit/css/components/progress.css " rel="stylesheet" />
+<link rel="stylesheet" href="source/plugin/zhikai_n5video/video-js/video-js.min.css">
+
+<script type="text/javascript"src="source/plugin/zhikai_n5video/static/js/jquery.min.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.shardupload.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>';
+
+<style>
+.zyh-dubbing-post {
+	padding-top: 2rem;
+	padding-bottom: 2rem;
+}
+
+</style>
+<div id="setting">
+	<!-- 标题 -->
+	<div class="n5sq_fbbt cl">
+		<div class="fbbt_btbt z">{lang thread_subject}</div>
+		<div class="fbbt_btsr z"><input type="text" name="subject" value="$postinfo[subject]" id="needsubject" placeholder="{lang zhikai_n5video:lang_071}" class="txt"/></div>
+	</div>
+
+	<!-- 视频上传 -->
+	<div class="n5sq_fbbt cl">
+		<div class="fbbt_btbt z" id="video_title">{lang zhikai_n5video:lang_063}</div>
+		<div class="fbbt_btxx z" id="video_fname">
+			<input type="text" value="" placeholder="{lang zhikai_n5video:lang_071}" class="txt">
+		</div>
+		<div class="fbbt_btaj y">
+			<div class="btn y" id="video_btn">{lang zhikai_n5video:lang_020}</div>
+		</div>
+		<input class="fbbt_btwj" type="file" value="" aid="" id="video_file">
+	</div>
+	<div class="uk-progress" id="video_progress" style="display: none;">
+		<div class="uk-progress-bar" style="width: 40%;">40%</div>
+	</div>
+
+	<!-- 视频预览 -->
+	<div class="zyh-player n5sq_fbbt cl" style="display: none;">
+		<!-- 播放器 -->
+		<div class="fbbt_btyl z">
+			<video id="zyh-player-video" class="video-js vjs-default-skin vjs-big-play-centered vidoe_wrap">
+				<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
+			</video>
+		</div>
+		<!-- 设置封面按钮 -->
+		<div class="fbbt_btaj y">
+			<div class="zyh-player-poster-btn btn y">{lang zhikai_n5video:lang_023}</div>
+		</div>
+		<!-- 文件大小 -->
+		<div class="fbbt_btyl z">{lang zhikai_n5video:lang_026}<span class="zyh-player-filesize"></span></div>
+	</div>
+
+	<!-- 封面上传 -->
+	<div class="n5sq_fbbt cl">
+		<div class="fbbt_btbt z">{lang zhikai_n5video:lang_072}</div>
+		<div class="fbbt_btxx z" id="poster_filename">
+			<input type="text" value="" placeholder="{lang zhikai_n5video:lang_071}"  accept="image/jpeg" class="txt">
+		</div>
+		<div class="fbbt_btaj y">
+			<div class="btn y" id="poster_upload" >{lang zhikai_n5video:lang_020}</div>
+		</div>
+		<input  class="fbbt_btwj" type="file" value="" aid="" id="poster_file">
+		<div id="poster_data" style="display:none">
+		</div>
+	</div>
+	<div class="uk-progress" id="poster_progress" style="display: none;">
+		<div class="uk-progress-bar" style="width: 40%;">40%</div>
+	</div>
+
+	<!-- 封面预览 -->
+	<div class="zyh-poster n5sq_fbbt cl" style="display: none;">
+		<img class="zyh-poster-img uk-thumbnail" src="" alt="">
+	</div>
+
+	<!-- 字幕上传 -->
+	<div class="n5sq_fbbt cl">
+		<div class="fbbt_btbt z">{lang zhikai_n5video:lang_065}</div>
+		<div class="fbbt_btxx z" id="subtitle_filename">
+			<input type="text" value="" placeholder="{lang zhikai_n5video:lang_071}" class="txt">
+		</div>
+		<div class="fbbt_btaj y">
+			<div class="btn y" id="subtitle_upload" >{lang zhikai_n5video:lang_020}</div>
+		</div>
+		<input  class="fbbt_btwj" type="file" value="" aid="" id="subtitle_file">
+		<div id="subtitle_data" style="display:none">
+		</div>
+	</div>
+	<div class="uk-progress" id="subtitle_progress" style="display: none;">
+		<div class="uk-progress-bar" style="width: 40%;">40%</div>
+	</div>
+
+	<!-- 译文字幕上传 -->
+	<div class="n5sq_fbbt cl">
+		<div class="fbbt_btbt z">{lang zhikai_n5video:lang_066}</div>
+		<div class="fbbt_btxx z" id="tsubtitle_filename"></div>
+		<div class="fbbt_btaj y">
+			<div class="btn y" id="tsubtitle_upload" >{lang zhikai_n5video:lang_020}</div>
+		</div>
+		<input  class="fbbt_btwj" type="file" value="" aid="" id="tsubtitle_file">
+		<div id="tsubtitle_data" style="display:none">
+		</div>
+	</div>
+	<div class="uk-progress" id="tsubtitle_progress" style="display: none;">
+		<div class="uk-progress-bar" style="width: 40%;">40%</div>
+	</div>
+
+	<!-- 伴奏上传 -->
+	<div class="n5sq_fbbt cl">
+		<div class="fbbt_btbt z">{lang zhikai_n5video:lang_070}</div>
+		<div class="fbbt_btxx z" id="accompany_filename"></div>
+		<div class="fbbt_btaj y">
+			<div class="btn y" id="accompany_upload" >{lang zhikai_n5video:lang_020}</div>
+		</div>
+		<input  class="fbbt_btwj" type="file" value="" aid="" id="accompany_file">
+		<div id="accompany_data" style="display:none">
+		</div>
+	</div>
+	<div class="uk-progress" id="accompany_progress" style="display: none;">
+		<div class="uk-progress-bar" style="width: 40%;">40%</div>
+	</div>
+
+	<!-- 视频描述 -->
+	<div class="n5sq_fbbt cl">
+		<div class="fbbt_btbt z">{lang zhikai_n5video:lang_029}</div>
+		<div class="fbbt_btsr z">
+			<input class="txt" type="text" id="attach_description" value="" size="6"/>
+		</div>
+	</div>
+
+	<!-- 提交按钮 -->
+	<div class="zyh-dubbing-post">
+		<div class="uk-panel uk-width-2-3 uk-container-center uk-text-center">
+			<button class="zyh-dubbing-post-button uk-button uk-button-success uk-button-large uk-width-1-1" type="button" <!--{if $_GET[action] != 'edit'}-->disabled<!--{/if}-->><!--{if $_GET[action] == 'newthread'}-->{lang send_thread}<!--{elseif $_GET[action] == 'edit'}-->{lang edit_save}<!--{/if}--></button>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/up.js" charset="{CHARSET}"></script>
+<script type="text/javascript">
+    var jq = jQuery.noConflict();
+	var imges = typeof imges == 'undefined' ? 'jpg, jpeg, gif, png' : imges;
+	var lang_msg = {
+		'-1' : '{lang zhikai_n5video:lang_001}',
+		'0' : '{lang zhikai_n5video:lang_002}',
+		'1' : '{lang zhikai_n5video:lang_003}',
+		'2' : '{lang zhikai_n5video:lang_004}',
+		'3' : '{lang zhikai_n5video:lang_005}',
+		'4' : '{lang zhikai_n5video:lang_006}',
+		'5' : '{lang zhikai_n5video:lang_007}',
+		'6' : '{lang zhikai_n5video:lang_008}',
+		'7' : '{lang zhikai_n5video:lang_009}('+ imges +')',
+		'8' : '{lang zhikai_n5video:lang_010}',
+		'9' : '{lang zhikai_n5video:lang_011}',
+		'10' : '{lang zhikai_n5video:lang_012}',
+		'11' : '{lang zhikai_n5video:lang_013}',
+		'-5' : '{lang zhikai_n5video:lang_014}'
+	};
+	var needsubtitle = false;
+	var attachInfo = {};
+	attachInfo['type'] = 'video';
+	attachInfo['data'] = {};
+
+	var videoOptions = {
+		controls:true,//控制条：boolean
+		fluid: true,// 播放器宽高自适应
+	};
+	var player = videojs('zyh-player-video', videoOptions);
+
+	// 字幕上传进度回调
+	function progressCallback(self, percnt, userData) {
+		var prefix = userData['prefix'];
+
+		if (percnt <= 100) {
+			// 更新进度条进度。
+			var bar = jq('#' + prefix + '_progress' + ' div'); 
+			bar.css('width', percnt + '%');
+			bar.html(percnt + '%');
+		}
+		if (percnt == 0) {
+			// 删除之前上传的附件。
+			if (self.attr('aid') != '') {
+				var aid = self.attr('aid');
+				$.ajax({
+					type:'GET',
+					url:'forum.php?mod=ajax&action=deleteattach&inajax=yes&aids[]=' + aid,
+				})
+				.success(function(s) {
+				})
+				.error(function() {
+					popup.open('{lang networkerror}', 'alert');
+				});
+
+				self.attr('aid', '');
+			}
+			// 显示进度条。
+			jq('#' + prefix + '_progress').css('display', 'block');
+		}
+		if (percnt == 100) {
+			// 隐藏进度条。
+			setTimeout('jQuery("#' + prefix + '_progress' + '").fadeOut()', 1000);
+
+			// 修改上传按钮文本。
+			jq('#' + prefix + '_upload').html('{lang zhikai_n5video:lang_067}');
+		}
+	}
+
+	// 字幕上传状态回调
+	function stepCallback(self, data, userData) {
+		var prefix = userData['prefix'];
+
+		if (data.indexOf('DISCUZUPLOAD') > -1) {
+			var arr = data.split('|');
+			if (arr[1] == 0) {
+				// 记录上传文件的附件ID。
+				self.attr('aid', arr[2]);
+
+				// 上传成功，更新文件名。
+				jq('#' + prefix + '_filename').html(arr[5]);
+
+				// 更新帖子正文中的标记
+				attachInfo['data'][userData['prefix']] = arr[2];
+				jq('#needmessage').val('[attach]' + JSON.stringify(attachInfo) + '[/attach]');
+
+				// 附件提交的表单数据，表单中至少有一个attachnew['附件ID'][xxx]的表单项，
+				// 提交后附件ID对应的附件才会被视为已使用附件。
+				// 表单项的内容只是简单的填充一个字符串，暂时未使用。
+				var Dom = '<input type="text" value="' + userData['prefix'] + '" name="attachnew['+ arr[2] +'][description]"/>';
+				jq('#' + prefix + '_data').html('').append(Dom);
+
+				if (userData['prefix'] == 'video') {
+					updateVideoPreview('{$attachurl}' + arr[4]);
+					jq('.zyh-player-filesize').html('').append(File_Size(arr[6]));
+				}
+				else if (userData['prefix'] == 'poster') {
+					updatePosterPreview('{$attachurl}' + arr[4]);
+				}
+
+				// 充许或禁用提交按钮
+				needmessage = true;
+				if (userData['prefix'] == 'subtitle') {
+					needsubtitle = true;
+				}
+				if (needsubject  == true && needmessage == true && needsubtitle == true) {
+					jq('.btn_pn').removeClass('btn_pn_grey').addClass('btn_pn_blue');
+					jq('.btn_pn').attr('disable', 'false');
+
+					jq('.zyh-dubbing-post-button').removeAttr('disabled');
+				}
+			}
+			else if (lang_msg[arr[1]] != undefined ) {
+				// 出错，显示出错原因。
+				var sizelimit = '';
+				if(arr[8] == 'ban') {
+					sizelimit = '{lang uploadpicatttypeban}';
+				} else if(arr[8] == 'perday') {
+					sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+				} else if(arr[8] > 0) {
+					sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+				}
+				popup.open(lang_msg[arr[1]] + sizelimit, 'alert');
+			}
+		}
+		else {
+			if (data) {
+				popup.open(lang_msg[data], 'alert');
+			}
+		}
+		return false;
+	}
+
+	// 将图片文件转成合适的大小后再上传。
+	function fileCallback(self, file, name, uploadCallback) {
+		var url = URL.createObjectURL(file);
+		var img = new Image();
+		img.onload = function () {
+			// 图片大小统一为640x360;
+			var scaleW = 640 / img.width;
+			var scaleH = 360 / img.height;
+			var scale = Math.min(scaleW, scaleH);
+
+			var canvas = document.createElement("canvas");
+			canvas.width = img.width * scale;
+			canvas.height = img.height * scale;
+			canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+			var dataUrl = canvas.toDataURL("image/png");
+			if (dataUrl) {
+				function dataURLtoBlob(dataurl) {
+					var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+						bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+
+					while (n--) {
+						u8arr[n] = bstr.charCodeAt(n);
+					}
+					return new Blob([u8arr], {type:mime});
+				}
+				// 将图片转成blob数据上传
+				var blob = dataURLtoBlob(dataUrl);
+
+				// 上传
+				uploadCallback(self, blob, name);
+			}
+		}
+		img.src = url;
+	}
+
+	// 初始化视频上传按钮。
+	jq('#video_file').shardUpload({
+		uploadUrl: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
+		progressCallback: progressCallback,
+		stepCallback: stepCallback,
+		userData: {prefix: 'video'}
+	}).init();
+
+	// 初始化封面上传按钮。
+	jq('#poster_file').shardUpload({
+		uploadUrl: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
+		progressCallback: progressCallback,
+		stepCallback: stepCallback,
+		fileCallback: fileCallback,
+		userData: {prefix: 'poster'}
+	}).init();
+
+	// 初始化伴奏音频上传按钮。
+	jq('#accompany_file').shardUpload({
+		uploadUrl: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
+		progressCallback: progressCallback,
+		stepCallback: stepCallback,
+		userData: {prefix: 'accompany'}
+	}).init();
+
+	// 初始化原文字幕上传按钮。
+	jq('#subtitle_file').shardUpload({
+		uploadUrl: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
+		progressCallback: progressCallback,
+		stepCallback: stepCallback,
+		userData: {prefix: 'subtitle'}
+	}).init();
+
+	// 初始化译文字幕上传按钮。
+	jq('#tsubtitle_file').shardUpload({
+		uploadUrl: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
+		progressCallback: progressCallback,
+		stepCallback: stepCallback,
+		userData: {prefix: 'tsubtitle'}
+	}).init();
+
+	// 截取封面按钮。
+	jq('.zyh-player-poster-btn').click(function(e) {
+
+		// 清空input的文件选择。设置file的value为空字符，或者把file的html重新初始化来解决清空的问题
+		// 设置file的value为空字符，或者把file的html重新初始化来解决清空的问题
+		var elPosterFile = jq('#poster_file')[0];
+		elPosterFile.value = '';
+
+		// 从当前视频画面中设置封面。
+		var vobj = jq('.zyh-player')[0];
+		var vobjs = vobj.getElementsByTagName("video");
+
+		// 图片大小统一为640x360;
+		var scaleW = 640 / vobjs[0].videoWidth;
+		var scaleH = 360 / vobjs[0].videoHeight;
+		var scale = Math.min(scaleW, scaleH);
+		var canvas = document.createElement("canvas");
+		canvas.width = vobjs[0].videoWidth * scale;
+		canvas.height = vobjs[0].videoHeight * scale;
+		canvas.getContext('2d').drawImage(vobjs[0], 0, 0, canvas.width, canvas.height);
+		var dataUrl = canvas.toDataURL("image/png");
+		if (dataUrl) {
+			function dataURLtoBlob(dataurl) {
+				var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+					bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+
+				while (n--) {
+					u8arr[n] = bstr.charCodeAt(n);
+				}
+				return new Blob([u8arr], {type:mime});
+			}
+			// 将图片转成blob数据上传
+			var blob = dataURLtoBlob(dataUrl);
+			jq('#poster_file').trigger('change', [blob, 'poster.png']);
+		}
+
+		return false;
+	});
+
+	// 预览选择的视频
+	function updateVideoPreview(attachurl) {
+		// 设置播放器预览视频。
+		player.src(attachurl);
+		jq(".zyh-player").css('display','block');
+
+		// 更新视频文件名。
+		jq("#video_fname").html(jq('#video_file')[0].files[0].name);
+	}
+
+	jq('.zyh-dubbing-post-button').click(function(){
+		// 把描述中的内容写入正文。
+		attachInfo['data']['description'] = jq('#attach_description').val();
+		jq('#needmessage').val('[attach]' + JSON.stringify(attachInfo) + '[/attach]');
+
+		// 模拟点击真正的提交按钮。
+		jq('#postsubmit').click();
+		return false;
+	});
+
+	// 预览选择的封面图片
+	function updatePosterPreview(attachurl) {
+		jq('.zyh-poster-img').attr("src", attachurl);  
+		jq(".zyh-poster").css('display','block');
+	}
+
+	function JudgeImg(v,arr){
+	    var type = 0;
+		for(var i = 0;i < arr.length; i++) {
+		   if(v.toString() == arr[i].toString()){
+		      type = 1;
+		   }
+		}
+		return type;
+	};
+
+	function scrollToEnd(){
+		var h = jq(document).height() - jq(window).height();
+		jq(document).scrollTop(h);
+	};
+	
+	// 文件大小字串
+	function File_Size(size){
+		if(size < 30)return 0;
+		return size = size > 1024
+			? size / 1024  > 1024
+			? size / (1024 * 1024) > 1024
+			? (size / (1024 * 1024 * 1024)).toFixed(2) + ' GB'
+			: (size / (1024 * 1024)).toFixed(2) + ' MB'
+			: (size / 1024).toFixed(2) + ' KB'
+			: size + ' B';
+	};
+</script>
+<!--{/block}-->
