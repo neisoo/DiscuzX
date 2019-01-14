@@ -264,6 +264,14 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 		}
 	}
 
+	// 在帖子列表中点击后进入看贴页面。
+	function viewthread_dubbing_mobile_output() {
+		global $_G;
+		$attachInfo = reply_replace($_G['tid']);
+		include template('zhikai_n5video:dubbing_view');
+		return $file;
+	}
+
 	function forumdisplay_mobile_output(){
         global $_G;
 		$config = self::$config;

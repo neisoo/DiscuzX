@@ -5,6 +5,11 @@
 <!--{eval include_once DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/nvbing5_viewthread.php'}-->
 <!--{eval include_once DISCUZ_ROOT.'./template/zhikai_n5app/php/viewthread.php'}-->
 <link href="template/zhikai_n5app/fenlei/mbflnr.css" type="text/css" rel="stylesheet">
+
+<!-- {if n5video_template()} -->
+<!--{hook/viewthread_dubbing_mobile}-->
+<!--{else}-->
+
 {if strpos(strtolower($_SERVER['HTTP_USER_AGENT']), 'micromessenger')}
 <style type="text/css">
 .bg {padding-top: 0;}
@@ -695,3 +700,5 @@ $multipage
 </div>
 
 <!--{template common/footer}-->
+
+<!--{/if}-->
