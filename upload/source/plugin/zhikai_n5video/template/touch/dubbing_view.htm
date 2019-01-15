@@ -1,10 +1,12 @@
 <!--{block file}-->
 <link href="source/plugin/zhikai_n5video/static/css/style.css" rel="stylesheet" />
+<link href="source/plugin/zhikai_n5video/static/css/jquery.rateyo.min.css" rel="stylesheet" />
 <link href="source/plugin/zhikai_n5video/static/css/jquery.seekbar.css" rel="stylesheet" />
 <link href="source/plugin/zhikai_n5video/uikit/css/uikit.docs.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="source/plugin/zhikai_n5video/video-js/video-js.min.css">
 
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.min.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.rateyo.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.seekbar.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>
@@ -37,6 +39,39 @@
 		height: 100%
 	}
 }
+
+/* 视频下方的视频信息 */
+.zyh-dubbing-info {
+	height: 1rem;
+	line-height: 1rem;
+	font-size: 1rem;
+	font-family: "Arial","Microsoft YaHei","黑体","宋体",sans-serif;
+	vertical-align:middle;
+	overflow: hidden;
+
+	/*border: 0.03rem solid rgba(255, 0, 0, 1);*/
+}
+.zyh-dubbing-info-title {
+	height: 100%;
+	/*border: 0.03rem solid rgba(255, 0, 0, 1);*/
+}
+.zyh-dubbing-info-stars {
+	height: 100%;
+	padding-left: 0px;
+	/*border: 0.03rem solid rgba(255, 0, 0, 1);*/
+}
+.zyh-dubbing-info-stars-label {
+	padding-left: 0px;
+	height: 100%;
+	font-size: 0.8rem;
+	text-align: right;
+	/*border: 0.03rem solid rgba(255, 0, 0, 1);*/
+}
+.zyh-dubbing-info-rate {
+	width: 4rem;
+	/*border: 0.03rem solid rgba(255, 0, 0, 1);*/
+}
+
 /*********************************************************************
  * 预览界面
  *********************************************************************/
@@ -401,11 +436,22 @@
 	</div>
 
 	<div class="zyh-preview-scroll-area">
-		<article  class="zyh-dubbing-info uk-article">
-			<div class="zyh-dubbing-title uk-article-lead"><p>{$attachInfo[subject]}</p></div>
-			<div class="zyh-dubbing-starlevel"></div>
-			<div class="zyh-dubbing-description uk-article-lead"><p>{$attachInfo[description]}</p></div>
-		</article >
+		<div class="zyh-dubbing-info uk-grid">
+			<div class="zyh-dubbing-info-title uk-width-6-10">
+				<p><b>{$attachInfo[subject]}</b></p>
+			</div>
+			<div class="zyh-dubbing-info-stars-label uk-width-2-10">
+				<p>{lang zhikai_n5video:lang_073}</p>
+			</div>
+			<div class="zyh-dubbing-info-stars uk-width-2-10">
+				<div class="zyh-dubbing-info-rate" data-rateyo-rating={$attachInfo[rate]} data-rateyo-read-only="true"></div>
+			</div>
+		</div>
+		<div class="uk-grid">
+			<div class="uk-width-1-1">
+				<div class="zyh-dubbing-description uk-article-lead"><p>{$attachInfo[description]}</p></div>
+			</div>
+		</div>
 	</div>
 
 	<!-- 开启配音 -->
@@ -592,6 +638,11 @@ previewPlayer.on("canplay", function() {
 
 jq('.zyh-dubbing-start-button').click(function(){
 	window.location.href = 'forum.php?mod=post&action=newthread&fid=$_G[fid]&tid=$_G[tid]&mobile=2';
+});
+
+var starsWidth = parseInt(parseInt(jq('.zyh-dubbing-info-rate').css('width')) / 5) + 'px';
+jq(".zyh-dubbing-info-rate").rateYo({
+	starWidth: starsWidth
 });
 
 </script>

@@ -1,13 +1,15 @@
 <!--{block file}-->
 <link href="source/plugin/zhikai_n5video/static/css/style.css" rel="stylesheet" />
+<link href="source/plugin/zhikai_n5video/static/css/jquery.rateyo.min.css" rel="stylesheet" />
 <link href="source/plugin/zhikai_n5video/uikit/css/uikit.docs.min.css" rel="stylesheet" />
 <link href="source/plugin/zhikai_n5video/uikit/css/components/progress.css " rel="stylesheet" />
 <link rel="stylesheet" href="source/plugin/zhikai_n5video/video-js/video-js.min.css">
 
 <script type="text/javascript"src="source/plugin/zhikai_n5video/static/js/jquery.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.shardupload.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.rateyo.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
-<script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>';
+<script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>
 
 <style>
 .zyh-dubbing-post {
@@ -15,7 +17,11 @@
 	padding-bottom: 2rem;
 }
 
+.zyh-dubbing-rate {
+	margin: auto;
+}
 </style>
+
 <div id="setting">
 	<!-- 标题 -->
 	<div class="n5sq_fbbt cl">
@@ -128,6 +134,14 @@
 		<div class="fbbt_btbt z">{lang zhikai_n5video:lang_029}</div>
 		<div class="fbbt_btsr z">
 			<input class="txt" type="text" id="attach_description" value="" size="6"/>
+		</div>
+	</div>
+
+	<!-- 难度星级 -->
+	<div class="n5sq_fbbt cl">
+		<div class="fbbt_btbt z">{lang zhikai_n5video:lang_074}</div>
+		<div class="fbbt_btsr z">
+			<div class="zyh-dubbing-rate"></div>
 		</div>
 	</div>
 
@@ -405,6 +419,20 @@
 		// 模拟点击真正的提交按钮。
 		jq('#postsubmit').click();
 		return false;
+	});
+
+	// 难度星级
+	attachInfo['data']['rate'] = 3;
+	jq(".zyh-dubbing-rate").rateYo({
+		rating: attachInfo['data']['rate'],
+		numStars: 5,
+		precision: 2,
+		fullStar: true,
+		onInit: function () {
+		},
+		onSet: function (rating, rateYoInstance) {
+			attachInfo['data']['rate'] = rating;
+		}
 	});
 
 	// 预览选择的封面图片

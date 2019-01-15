@@ -547,6 +547,11 @@ function reply_replace($tid)
                 $attachInfo['description'] = $jsonData->data->description; // 配音视频的说明文字
             }
 
+            $attachInfo['rate'] = 3;
+            if (isset($jsonData->data->rate)) {
+                $attachInfo['rate'] = $jsonData->data->rate; // 配音视频的难度星级
+            }
+
             return $attachInfo;
         }
     }
