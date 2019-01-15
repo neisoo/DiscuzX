@@ -410,6 +410,9 @@
 				<item id="lang_072"><![CDATA[封面]]></item>
 				<item id="lang_073"><![CDATA[难度：]]></item>
 				<item id="lang_074"><![CDATA[难度]]></item>
+				<item id="lang_075"><![CDATA[新增配音资料]]></item>
+				<item id="lang_076"><![CDATA[修改配音资料]]></item>
+				<item id="lang_077"><![CDATA[返回]]></item>
 			</item>
 		</item>
 		<item id="installfile"><![CDATA[install.php]]></item>

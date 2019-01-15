@@ -22,6 +22,16 @@
 }
 </style>
 
+<div id="params" style="display: none">
+	<div id="params_action" action="{$_GET[action]}"></div>
+</div>
+
+<!-- 标题栏 -->
+<div class="n5qj_tbys nbg cl">
+	<a href="JavaScript：void(0)" class="zyh-back-button n5qj_zcan"><div class="zcanfh">{lang zhikai_n5video:lang_077}</div></a>
+	<span><!--{if $_GET[action] == 'newthread'}-->{lang zhikai_n5video:lang_075}<!--{elseif $_GET[action] == 'edit'}-->{lang zhikai_n5video:lang_076}<!--{/if}--></span>
+</div>
+<!-- 编辑区 -->
 <div id="setting">
 	<!-- 标题 -->
 	<div class="n5sq_fbbt cl">
@@ -39,6 +49,8 @@
 			<div class="btn y" id="video_btn">{lang zhikai_n5video:lang_020}</div>
 		</div>
 		<input class="fbbt_btwj" type="file" value="" aid="" id="video_file">
+		<div id="video_data" style="display:none">
+		</div>
 	</div>
 	<div class="uk-progress" id="video_progress" style="display: none;">
 		<div class="uk-progress-bar" style="width: 40%;">40%</div>
@@ -151,6 +163,7 @@
 			<button class="zyh-dubbing-post-button uk-button uk-button-success uk-button-large uk-width-1-1" type="button" <!--{if $_GET[action] != 'edit'}-->disabled<!--{/if}-->><!--{if $_GET[action] == 'newthread'}-->{lang send_thread}<!--{elseif $_GET[action] == 'edit'}-->{lang edit_save}<!--{/if}--></button>
 		</div>
 	</div>
+
 </div>
 
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/up.js" charset="{CHARSET}"></script>
@@ -176,7 +189,15 @@
 	var needsubtitle = false;
 	var attachInfo = {};
 	attachInfo['type'] = 'video';
-	attachInfo['data'] = {};
+	attachInfo['data'] = {
+		'video' : '',
+		'poster' : '',
+		'subtitle' : '',
+		'tsubtitle' : '',
+		'accompany' : '',
+		'description' : '',
+		'rate': 3
+		};
 
 	var videoOptions = {
 		controls:true,//控制条：boolean
@@ -411,18 +432,7 @@
 		jq("#video_fname").html(jq('#video_file')[0].files[0].name);
 	}
 
-	jq('.zyh-dubbing-post-button').click(function(){
-		// 把描述中的内容写入正文。
-		attachInfo['data']['description'] = jq('#attach_description').val();
-		jq('#needmessage').val('[attach]' + JSON.stringify(attachInfo) + '[/attach]');
-
-		// 模拟点击真正的提交按钮。
-		jq('#postsubmit').click();
-		return false;
-	});
-
 	// 难度星级
-	attachInfo['data']['rate'] = 3;
 	jq(".zyh-dubbing-rate").rateYo({
 		rating: attachInfo['data']['rate'],
 		numStars: 5,
@@ -434,6 +444,93 @@
 			attachInfo['data']['rate'] = rating;
 		}
 	});
+
+	jq('.zyh-dubbing-post-button').click(function(){
+		// 把描述中的内容写入正文。
+		attachInfo['data']['description'] = jq('#attach_description').val();
+		jq('#needmessage').val('[attach]' + JSON.stringify(attachInfo) + '[/attach]');
+
+		// 模拟点击真正的提交按钮。
+		jq('#postsubmit').click();
+		return false;
+	});
+
+
+	// 返回上一页面
+	jq('.zyh-back-button').click(function() {
+		// 如果是发新贴，那么先删除所有已经提交的附件后，再返回。
+		// 否则当成保存退出。
+		if (jq('#params_action').attr('action') == 'newthread') {
+			removeAllAttach(function(){
+				history.back(-1); 
+			});
+		}
+		else {
+			jq('.zyh-dubbing-post-button').click();
+		}
+		return false;
+	});
+
+////////////////////////////////////////////////////////
+// 删除所有已经上传的附件。
+function removeAllAttach(callback) {
+	var haveData = false;
+	var aidsUrl = '';
+
+	// 找出已经提交的附件。
+	if (attachInfo['data']['video'] != "") {
+		haveData = true;
+		aidsUrl += '&aids[]=' + attachInfo['data']['video'];
+		attachInfo['data']['video'] = '';
+	}
+	if (attachInfo['data']['subtitle'] != "") {
+		haveData = true;
+		aidsUrl += '&aids[]=' + attachInfo['data']['subtitle'];
+		attachInfo['data']['subtitle'] = '';
+	}
+	if (attachInfo['data']['tsubtitle'] != "") {
+		haveData = true;
+		aidsUrl += '&aids[]=' + attachInfo['data']['tsubtitle'];
+		attachInfo['data']['tsubtitle'] = '';
+	}
+	if (attachInfo['data']['accompany'] != "") {
+		haveData = true;
+		aidsUrl += '&aids[]=' + attachInfo['data']['accompany'];
+		attachInfo['data']['accompany'] = '';
+	}
+	if (attachInfo['data']['poster'] != "") {
+		haveData = true;
+		aidsUrl += '&aids[]=' + attachInfo['data']['poster'];
+		attachInfo['data']['poster'] = '';
+	}
+
+	// 删除提交的附件。
+	if (haveData) {
+		$.ajax({
+			type:'GET',
+			url:'forum.php?mod=ajax&action=deleteattach&inajax=yes' + aidsUrl,
+		})
+		.success(function(s) {
+			// 更新帖子正文中的标记。
+			jq('#needmessage').val('[attach]' + JSON.stringify(attachInfo) + '[/attach]');
+
+			var timer = window.setInterval(function(){
+				window.clearInterval(timer);
+				if (typeof callback == 'function') {
+					callback();
+				}
+			}, 100);
+		})
+		.error(function() {
+			popup.open('{lang networkerror}', 'alert');
+		});
+	}
+	else {
+		if (typeof callback == 'function') {
+			callback();
+		}
+	}
+}
 
 	// 预览选择的封面图片
 	function updatePosterPreview(attachurl) {
