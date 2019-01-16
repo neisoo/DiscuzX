@@ -146,7 +146,7 @@
 	transition: all 0.4s;
 }
 
-/* 不活动时隐藏底部功能条 */
+/* 不活动时隐藏按钮 */
 .vjs-user-inactive .zyh-dubbing-round-button {
 	opacity: 0;
 }
@@ -431,6 +431,27 @@
 	content: "\\f101";
 }
 
+/* 未开始播放时的显示在封面上的播放图标 */
+.zyh-preview-poster-play {
+	top: 50%;
+	left: 50%;
+	height: 4rem;
+	width: 4rem;
+	margin-top: -2rem;
+	margin-left: -2rem;
+	line-height: 4rem;
+}
+.zyh-preview-poster-play .zyh-icon-placeholder:before {
+	font-size: 3rem;
+	content: "\\f101";
+}
+.vjs-has-started .zyh-preview-poster-play {
+	display: none;
+}
+.vjs-user-inactive .zyh-preview-poster-play {
+	opacity: 1;
+}
+
 </style>
 
 <!-- 预览界面 -->
@@ -579,11 +600,20 @@ function previewPlayBtnPlugin(options) {
 		}
 	};
 
+	// 封面播放按钮
+	var elPosterPlayBtn = document.createElement('div');
+	elPosterPlayBtn.className = 'zyh-preview-poster-play zyh-dubbing-round-button';
+	elPosterPlayBtn.innerHTML = '<span aria-hidden="true" class="zyh-icon-placeholder"></span>';
+	elPosterPlayBtn.onclick = function (e) {
+		previewPlayer.play();
+	};
+
 	elTop.appendChild(elTopBar);
 	elBottom.appendChild(elBottomBar);
 	previewPlayer.el().appendChild(elPlayNormalBtn);
 	previewPlayer.el().appendChild(elTop);
 	previewPlayer.el().appendChild(elBottom);
+	previewPlayer.el().appendChild(elPosterPlayBtn);
 };
 
 videojs.registerPlugin('previewPlayBtnPlugin', previewPlayBtnPlugin);
