@@ -8,6 +8,7 @@
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.rateyo.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.seekbar.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/readmore.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>
 
@@ -72,6 +73,19 @@
 	/*border: 0.03rem solid rgba(255, 0, 0, 1);*/
 }
 
+.zyh-dubbing-desc {
+	line-height: 1rem;
+	font-size: 1rem;
+	font-family: "Arial","Microsoft YaHei","黑体","宋体",sans-serif;
+	padding-right: 1rem;
+}
+
+.zyh-dubbing-desc-less-link, .zyh-dubbing-desc-more-link {
+	position: absolute;
+	right: 1rem;
+	bottom: 1rem;
+	color: green;
+}
 /*********************************************************************
  * 预览界面
  *********************************************************************/
@@ -447,9 +461,9 @@
 				<div class="zyh-dubbing-info-rate" data-rateyo-rating={$attachInfo[rate]} data-rateyo-read-only="true"></div>
 			</div>
 		</div>
-		<div class="uk-grid">
+		<div class="zyh-dubbing-desc uk-grid">
 			<div class="uk-width-1-1">
-				<div class="zyh-dubbing-description uk-article-lead"><p>{$attachInfo[description]}</p></div>
+				<div class="zyh-dubbing-desc-text">{$attachInfo[description]}</div>
 			</div>
 		</div>
 	</div>
@@ -643,6 +657,19 @@ jq('.zyh-dubbing-start-button').click(function(){
 var starsWidth = parseInt(parseInt(jq('.zyh-dubbing-info-rate').css('width')) / 5) + 'px';
 jq(".zyh-dubbing-info-rate").rateYo({
 	starWidth: starsWidth
+});
+
+var lineHeight = parseInt(jq('.zyh-dubbing-desc-text').css('line-height'));
+jq('.zyh-dubbing-desc-text').readmore({
+	moreLink: '<div class="zyh-dubbing-desc-more-link"><i class="uk-icon-angle-down"></div>',
+	lessLink: '<div class="zyh-dubbing-desc-less-link"><i class="uk-icon-angle-up"></div>',
+	collapsedHeight: lineHeight * 2, // 收缩时显示两行。
+	blockCSS: '',
+	afterToggle: function(trigger, element, expanded) {
+		if(! expanded) { // The "Close" link was clicked
+			$('html, body').animate({scrollTop: element.offset().top}, {duration: 100});
+		}
+	}
 });
 
 </script>
