@@ -102,6 +102,10 @@
 	<!--{eval if(!function_exists('init_n5app'))include DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/common.php'; if(!function_exists('init_n5app')) exit('Authorization error!');}-->
 	<!--{eval include_once DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/nvbing5.php'}-->
 	<!--{eval include_once DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/nvbing5_thread.php'}-->
+	<!--{if $_GET[type] == 'dubbing'}-->
+		<!--{hook/space_thread_dubbing_manage_mobile}-->
+	<!--{else}-->
+
 		{if strpos(strtolower($_SERVER['HTTP_USER_AGENT']), 'micromessenger')}
 <style type="text/css">
 .bg {padding-top: 0;}
@@ -138,6 +142,7 @@
 				</div>
 			</div>
 		</div>
+	<!--{/if}-->
 <!--{/if}-->
 
 <!--{if $diymode}-->

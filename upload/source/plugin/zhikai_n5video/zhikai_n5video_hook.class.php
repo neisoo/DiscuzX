@@ -264,7 +264,6 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 		}
 	}
 
-
 	// 查看配音资源贴。
 	function viewthread_dubbing_mobile_output() {
 		global $_G;
@@ -391,6 +390,14 @@ class mobileplugin_zhikai_n5video_group extends mobileplugin_zhikai_n5video {
 		}
     }
 	
+}
+
+class mobileplugin_zhikai_n5video_home extends mobileplugin_zhikai_n5video {
+	// 用户个人空间中我的帖子。
+	function space_thread_dubbing_manage_mobile() {
+		include template('zhikai_n5video:dubbing_manage');
+		return $file;
+	}
 }
 
 ?>
