@@ -460,7 +460,7 @@ function forumdisplay_replace($message, $tid = null, $pid = null, $fid = null)
 }
 
 // 获取主题贴的视频和字幕信息。
-function reply_replace($tid)
+function dubbing_replace($tid)
 {
     global $_G;
     if (empty($_G['cache']['plugin'])) {
@@ -556,5 +556,29 @@ function reply_replace($tid)
         }
     }
 
+    return null;
+}
+
+// 根据用户配音贴tid，返回对应配音资源贴的数据
+function dubbing_user_replace($tid)
+{
+    global $_G;
+    if (empty($_G['cache']['plugin'])) {
+        loadcache('plugin');
+    }
+    $config = $_G['cache']['plugin']['zhikai_n5video'];
+    $post = DB::fetch_first('SELECT message, subject FROM %t WHERE tid=%d ', array(0 => 'forum_post', 1 => $tid));
+    $message = $post['message'];
+    $subject = $post['subject'];
+    if (strexists($message, '[/dubbing]') !== false) {
+        if (preg_match_all('/\\[dubbing\\](.*?)\\[\\/dubbing\\]/is', $message, $mat)) {
+            $jsonData = json_decode($mat[1][0], false);
+            if (!isset($jsonData->type) || $jsonData->type != 'dubbing') {
+                return null;
+            }
+
+            return dubbing_replace($jsonData->data->tid);
+        }
+    }
     return null;
 }

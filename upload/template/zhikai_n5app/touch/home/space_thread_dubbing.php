@@ -1,8 +1,5 @@
 <?php exit;?>
-<!--{if in_array($_GET[dubbing], array(1, 2, 3))}-->
-	<!--{subtemplate home/space_thread_dubbing}-->
-<!-- {else}-->
-
+<p>bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb</p>
 <!--{if $diymode}-->
 <!--{template common/header}-->
 <!--{eval if(!function_exists('init_n5app'))include DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/common.php'; if(!function_exists('init_n5app')) exit('Authorization error!');}-->
@@ -118,7 +115,7 @@
 		<div class="n5qj_tbys nbg cl">
 			<a href="javascript:history.back();" class="n5qj_zcan"><div class="zcanfh">{$n5app['lang']['qjfanhui']}</div></a>
 			<a href="home.php?mod=space&uid=$_G[uid]&do=profile&mycenter=1" class="n5qj_ycan grtrnzx"></a>
-			<span>{$n5app['lang']['wdgrdhwdtz']}</span>
+			<span>{$n5app['lang']['wdgrdhwdpy']}</span>
 		</div>
 		{/if}
 		<style type="text/css">
@@ -129,14 +126,21 @@
 			<div class="ztfl_flzt">
 				<div class="ztfl_fllb">
 					<ul id="n5sq_glpd">
-						<!--{if $_GET[type] == 'reply'}-->
-							<li><a href="home.php?mod=space&do=thread&view=me&type=thread">{$n5app['lang']['kjwdtzwfbd']}</a></li>
-							<li class="a"><a href="home.php?mod=space&do=thread&view=me&type=reply">{$n5app['lang']['kjwdtzwhfd']}</a></li>
-							<li><a href="forum.php?mod=misc&action=nav">{$n5app['lang']['kjwdtzfbtz']}</a></li>
-						<!--{else}-->
-							<li class="a"><a href="home.php?mod=space&do=thread&view=me&type=thread">{$n5app['lang']['kjwdtzwfbd']}</a></li>
-							<li><a href="home.php?mod=space&do=thread&view=me&type=reply">{$n5app['lang']['kjwdtzwhfd']}</a></li>
-							<li><a href="forum.php?mod=misc&action=nav">{$n5app['lang']['kjwdtzfbtz']}</a></li>
+						<!--{if ($fid_dubbing_public = n5video_forum_userdubbing_public()) != null}-->
+							<!--{eval $publicCount = count(C::t('forum_thread')->fetch_all_by_authorid_displayorder($authorid, null, '=', null, '', 0, 0, null, $fid_dubbing_public ))}-->
+							<li <!--{if $_GET[dubbing] == '1'}-->class="a"<!--{/if}-->>
+								<a href="home.php?mod=space&do=thread&view=me&type=thread&fid={$fid_dubbing_public}&dubbing=1">已发布({$publicCount})</a>
+							</li>
+						<!--{/if}-->
+						<!--{if ($fid_dubbing_private = n5video_forum_userdubbing_private()) != null}-->
+							<!--{eval $privateCount = count(C::t('forum_thread')->fetch_all_by_authorid_displayorder($authorid, null, '=', null, '', 0, 0, null, $fid_dubbing_private ))}-->
+							<li <!--{if $_GET[dubbing] == '2'}-->class="a"<!--{/if}-->>
+								<a href="home.php?mod=space&do=thread&view=me&type=thread&fid={$fid_dubbing_private}&dubbing=2">未发布({$privateCount})</a></li>
+						<!--{/if}-->
+						<!--{if ($fid_dubbing_draft = n5video_forum_userdubbing_draft()) != null}-->
+							<!--{eval $draftCount = count(C::t('forum_thread')->fetch_all_by_authorid_displayorder($authorid, null, '=', null, '', 0, 0, null, $fid_dubbing_draft ))}-->
+							<li <!--{if $_GET[dubbing] == '3'}-->class="a"<!--{/if}-->>
+								<a href="home.php?mod=space&do=thread&view=me&type=thread&fid={$fid_dubbing_draft}&dubbing=3">草稿箱({$draftCount})</a></li>
 						<!--{/if}-->
 					</ul>
 				</div>
@@ -263,5 +267,3 @@
 <!--{/if}-->
 
 <!--{template common/footer}-->
-
-<!--{/if}-->

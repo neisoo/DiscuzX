@@ -35,7 +35,6 @@ class plugin_zhikai_n5video {
 		$width = $width[0] ? $width[0] : '100%';
 		if(CURMODULE == 'viewthread' || CURMODULE == 'post'){
 			$style ='<link rel="stylesheet" href="source/plugin/zhikai_n5video/static/audio/APlayer.min.css">
-					<script type="text/javascript" src="//player.youku.com/jsapi"></script>
 					<script src="source/plugin/zhikai_n5video/static/audio/APlayer.min.js"></script>
 					<link rel="stylesheet" href="source/plugin/zhikai_n5video/video-js/video-js.min.css">
 					<script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>';
@@ -174,7 +173,6 @@ class mobileplugin_zhikai_n5video extends plugin_zhikai_n5video{
 		$width = $width[1] ? $width[1] : '100%';
 		if(CURMODULE == 'viewthread' || CURMODULE == 'forumdisplay' || CURMODULE == 'guide' || CURMODULE == 'post'){
 			$style ='<link rel="stylesheet" href="source/plugin/zhikai_n5video/static/audio/APlayer.min.css">
-			        <script type="text/javascript" src="//player.youku.com/jsapi"></script>
 					<script src="source/plugin/zhikai_n5video/static/audio/APlayer.min.js"></script>
 					<link rel="stylesheet" href="source/plugin/zhikai_n5video/video-js/video-js.min.css">
 					<script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>';
@@ -242,7 +240,7 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 			if($_GET['action'] == 'newthread') {
 				if ($_GET['tid'] != null) {
 					// 用户配音贴
-					$attachInfo = reply_replace($_G['tid']);
+					$attachInfo = dubbing_replace($_G['tid']);
 					include template('zhikai_n5video:dubbing');
 				}
 				else {
@@ -252,7 +250,7 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 			}
 			else if($_GET['action'] == 'reply') {
 				// DO LATER: 回贴
-				//$attachInfo = reply_replace($_G['tid']);
+				//$attachInfo = dubbing_replace($_G['tid']);
 				//include template('zhikai_n5video:up_reply_file');
 			}
 			return $file;
@@ -267,7 +265,7 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 	// 查看配音资源贴。
 	function viewthread_dubbing_mobile_output() {
 		global $_G;
-		$attachInfo = reply_replace($_G['tid']);
+		$attachInfo = dubbing_replace($_G['tid']);
 		include template('zhikai_n5video:dubbing_view');
 		return $file;
 	}
@@ -394,8 +392,12 @@ class mobileplugin_zhikai_n5video_group extends mobileplugin_zhikai_n5video {
 
 class mobileplugin_zhikai_n5video_home extends mobileplugin_zhikai_n5video {
 	// 用户个人空间中我的帖子。
-	function space_thread_dubbing_manage_mobile() {
-		include template('zhikai_n5video:dubbing_manage');
+	// _output后缀表示在模块执行完毕，模板输出前被调用。
+	// 也就是先执行home.php和space_thread.php模块，再执行这个嵌入点，
+	// 最后执行n5video模板的space_thread.php生成html代码。
+	// 不加_output后缀的话就先执行这个嵌入点，再执行模块，再执行模板。
+	function space_thread_dubbing_manage_mobile_output() {
+		global $_G, $list;
 		return $file;
 	}
 }

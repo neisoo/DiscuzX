@@ -204,10 +204,17 @@
 		<i style="color:#ff6b6e" class="iconfont icon-n5apphton"></i>
 		<p>{$n5app['lang']['kjwdscbt']}</p>
 	</a>
+<!--{if ($fid_dubbing = n5video_forum_userdubbing_public()) != null}-->
+	<a href="home.php?mod=space&do=thread&fid={$fid_dubbing}&dubbing=1&mobile=2" class="bldh_yxhx">
+		<i style="color:#65cffb" class="iconfont icon-n5appwdtzs"></i>
+		<p>{$n5app['lang']['wdgrdhwdpy']}</p>
+	</a>
+<!--{else}-->
 	<a href="home.php?mod=space&do=thread&mobile=2" class="bldh_yxhx">
 		<i style="color:#65cffb" class="iconfont icon-n5appwdtzs"></i>
 		<p>{$n5app['lang']['wdgrdhwdtz']}</p>
 	</a>
+<!--{/if}-->
 	<a href="group.php?mod=my&view=join&mobile=2" class="bldh_zxhx">
 		<i style="color:#ff5458" class="iconfont icon-n5appqzon"></i>
 		<p>{$n5app['lang']['wdgrdhwdqz']}</p>

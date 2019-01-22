@@ -324,6 +324,33 @@
 				<item id="value"><![CDATA[1]]></item>
 				<item id="extra"><![CDATA[]]></item>
 			</item>
+			<item id="24">
+				<item id="displayorder"><![CDATA[25]]></item>
+				<item id="title"><![CDATA[用戶配音公開板塊]]></item>
+				<item id="description"><![CDATA[選擇壹個板塊，用於存放用戶已經發布的配音。]]></item>
+				<item id="variable"><![CDATA[forum_userdubbing_public]]></item>
+				<item id="type"><![CDATA[forum]]></item>
+				<item id="value"><![CDATA[40]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="25">
+				<item id="displayorder"><![CDATA[26]]></item>
+				<item id="title"><![CDATA[用戶配音私有板塊]]></item>
+				<item id="description"><![CDATA[選擇壹個板塊，用於存放用戶未發布的配音。]]></item>
+				<item id="variable"><![CDATA[forum_userdubbing_private]]></item>
+				<item id="type"><![CDATA[forum]]></item>
+				<item id="value"><![CDATA[44]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="26">
+				<item id="displayorder"><![CDATA[27]]></item>
+				<item id="title"><![CDATA[用戶配音草稿板塊]]></item>
+				<item id="description"><![CDATA[選擇壹個板塊，用於存放用戶配音的草稿。]]></item>
+				<item id="variable"><![CDATA[forum_userdubbing_draft]]></item>
+				<item id="type"><![CDATA[forum]]></item>
+				<item id="value"><![CDATA[45]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
 		</item>
 		<item id="language">
 			<item id="scriptlang">
