@@ -204,8 +204,8 @@
 		<i style="color:#ff6b6e" class="iconfont icon-n5apphton"></i>
 		<p>{$n5app['lang']['kjwdscbt']}</p>
 	</a>
-<!--{if ($fid_dubbing = n5video_forum_userdubbing_public()) != null}-->
-	<a href="home.php?mod=space&do=thread&fid={$fid_dubbing}&dubbing=1&mobile=2" class="bldh_yxhx">
+<!--{if ($fid_dubbing = n5video_forum_userdubbing()) != null}-->
+	<a href="home.php?mod=space&do=thread&fid={$fid_dubbing}&filter=common&dubbing=1&searchkey=public&mobile=2" class="bldh_yxhx">
 		<i style="color:#65cffb" class="iconfont icon-n5appwdtzs"></i>
 		<p>{$n5app['lang']['wdgrdhwdpy']}</p>
 	</a>

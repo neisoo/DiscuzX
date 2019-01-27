@@ -171,11 +171,15 @@ class mobileplugin_zhikai_n5video extends plugin_zhikai_n5video{
 		$width = explode('|',$config['width']);
 		$height = $height[1] ? $height[1] : '200px';
 		$width = $width[1] ? $width[1] : '100%';
-		if(CURMODULE == 'viewthread' || CURMODULE == 'forumdisplay' || CURMODULE == 'guide' || CURMODULE == 'post'){
+
+		if(CURMODULE == 'viewthread' || CURMODULE == 'forumdisplay' || CURMODULE == 'guide' || CURMODULE == 'post' || CURMODULE == 'space'){
 			$style ='<link rel="stylesheet" href="source/plugin/zhikai_n5video/static/audio/APlayer.min.css">
 					<script src="source/plugin/zhikai_n5video/static/audio/APlayer.min.js"></script>
 					<link rel="stylesheet" href="source/plugin/zhikai_n5video/video-js/video-js.min.css">
-					<script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>';
+					<script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>
+					<link rel="stylesheet" href="source/plugin/zhikai_n5video/uikit/css/uikit.docs.min.css">
+					<script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
+					<link rel="stylesheet" href="source/plugin/zhikai_n5video/checkbox-radio/css/checkbox_radio_font.css">';
 			if( CURMODULE == 'guide' || CURMODULE == 'forumdisplay'){
 				$style .='<style type="text/css">
 						   .zhikai-player{position:relative;width:100%;}
@@ -197,10 +201,10 @@ class mobileplugin_zhikai_n5video extends plugin_zhikai_n5video{
 						   .xglc strong{color:#F26C4F;font-weight:400;}
 						</style>'; 
 			}
+
 			return $style;
 		}
     }
-
 }//fr o  m ww w.mo qu  8.c o m
 
 class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
@@ -238,13 +242,13 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 			$video = json_encode(explode('|',$config['video_bmp']));
 			$voice = json_encode(explode('|',$config['voice_bmp']));
 			if($_GET['action'] == 'newthread') {
-				if ($_GET['tid'] != null) {
+				if ($_GET['dtid'] != null) {
 					// 用户配音贴
-					$attachInfo = dubbing_replace($_G['tid']);
+					$attachInfo = dubbing_replace($_GET['dtid']);
 					include template('zhikai_n5video:dubbing');
 				}
 				else {
-					// 新增或修改配音视频贴
+					// 新增或修改配音资源贴
 					include template('zhikai_n5video:dubbing_new');
 				}
 			}
@@ -253,7 +257,7 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 				//$attachInfo = dubbing_replace($_G['tid']);
 				//include template('zhikai_n5video:up_reply_file');
 			}
-			return $file;
+			return $file; // 模板文件中的第一行定义的。
 		}else if($config['youkuup_open'] == 2){
 			youku_access_token($config);
 			$youku_refresh = unserialize($_G['setting']['youku_refresh']);
@@ -262,14 +266,29 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 		}
 	}
 
-	// 查看配音资源贴。
+	// 查看。
 	function viewthread_dubbing_mobile_output() {
 		global $_G;
-		$attachInfo = dubbing_replace($_G['tid']);
-		include template('zhikai_n5video:dubbing_view');
+		$config = self::$config;
+
+		if ($_G['fid'] == $config['forum_userdubbing']) {
+			// 查看用户配音贴：TODO
+			$attachInfo = dubbing_user_replace($_GET['tid']);
+			$userDubbingForumID = $config['forum_userdubbing'];
+			include template('zhikai_n5video:dubbing_view');
+		}
+		else {
+			// 查看配音资源贴
+			$attachInfo = dubbing_replace($_GET['tid']);
+			$userDubbingForumID = $config['forum_userdubbing'];
+			include template('zhikai_n5video:dubbing_view');
+		}
 		return $file;
 	}
 
+	// 显示forumdisplay页面时，在模块执行完成，模板输出之前被调用。
+	// 用来生成每一行要显示的网页内容，保存到数组
+	// $_G['setting']['pluginhooks']['forumdisplay_threadnlbsp_mobile']中。
 	function forumdisplay_mobile_output(){
         global $_G;
 		$config = self::$config;
@@ -391,6 +410,27 @@ class mobileplugin_zhikai_n5video_group extends mobileplugin_zhikai_n5video {
 }
 
 class mobileplugin_zhikai_n5video_home extends mobileplugin_zhikai_n5video {
+	// 生成我的配音界面中每一行的内容。
+	// 在space_thread模块执行完后，在space_thread模板输出之前调用。
+	// 在这里生成模板显示列表的每一行内容。
+	function space_thread_mobile_output() {
+		global $_G, $list; // $list是space_thread.php产生的。
+
+		if(!in_array($_GET[dubbing], array(1, 2, 3))) return;
+
+		foreach($list as $stid=>$thread) {
+
+			// 根据用户配音贴的id获取配音资源贴的内容。
+			$attachInfo = dubbing_user_replace($stid);
+
+			// 根据模板生成页面内容，内容放在$file中，在模板的第一行定义了$file。
+			include template('zhikai_n5video:dubbing_space');
+
+			// 每一行的内容保存到数组中。页面在显示时会把列表的每一行的内容加入到页面中。
+			$_G['setting']['pluginhooks']['space_thread_dubbing_threadnlbsp_mobile'][$stid]  = $file;
+		}
+	}
+
 	// 用户个人空间中我的帖子。
 	// _output后缀表示在模块执行完毕，模板输出前被调用。
 	// 也就是先执行home.php和space_thread.php模块，再执行这个嵌入点，
@@ -398,6 +438,60 @@ class mobileplugin_zhikai_n5video_home extends mobileplugin_zhikai_n5video {
 	// 不加_output后缀的话就先执行这个嵌入点，再执行模块，再执行模板。
 	function space_thread_dubbing_manage_mobile_output() {
 		global $_G, $list;
+
+//echo 'aaaaaaaaaaaaaaaaaaaaaaaaa<br/>';
+		//foreach($list as $stid=>$thread) {
+		//	$list[$stid]['dubbingInfo'] = dubbing_user_replace($thread['tid']);
+		//}
+		
+/*
+		$listPublic = array();
+		$listPrivate = array();
+		$listDraft = array();
+
+		$fids = array();
+		$fids = array("40");//dunserialize($_G['cache']['plugin']['zhikai_n5video']['forum_media']);// TODO forum_dubbing
+
+echo 'aaaaaaaaaaaaaaaaaa space_thread_dubbing_manage_mobile_output  aaaaaaaaaaaaaAAAAAAA<br>';
+
+		// 已发布
+		if ($_GET['dubbing'] == '1') {
+			// 从$list中找出用户配音版块中阅读权限<100的帖子
+			foreach($list as $stid=>$thread) {
+				if (in_array($thread['fid'], $fids) && intval($thread['readprem']) < 100 && intval($thread['displayorder']) >= 0) {
+					$thread['dubbingInfo'] = dubbing_user_replace($thread['tid']);
+					$listPublic[$stid] = $thread;
+					
+				}
+			}
+			$list = $listPublic;
+		}
+		// 未发布
+		else if ($_GET['dubbing'] == '1') {
+			// 从$list中找出用户配音版块中阅读权限>=100的帖子
+			foreach($list as $stid=>$thread) {
+				if (in_array($thread['fid'], $fids) && intval($thread['readprem']) >= 100 && intval($thread['displayorder']) >= 0) {
+					$thread['dubbingInfo'] = dubbing_user_replace($thread['tid']);
+					$listPrivate[$stid] = $thread;
+				}
+			}
+			$list = $listPrivate;
+		}
+		// 草稿
+		else if ($_GET['dubbing'] == '3') {
+			// 从$list中找出用户配音版块的帖子
+			foreach($list as $stid=>$thread) {
+				if (in_array($thread['fid'], $fids) && intval($thread['displayorder'] == -4)) {
+					$thread['dubbingInfo'] = dubbing_user_replace($thread['tid']);
+					$listDraft[$stid] = $thread;
+				}
+			}
+			$list = $listDraft;
+		}
+var_dump($list);
+		// 加载模板，显示三个列表。
+		include template('zhikai_n5video:dubbing_space_thread');
+*/
 		return $file;
 	}
 }

@@ -492,7 +492,7 @@
 	<!-- 开启配音 -->
 	<div class="zyh-dubbing-start">
 		<div class="uk-panel uk-width-1-2 uk-container-center uk-text-center">
-			<button class="zyh-dubbing-start-button uk-button uk-button-success uk-button-large uk-width-1-1" type="button">开启配音</button>
+			<button class="zyh-dubbing-start-button uk-button uk-button-success uk-button-large uk-width-1-1" type="button" fid="{$userDubbingForumID}" tid="{$_G[tid]}">开启配音</button>
 		</div>
 	</div>
 
@@ -681,7 +681,10 @@ previewPlayer.on("canplay", function() {
 });
 
 jq('.zyh-dubbing-start-button').click(function(){
-	window.location.href = 'forum.php?mod=post&action=newthread&fid=$_G[fid]&tid=$_G[tid]&mobile=2';
+	// 获取存放用户配音的板块fid，和配音资源的tid。
+	var fid = jq('.zyh-dubbing-start-button').attr('fid');
+	var tid = jq('.zyh-dubbing-start-button').attr('tid');
+	window.location.href = 'forum.php?mod=post&action=newthread&fid=' + fid + '&dtid=' + tid + '&mobile=2';
 });
 
 var starsWidth = parseInt(parseInt(jq('.zyh-dubbing-info-rate').css('width')) / 5) + 'px';

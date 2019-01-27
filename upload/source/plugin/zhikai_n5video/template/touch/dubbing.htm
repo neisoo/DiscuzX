@@ -714,7 +714,7 @@
 
 <div id="dubbing_params" style="display: none">
 	<div id="tid" tid="{$attachInfo[tid]}" ></div>
-	<div id="subject" tid="{$attachInfo[subject]}"></div>
+	<div id="subject" subject="{$attachInfo[subject]}"></div>
 
 	<input type="text" name="subject" value="dubbing:{$attachInfo[subject]}" id="needsubject" class="txt"/>
 	
@@ -1231,7 +1231,9 @@ jq('#back_dialog_continue').click(function(event){
 jq('#back_dialog_save').click(function(event){
 	toggleDialog(backDialog);
 
-	jq('#postsave').val(1); // 草稿方式保存。
+	// 在标题区增加draft来区分已发布配音。
+	jq('#needsubject').val('draft:' + jq('#subject').attr('subject'));
+
 	jq('#postsubmit').click();
 });
 
@@ -2508,8 +2510,8 @@ function blobShardUpload(blob, options) {
 }
 
 jq('.zyh-preview-publish-button').click(function() {
-	// 阅读权限为全体可见
-	jq('#readperm').val('');
+	// 在标题区增加public来区分已发布配音。
+	jq('#needsubject').val('public:' + jq('#subject').attr('subject'));
 
 	// 上传最终的mp3 blob到服务器。
 	uploadDubbing();
@@ -2519,8 +2521,8 @@ jq('.zyh-preview-publish-button').click(function() {
 });
 
 jq('.zyh-preview-private-button').click(function() {
-	// 阅读权限为自己或版主及以上可见。
-	jq('#readperm').val('100');
+	// 在标题区增加private来区分未发布配音。
+	jq('#needsubject').val('private:' + jq('#subject').attr('subject'));
 
 	// 上传最终的mp3 blob到服务器。
 	uploadDubbing();

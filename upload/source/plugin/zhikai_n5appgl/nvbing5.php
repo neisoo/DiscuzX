@@ -25,39 +25,13 @@ function n5video_template()
 }
 
 // 返回存放用户已发布的配音帖子版块
-function n5video_forum_userdubbing_public()
+function n5video_forum_userdubbing()
 {
 	global $_G;
 	global $n5app;
 
 	if (in_array("zhikai_n5video", $_G["setting"]["plugins"]["available"])) {
-		return $_G['cache']['plugin']['zhikai_n5video']['forum_userdubbing_public'];
-	}
-
-	return null;
-}
-
-// 返回存放用户未发布的配音帖子版块
-function n5video_forum_userdubbing_private()
-{
-	global $_G;
-	global $n5app;
-
-	if (in_array("zhikai_n5video", $_G["setting"]["plugins"]["available"])) {
-		return $_G['cache']['plugin']['zhikai_n5video']['forum_userdubbing_private'];
-	}
-
-	return null;
-}
-
-// 返回存放用户配音草稿帖子版块
-function n5video_forum_userdubbing_draft()
-{
-	global $_G;
-	global $n5app;
-
-	if (in_array("zhikai_n5video", $_G["setting"]["plugins"]["available"])) {
-		return $_G['cache']['plugin']['zhikai_n5video']['forum_userdubbing_draft'];
+		return $_G['cache']['plugin']['zhikai_n5video']['forum_userdubbing'];
 	}
 
 	return null;

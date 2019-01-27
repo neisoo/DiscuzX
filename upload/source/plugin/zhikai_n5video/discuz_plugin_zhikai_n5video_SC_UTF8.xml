@@ -326,29 +326,11 @@
 			</item>
 			<item id="24">
 				<item id="displayorder"><![CDATA[25]]></item>
-				<item id="title"><![CDATA[用户配音公开板块]]></item>
-				<item id="description"><![CDATA[选择一个板块，用于存放用户已经发布的配音。]]></item>
-				<item id="variable"><![CDATA[forum_userdubbing_public]]></item>
+				<item id="title"><![CDATA[用户配音板块]]></item>
+				<item id="description"><![CDATA[选择一个板块，用于存放用户的配音主题。]]></item>
+				<item id="variable"><![CDATA[forum_userdubbing]]></item>
 				<item id="type"><![CDATA[forum]]></item>
-				<item id="value"><![CDATA[40]]></item>
-				<item id="extra"><![CDATA[]]></item>
-			</item>
-			<item id="25">
-				<item id="displayorder"><![CDATA[26]]></item>
-				<item id="title"><![CDATA[用户配音私有板块]]></item>
-				<item id="description"><![CDATA[选择一个板块，用于存放用户未发布的配音。]]></item>
-				<item id="variable"><![CDATA[forum_userdubbing_private]]></item>
-				<item id="type"><![CDATA[forum]]></item>
-				<item id="value"><![CDATA[44]]></item>
-				<item id="extra"><![CDATA[]]></item>
-			</item>
-			<item id="26">
-				<item id="displayorder"><![CDATA[27]]></item>
-				<item id="title"><![CDATA[用户配音草稿板块]]></item>
-				<item id="description"><![CDATA[选择一个板块，用于存放用户配音的草稿。]]></item>
-				<item id="variable"><![CDATA[forum_userdubbing_draft]]></item>
-				<item id="type"><![CDATA[forum]]></item>
-				<item id="value"><![CDATA[45]]></item>
+				<item id="value"><![CDATA[46]]></item>
 				<item id="extra"><![CDATA[]]></item>
 			</item>
 		</item>
