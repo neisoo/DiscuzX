@@ -272,10 +272,10 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 		$config = self::$config;
 
 		if ($_G['fid'] == $config['forum_userdubbing']) {
-			// 查看用户配音贴：TODO
+			// 查看用户配音贴
 			$attachInfo = dubbing_user_replace($_GET['tid']);
 			$userDubbingForumID = $config['forum_userdubbing'];
-			include template('zhikai_n5video:dubbing_view');
+			include template('zhikai_n5video:dubbing_userview');
 		}
 		else {
 			// 查看配音资源贴

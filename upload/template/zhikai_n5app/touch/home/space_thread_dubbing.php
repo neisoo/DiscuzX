@@ -36,6 +36,27 @@
 	display: block;
 }
 
+/* 未发布配音封面上的图标 */
+.zyh-private-list-image-overlay:before {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 2rem;
+	height: 2rem;
+	margin-top: -1rem;
+	margin-left: -1rem;
+	font-size: 2rem;
+	line-height: 2rem;
+	font-family: FontAwesome;
+	text-align: center;
+	color: #fff;
+}
+
+/* 草稿配音封面上的文字 */
+.zyh-draft-list-txt-overlay {
+    font-size: 1rem;
+    line-height: 1rem;
+}
 </style>
 
 <div class="zyh-space-thread-dubbing-ui">
@@ -156,6 +177,28 @@ jq('.zyh-edit-switch').click(function(event){
 	}
 	
 	enableEdit = !enableEdit;
+});
+
+// 点击未发布配音列表项时，查看用户配音。
+jq('.zyh-public-list-item').click(function(event) {
+	jq(window).attr('location', 'forum.php?mod=viewthread&tid=' + jq(this).attr('tid') + '&mobile=2');
+});
+
+// 点击未发布配音列表项的非图片区域时，查看用户配音。
+jq('.zyh-private-list-item').click(function(event) {
+	jq(window).attr('location', 'forum.php?mod=viewthread&tid=' + jq(this).attr('tid') + '&mobile=2');
+});
+
+// 点击未发布配音列表项的图片区域时，转成已发布配音。
+jq('.zyh-private-list-image-overlay').click(function(event) {
+	var tid = jq(this).attr('tid');
+	event.stopPropagation(); //停止事件冒泡
+	// TODO.
+});
+
+// 点击未发布配音列表项的非图片区域时，继续配音。
+jq('.zyh-draft-list-item').click(function(event) {
+	// TODO.
 });
 
 // 更新选择的数量。

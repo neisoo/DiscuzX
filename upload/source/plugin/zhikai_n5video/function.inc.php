@@ -577,7 +577,35 @@ function dubbing_user_replace($tid)
                 return null;
             }
 
-            return dubbing_replace($jsonData->data->tid);
+            if (isset($jsonData->data->tid)) {
+                $attachInfo = dubbing_replace($jsonData->data->tid);
+
+                // 用户完整的配音音频
+                if (isset($jsonData->data->dubbing)) {
+                    $id = $jsonData->data->dubbing;
+                    $aidtb = getattachtablebyaid($id);
+                    $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $id));
+                    $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
+                    $audio_url = $attachurl . $attach['attachment'];
+                    $attachInfo['userdubbing'] = $audio_url;
+                }
+
+                // 用户还未完成配音，计算完成度。
+                if (isset($jsonData->data->record)) {
+                    $total = count($jsonData->data->record);
+                    if ($total >= 1) {
+                        $count = 0;
+                        for ($i = 0; $i < $total; $i++) {
+                            if ($jsonData->data->record[$i] != "") {
+                                $count++;
+                            }
+                        }
+                        $attachInfo['progress'] = intval($count * 100 / $total);
+                    }
+                }
+
+                return $attachInfo;
+            }
         }
     }
     return null;
