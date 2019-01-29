@@ -1,15 +1,10 @@
 <?php exit;?>
 <script type="text/javascript" src="template/zhikai_n5app/js/supload.js"></script>
-
 <!--{if $_GET['action'] != 'reply'}-->
-	<!--{if $_GET['tid'] != null}-->
-	<!--{else}-->
 <div class="n5sq_fbbt cl">
 	<div class="fbbt_btbt z">{lang thread_subject}</div>
     <div class="fbbt_btsr z"><input type="text" name="subject" value="$postinfo[subject]" id="needsubject" placeholder="<!--{if $_GET[action] == 'edit'}-->{$n5app['lang']['sqbianjihfts']}<!--{else}-->{$n5app['lang']['sqfbbitiansm']}<!--{/if}-->" class="txt"/></div>
 </div>
-	<!--{/if}--> 
-<!--{elseif $_GET['action'] == 'reply'}-->
 <!--{else}-->
 <div class="n5sq_hfzs cl">
     RE: $thread['subject']<!--{if $quotemessage}-->$quotemessage <!--{/if}--> 

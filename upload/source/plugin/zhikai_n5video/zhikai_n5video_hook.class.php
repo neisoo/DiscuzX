@@ -50,13 +50,13 @@ class plugin_zhikai_n5video {
 			}
 			return $style;
 		}
-    }//fr om w  w w.mo q  u8.c om
+    }
 
 	function discuzcode($param){
 		global $_G;
         $config = self::$config;
 
-		if(in_array($_G['fid'],dunserialize($config['forum_media'])) || $config['isgroup']){
+		if(in_array($_G['fid'],dunserialize($config['forum_dubbing'])) || $config['isgroup']){
 			if($param['caller'] == 'discuzcode' && CURMODULE == 'viewthread'){
 				if(strexists($_G['discuzcodemessage'],'[/media]') !== FALSE){
 					$_G['discuzcodemessage'] = preg_replace_callback("/\[media(.*?)\]\s*([^\[\<\r\n]+?)\s*\[\/media\]/is","concentrate_replace",$_G['discuzcodemessage']);
@@ -123,7 +123,7 @@ class plugin_zhikai_n5video_forum extends plugin_zhikai_n5video{
 	function viewthread_postbottom_output(){
 		global $_G,$postlist;
 		$config = self::$config;
-		if(empty($postlist) || !in_array($_G['fid'],dunserialize($config['forum_media']))) return;
+		if(empty($postlist) || !in_array($_G['fid'],dunserialize($config['forum_dubbing']))) return;
 		foreach($postlist as $key =>$val){
             $postlist[$key] = noattach_replace($val);
 		}
@@ -171,7 +171,6 @@ class mobileplugin_zhikai_n5video extends plugin_zhikai_n5video{
 		$width = explode('|',$config['width']);
 		$height = $height[1] ? $height[1] : '200px';
 		$width = $width[1] ? $width[1] : '100%';
-
 		if(CURMODULE == 'viewthread' || CURMODULE == 'forumdisplay' || CURMODULE == 'guide' || CURMODULE == 'post' || CURMODULE == 'space'){
 			$style ='<link rel="stylesheet" href="source/plugin/zhikai_n5video/static/audio/APlayer.min.css">
 					<script src="source/plugin/zhikai_n5video/static/audio/APlayer.min.js"></script>
@@ -205,7 +204,7 @@ class mobileplugin_zhikai_n5video extends plugin_zhikai_n5video{
 			return $style;
 		}
     }
-}//fr o  m ww w.mo qu  8.c o m
+}
 
 class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 
@@ -266,7 +265,7 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 		}
 	}
 
-	// 查看。
+	// 查看用户配音贴或配音资源贴。
 	function viewthread_dubbing_mobile_output() {
 		global $_G;
 		$config = self::$config;
@@ -277,7 +276,7 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 			$userDubbingForumID = $config['forum_userdubbing'];
 			include template('zhikai_n5video:dubbing_userview');
 		}
-		else {
+		else if(in_array($_G['fid'], dunserialize($config['forum_dubbing']))) {
 			// 查看配音资源贴
 			$attachInfo = dubbing_replace($_GET['tid']);
 			$userDubbingForumID = $config['forum_userdubbing'];
@@ -292,10 +291,9 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 	function forumdisplay_mobile_output(){
         global $_G;
 		$config = self::$config;
-		if(!in_array($_G['fid'],dunserialize($config['forum_media']))) return;
+		if(!in_array($_G['fid'],dunserialize($config['forum_dubbing']))) return;
         if(!$_G['forum_threadlist'] || !$config['media_open']){return;}
 	    if(!in_array('zhikai_n5appgl',$_G['setting']['plugins']['available']))return;
-	
 		if (file_exists(DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/nvbing5_forumdisplay.php')) {
 			@include_once DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/nvbing5_forumdisplay.php';
 		}
@@ -320,7 +318,7 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 	function viewthread_postbottom_mobile_output(){
 		global $_G,$postlist;
 		$config = self::$config;
-		if(empty($postlist) || !in_array($_G['fid'],dunserialize($config['forum_media']))) return;
+		if(empty($postlist) || !in_array($_G['fid'],dunserialize($config['forum_dubbing']))) return;
 		foreach($postlist as $key =>$val){
             $postlist[$key] = noattach_replace($val);
 		}
@@ -371,9 +369,6 @@ class mobileplugin_zhikai_n5video_group extends mobileplugin_zhikai_n5video {
 		}
 	}
 
-	
-	
-
 	function forumdisplay_mobile_output(){
         global $_G;
 		$config = self::$config;
@@ -401,7 +396,7 @@ class mobileplugin_zhikai_n5video_group extends mobileplugin_zhikai_n5video {
 	function viewthread_postbottom_mobile_output(){
 		global $_G,$postlist;
 		$config = self::$config;
-		if(empty($postlist) || !in_array($_G['fid'],dunserialize($config['forum_media']))) return;
+		if(empty($postlist) || !in_array($_G['fid'],dunserialize($config['forum_dubbing']))) return;
 		foreach($postlist as $key =>$val){
             $postlist[$key] = noattach_replace($val);
 		}

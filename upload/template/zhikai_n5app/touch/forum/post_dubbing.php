@@ -1,46 +1,4 @@
 <?php exit;?>
-<!--{template common/header_f}-->
-{eval}
-$n5app = init_n5app();
-function init_n5app(){
-	global $_G;
-	loadcache('plugin');
-	$n5app = $_G['cache']['plugin']['zhikai_n5appgl']; 
-	$n5app['lang'] = dzlang();
-	return $n5app;
-}
-function dzlang(){
-	global $_G;
-	$addonname = 'zhikai_n5appgl';
-	$dlang = array();
-	for($i=1;$i<1000;$i++){
-		$key = 'lang'.sprintf("%03d", $i);
-		$dlang[$key] = lang('plugin/'.$addonname, $key);
-		$tmp = explode("=",$dlang[$key]);
-		if(count($tmp) == 2){
-			$dlang[$tmp[0]] = $tmp[1];
-		}
-	}
-	return $dlang;
-}
-// 是否应该按配音方式显示。
-function is_dubbing_forum()
-{
-	global $_G;
-	global $n5app;
-
-	if (in_array("zhikai_n5video", $_G["setting"]["plugins"]["available"])) {
-		if (in_array($_G['fid'], dunserialize($_G['cache']['plugin']['zhikai_n5video']['forum_dubbing']))
-			|| $_G['fid'] == $_G['cache']['plugin']['zhikai_n5video']['forum_userdubbing']) {
-			return true;
-		}
-	}
-	return false;
-}
-{/eval}
-<!--{if is_dubbing_forum()}-->
-	<!--{subtemplate forum/post_dubbing}-->
-<!--{else}-->
 <script type="text/javascript" src="template/zhikai_n5app/js/common.js"></script>
 <script type="text/javascript">
 	var allowpostattach = parseInt('{$_G['group']['allowpostattach']}');
@@ -74,11 +32,15 @@ function is_dubbing_forum()
 </script>
 <script type="text/javascript" src="template/zhikai_n5app/js/threadsort.js"></script>
 <!--{/if}-->
-<div class="n5qj_tbys nbg cl">
+<!--{eval include_once DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/nvbing5.php'}-->
+<!--{if n5video_is_dubbing_forum()}-->
+<!--{else}-->
+<div class="n5qj_tbys nbg cl aaaaaaa">
 	<a href="javascript:history.back();" class="n5qj_zcan"><div class="zcanfh">{$n5app['lang']['qjfanhui']}</div></a>
 	<a href="forum.php?forumlist=1&mobile=2" class="n5qj_ycan shouye"></a>
 	<span><!--{if $_GET[action] == 'newthread'}-->{$n5app['lang']['sqfabusssq']}<!--{elseif $_GET[action] == 'reply'}-->{lang join_thread}<!--{elseif $_GET[action] == 'edit'}-->{$n5app['lang']['sqdengjibj']}<!--{/if}--></span>
 </div>
+<!--{/if}-->
 <script src="template/zhikai_n5app/js/mobiscroll_002.js" type="text/javascript"></script>
 <link href="template/zhikai_n5app/common/mobiscroll_002.css" rel="stylesheet" type="text/css">
 <script src="template/zhikai_n5app/js/mobiscroll.js" type="text/javascript"></script>
@@ -126,87 +88,23 @@ function is_dubbing_forum()
 		<!--{if $specialextra}-->
 			<input type="hidden" name="specialextra" value="$specialextra" />
 		<!--{/if}-->
-	<!--{if $_GET[action] == 'newthread'}-->
-	<script src="template/zhikai_n5app/js/fabufl.js"></script>
-	<div class="n5sq_ztfl">
-		<div class="ztfl_flzt">
-			<div class="ztfl_fllb">
-				<ul id="n5sq_glpd">
-					<!--{if !$_G['forum']['allowspecialonly']}-->
-						<li><a href="forum.php?mod=post&action=newthread&fid=$_G[fid]" {if $postspecialcheck[0]} selected="selected"{/if}>{$n5app['lang']['sqtsfbpt']}</a></li>
-                    <!--{/if}--> 
-                    <!--{loop $_G['forum']['threadsorts'][types] $tsortid $name}-->
-						<li><a href="forum.php?mod=post&action=newthread&sortid=$tsortid&fid=$_G[fid]" {if $sortid == $tsortid} selected="selected" {/if}><!--{echo strip_tags($name);}--></a></li>
-                    <!--{/loop}--> 
-                    <!--{if $_G['group']['allowpostpoll']}-->
-						<li><a href="forum.php?mod=post&action=newthread&fid=$_G[fid]&special=1" {if $postspecialcheck[1]} selected="selected"{/if}>{$n5app['lang']['sqtsfbtp']}</a></li>
-                    <!--{/if}--> 
-                    <!--{if $_G['group']['allowpostreward']}-->
-						<li><a href="forum.php?mod=post&action=newthread&fid=$_G[fid]&special=3" {if $postspecialcheck[3]} selected="selected"{/if}>{$n5app['lang']['sqtsfbxs']}</a></li>
-                    <!--{/if}--> 
-                    <!--{if $_G['group']['allowpostdebate']}-->
-						<li><a href="forum.php?mod=post&action=newthread&fid=$_G[fid]&special=5" {if $postspecialcheck[5]} selected="selected"{/if}>{$n5app['lang']['sqtsfbbl']}</a></li>
-                    <!--{/if}--> 
-                    <!--{if $_G['group']['allowpostactivity']}-->
-						<li><a href="forum.php?mod=post&action=newthread&fid=$_G[fid]&special=4" {if $postspecialcheck[4]} selected="selected"{/if}>{$n5app['lang']['sqtsfbhd']}</a></li>
-                    <!--{/if}--> 
-                    <!--{if $_G['group']['allowposttrade']}-->
-						<li><a href="forum.php?mod=post&action=newthread&fid=$_G[fid]&special=2" {if $postspecialcheck[2]} selected="selected"{/if}>{$n5app['lang']['sqtsfbsp']}</a></li>
-                    <!--{/if}-->
-				</ul>
-			</div>
-			<div class="ztfl_ycgd"><span></span></div>
+
+	<!--{if n5video_is_dubbing_forum()}-->
+		<div class="ztfb_nrsr cl" style="display:none">
+			<textarea class="pt" id="needmessage" tabindex="3" autocomplete="off" id="{$editorid}_textarea" name="$editor[textarea]" cols="80" rows="2"  placeholder="{$n5app['lang']['sqftktishi']}" fwin="reply">$postinfo[message]</textarea>
 		</div>
-	</div>
-	<script type="text/javascript" language="javascript">
-		var nav = document.getElementById("n5sq_glpd");
-		var links = nav.getElementsByTagName("li");
-		var lilen = nav.getElementsByTagName("a"); 
-		var currenturl = document.location.href;
-		var last = 0;
-		for (var i=0;i<links.length;i++)
-		{
-			var linkurl =  lilen[i].getAttribute("href");
-				if(currenturl.indexOf(linkurl)!=-1)
-			{
-				last = i;
-			}
-		}
-        links[last].className = "a";
-	</script>
+		<!--{hook/post_dubbing_mobile}-->
+	<!--{else}-->
+		<!--{subtemplate forum/post_editor_extra}-->
+		<script src="template/zhikai_n5app/js/jquery.femoticons.js" type="text/javascript"></script>
+		<div class="ztfb_nrsr cl ccccccccccccccc">
+			<textarea class="pt" id="needmessage" tabindex="3" autocomplete="off" id="{$editorid}_textarea" name="$editor[textarea]" cols="80" rows="2"  placeholder="{$n5app['lang']['sqftktishi']}" fwin="reply">$postinfo[message]</textarea>
+		</div>
+
+		<div class="n5sp_wats cl">
+			<i class="iconfont icon-ftgnsq"></i>{$n5app['lang']['fbszgnatss']}
+		</div>
 	<!--{/if}-->
-	
-	<!--{subtemplate forum/post_editor_extra}-->
-	<script src="template/zhikai_n5app/js/jquery.femoticons.js" type="text/javascript"></script>
-	<div class="ztfb_nrsr cl">
-		<textarea class="pt" id="needmessage" tabindex="3" autocomplete="off" id="{$editorid}_textarea" name="$editor[textarea]" cols="80" rows="2"  placeholder="{$n5app['lang']['sqftktishi']}" fwin="reply">$postinfo[message]</textarea>
-	</div>
-	<div class="ztfb_tpsc cl">
-		<div class="tpsc_tpxz"><a href="javascript:;" id="addimg"><input type="file" name="Filedata" id="filedata" style="width:54px;height:54px;font-size:50px;opacity:0;"/></a></div>
-		<div class="tpsc_tplb"><ul id="imglist"></ul></div>
-	</div>
-	
-	<div class="ztfb_tabk">
-		<ul class="ztfb_gnxx tabs cl">
-			<li><a href="JavaScript:void(0)" id="message_face"><i class="iconfont icon-ftgnbqs"></i><p>{$n5app['lang']['fbszgnbq']}</p></a></li>
-			<li><a href="JavaScript:void(0)"><i class="iconfont icon-ftgnsq"></i><p>{$n5app['lang']['fbszgnsp']}</p></a></li>
-			<li><a href="javascript:void(0);"><i class="iconfont icon-ftgnsz"></i><p>{$n5app['lang']['shezhi']}</p></a></li>
-			<li><a href="javascript:void(0);"><i class="iconfont icon-ftgncr"></i><p>{$n5app['lang']['fbszgncr']}</p></a></li>
-			<!--{if $_GET[action] == 'newthread' || $_GET[action] == 'edit' && $isfirstpost}-->
-				<!--{if ($_GET[action] == 'newthread' && $_G['group']['allowpostrushreply'] && $special != 2) || ($_GET[action] == 'edit' && getstatus($thread['status'], 3))}-->
-					<li><a href="javascript:void(0);"><i class="iconfont icon-ftgnql"></i><p>{$n5app['lang']['fbszgnql']}</p></a></li>
-				<!--{/if}-->
-				<!--{if $_G['group']['maxprice'] && !$special}-->
-					<li><a href="javascript:void(0);"><i class="iconfont icon-ftgnst"></i><p>{$n5app['lang']['fbszgnsf']}</p></a></li>
-				<!--{/if}-->
-				<!--{if $_G['group']['allowposttag']}-->
-					<li><a href="javascript:void(0);"><i class="iconfont icon-ftgnbq"></i><p>{$n5app['lang']['fbszgnbqs']}</p></a></li>
-				<!--{/if}-->
-			<!--{/if}-->
-		</ul>
-		<!--{subtemplate forum/post_editor_attribute}-->
-	</div>
-	<script src="template/zhikai_n5app/js/fbszxx.js"></script>
 
 	<!--{if $_GET[action] != 'edit' && ($secqaacheck || $seccodecheck)}-->
 		<style type="text/css">
@@ -217,7 +115,11 @@ function is_dubbing_forum()
 		<!--{subtemplate common/seccheck}-->
 	<!--{/if}-->
 	
+<!--{if n5video_is_dubbing_forum()}-->
+	<div class="ztfb_fban cl" style="display:none"><button id="postsubmit" class="btn_pn <!--{if $_GET[action] == 'edit'}-->btn_pn_blue" disable="false"<!--{else}-->btn_pn_grey" disable="true"<!--{/if}-->><!--{if $_GET[action] == 'newthread'}-->{lang send_thread}<!--{elseif $_GET[action] == 'reply'}-->{lang join_thread}<!--{elseif $_GET[action] == 'edit'}-->{lang edit_save}<!--{/if}--></button></div>	
+<!--{else}-->
 	<div class="ztfb_fban cl"><button id="postsubmit" class="btn_pn <!--{if $_GET[action] == 'edit'}-->btn_pn_blue" disable="false"<!--{else}-->btn_pn_grey" disable="true"<!--{/if}-->><!--{if $_GET[action] == 'newthread'}-->{lang send_thread}<!--{elseif $_GET[action] == 'reply'}-->{lang join_thread}<!--{elseif $_GET[action] == 'edit'}-->{lang edit_save}<!--{/if}--></button></div>	
+<!--{/if}-->
 	<style type="text/css">
 		.zhikai-form-radios {display:none;}
 	</style>
@@ -226,11 +128,10 @@ function is_dubbing_forum()
 </div>
 
 <script type="text/javascript">
-	$("#message_face").jqfaceedit({txtAreaObj:$("#needmessage"),containerObj:$('#kshf_bqzs')});
-</script>
-<script type="text/javascript">
+	var needsubject = false;
+	var needmessage = false;
+
 	(function() {
-		var needsubject = needmessage = false;
 
 		<!--{if $_GET[action] == 'reply'}-->
 			needsubject = true;
@@ -243,7 +144,7 @@ function is_dubbing_forum()
 			var obj = $(this);
 			if(obj.val()) {
 				needsubject = true;
-				if(needmessage == true) {
+				if(needmessage == true && needsubtitle == true) {
 					$('.btn_pn').removeClass('btn_pn_grey').addClass('btn_pn_blue');
 					$('.btn_pn').attr('disable', 'false');
 				}
@@ -258,7 +159,7 @@ function is_dubbing_forum()
 			var obj = $(this);
 			if(obj.val()) {
 				needmessage = true;
-				if(needsubject == true) {
+				if(needsubject == true && needsubtitle == true) {
 					$('.btn_pn').removeClass('btn_pn_grey').addClass('btn_pn_blue');
 					$('.btn_pn').attr('disable', 'false');
 				}
@@ -438,8 +339,3 @@ function is_dubbing_forum()
 		$("#appTime").mobiscroll(optTime).time(optTime);
     });
 </script>
-
-<!--{/if}-->
-
-<!--{eval $nofooter = true;}-->
-<!--{template common/ffooter}-->

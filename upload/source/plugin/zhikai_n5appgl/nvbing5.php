@@ -14,14 +14,18 @@ function n5app_template()
 }
 
 // 是否应该按配音方式显示。
-function n5video_template()
+function n5video_is_dubbing_forum()
 {
 	global $_G;
 	global $n5app;
 
-	// zhikai_n5video插件打开，并且当前板块是zhikai_n5video起作用的板块
-	return in_array("zhikai_n5video", $_G["setting"]["plugins"]["available"]) && 
-		in_array($_G['fid'], dunserialize($_G['cache']['plugin']['zhikai_n5video']['forum_media']));
+	if (in_array("zhikai_n5video", $_G["setting"]["plugins"]["available"])) {
+		if (in_array($_G['fid'], dunserialize($_G['cache']['plugin']['zhikai_n5video']['forum_dubbing']))
+			|| $_G['fid'] == $_G['cache']['plugin']['zhikai_n5video']['forum_userdubbing']) {
+			return true;
+		}
+	}
+	return false;
 }
 
 // 返回存放用户已发布的配音帖子版块

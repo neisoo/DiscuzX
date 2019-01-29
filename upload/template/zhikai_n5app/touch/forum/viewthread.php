@@ -6,7 +6,7 @@
 <!--{eval include_once DISCUZ_ROOT.'./template/zhikai_n5app/php/viewthread.php'}-->
 <link href="template/zhikai_n5app/fenlei/mbflnr.css" type="text/css" rel="stylesheet">
 
-<!-- {if n5video_template()} -->
+<!-- {if n5video_is_dubbing_forum()} -->
 <!--{hook/viewthread_dubbing_mobile}-->
 <!--{else}-->
 
