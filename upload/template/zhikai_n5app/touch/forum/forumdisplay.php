@@ -3,6 +3,9 @@
 <!--{eval include_once DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/forumdisplays.php'}-->
 <!--{eval include_once DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/nvbing5.php'}-->
 <!--{eval include_once DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/nvbing5_forumdisplay.php'}-->
+<!--{if n5video_is_dubbing_forum()}-->
+	<!--{subtemplate forum/forumdisplay_dubbing}-->
+<!--{else}-->
 <link href="template/zhikai_n5app/fenlei/mbfllb.css" type="text/css" rel="stylesheet">
 <link href="template/zhikai_n5app/common/forumdisplays.css" type="text/css" rel="stylesheet">
 <script type="text/javascript" src="template/zhikai_n5app/js/nav.js"></script>
@@ -559,3 +562,5 @@
 <!--{hook/forumdisplay_bottom_mobile}-->
 <div class="pullrefresh" style="display:none;"></div>
 <!--{template common/footer}-->
+
+<!--{/if}-->

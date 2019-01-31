@@ -289,16 +289,22 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 	// 用来生成每一行要显示的网页内容，保存到数组
 	// $_G['setting']['pluginhooks']['forumdisplay_threadnlbsp_mobile']中。
 	function forumdisplay_mobile_output(){
-        global $_G;
+		global $_G;
 		$config = self::$config;
-		if(!in_array($_G['fid'],dunserialize($config['forum_dubbing']))) return;
-        if(!$_G['forum_threadlist'] || !$config['media_open']){return;}
-	    if(!in_array('zhikai_n5appgl',$_G['setting']['plugins']['available']))return;
-		if (file_exists(DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/nvbing5_forumdisplay.php')) {
-			@include_once DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/nvbing5_forumdisplay.php';
+
+		if (in_array($_G['fid'], dunserialize($config['forum_dubbing']))) {
+			// 获取配音资源主题贴的封面。
+			foreach($_G['forum_threadlist'] as $key => $thread) {
+				$attachInfo = dubbing_replace($thread['tid']);
+				$_G['forum_threadlist'][$key]['coverpath'] = $attachInfo['cover'];
+			}
 		}
- 		if(function_exists('zknvbing5_v1')){
-		    zknvbing5_v1();
+		else if ($_G['fid'] == $config['forum_userdubbing']) {
+			// 获取用户配音对应的配音资源主题贴的封面。
+			foreach($_G['forum_threadlist'] as $key => $thread) {
+				$attachInfo = dubbing_user_replace($thread['tid']);
+				$_G['forum_threadlist'][$key]['coverpath'] = $attachInfo['cover'];
+			}
 		}
     }
 

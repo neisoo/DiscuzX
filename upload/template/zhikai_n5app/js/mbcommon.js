@@ -813,8 +813,8 @@ var pullrefresh = {
 			}
 			status = false;
 			pos = {};
-		})
-		.css('touch-action', 'none');
+		});
+		//.css('touch-action', 'none');
 	}
 };
 
