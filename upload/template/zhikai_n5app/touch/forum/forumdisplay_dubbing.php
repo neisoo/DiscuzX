@@ -3,6 +3,24 @@
 <link href="template/zhikai_n5app/common/forumdisplays.css" type="text/css" rel="stylesheet">
 <script type="text/javascript" src="template/zhikai_n5app/js/nav.js"></script>
 
+<style type="text/css">
+.zyh-thumbnail-image {
+	width:100%;
+}
+.zyh-thumbnail {
+	width:100%;
+	height:100%;
+}
+.zyh-thumbnail-caption {
+	display:block;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+	overflow:hidden;
+	width:100%;
+	height:2rem;
+	text-align:left;
+}
+</style>
 <script type="text/javascript">
 	var jq = jQuery.noConflict(); 
 	function lbztsx(){
@@ -73,16 +91,16 @@
 <!--使用瀑布图片列表显示主题贴-->
 <!--{if $_G['forum_threadcount']}-->
 <div class="n5sq_pbbk cl">
-	<div class="pbbk_pbzt">
+	<div class="zyh-thumbnail-jaliswall">
 	<!--{loop $_G['forum_threadlist'] $key $thread}-->
-		<div class="pbbk_pbsj" style="visibility:hidden;">
-			<a class="uk-thumbnail" href="forum.php?mod=viewthread&tid=$thread[tid]&extra=$extra">
+		<div class="zyh-thumbnail-item" style="visibility:hidden;">
+			<a class="zyh-thumbnail uk-thumbnail" href="forum.php?mod=viewthread&tid=$thread[tid]&extra=$extra">
 			<!--{if $thread['cover']}-->
-				<img nodata-echo="yes" src="$thread[coverpath]" alt="$thread[subject]" />
+				<img class="zyh-thumbnail-image" nodata-echo="yes" src="$thread[coverpath]" alt="$thread[subject]" />
 			<!--{else}-->
 				<img src="template/zhikai_n5app/images/pbbk_pbsj.jpg" />
 			<!--{/if}-->
-				<div class="uk-thumbnail-caption">$thread[subject]</div>
+				<div class="uk-thumbnail-caption zyh-thumbnail-caption">$thread[subject]</div>
 			</a>
 		</div>
 	<!--{/loop}-->
@@ -94,7 +112,7 @@
 <script type="text/javascript">
 	var jq = jQuery.noConflict(); 
 		jq(function(){
-		jq('.pbbk_pbzt').jaliswall({ item: '.pbbk_pbsj' });
+		jq('.zyh-thumbnail-jaliswall').jaliswall({ item: '.zyh-thumbnail-item' });
 	});
 	
 	jq('[data-uk-pagination]').on('select.uk.pagination', function(e, pageIndex){

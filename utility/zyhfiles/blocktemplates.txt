@@ -1,0 +1,109 @@
+首页版块主题贴四格图片
+===========================================================================
+[index1=1]
+<style type="text/css">
+.zyh-thumbnail-panel {
+	margin-bottom: 1rem;
+	margin-top: 1rem;
+}
+.zyh-thumbnail-caption {
+	display:block;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+	overflow:hidden;
+	width:100%;
+	height:2rem;
+	text-align:left;
+}
+.zyh-thumbnail-image {
+	width:100%;
+}
+.zyh-thumbnail {
+	width:100%;
+	height:100%;
+}
+.zyh-thumbnail-button {
+	text-align:center;
+}
+</style>
+
+<div class="zyh-thumbnail-panel uk-panel uk-panel-box">
+	<div class="uk-panel-title">{forumname}</div>
+	<div class="zyh-thumbnail-{id} uk-grid uk-grid-small uk-grid-width-1-2 uk-grid-small-width-1-2 uk-grid-width-medium-1-4 uk-grid-width-medium-1-8"  data-uk-grid-margin>
+[/index1]
+		[loop]
+		<div class="zyh-thumbnail-item" style="display:none;">
+			<a class="zyh-thumbnail uk-thumbnail" href="{url}">
+				<img class="zyh-thumbnail-image" src="{pic}" alt="{title}">
+				<div class="uk-thumbnail-caption zyh-thumbnail-caption">{title}</div>
+			</a>
+		</div>
+		[/loop]
+[index2=1]
+	</div>
+	<hr/>
+	<div>
+		<div class="uk-grid uk-grid-small uk-grid-divider uk-grid-width-1-2 uk-grid-small-width-1-2 uk-grid-width-medium-1-4 uk-grid-width-medium-1-8">
+			<div class="zyh-thumbnail-button">
+				<a href="{forumurl}">查看更多 <i class="uk-icon-chevron-circle-right"></i></a>
+			</div>
+			<div class="zyh-thumbnail-button">
+				<a href="javascript:void(0);" onclick="zyh_thumbnail_refresh_{id}()">换一批看看 <i class="uk-icon-rotate-right"></i></a>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+var jq = jQuery.noConflict();
+
+/* 随机挑选要显示的内容 */
+function zyh_thumbnail_refresh_{id}() {
+	var items = jq('.zyh-thumbnail-{id} .zyh-thumbnail-item');
+	var i = 0;
+	var count = 0;
+	var showIndexs = new Array();
+	var MAX_SHOW_COUNT = 4;
+
+	if (items)
+	/* 找出未显示的并隐藏已显示的。*/
+	if (items.length >= MAX_SHOW_COUNT * 2) {
+		for (i = 0; i < items.length; i++) {
+			if (jq(items[i]).css('display') == 'none') {
+				showIndexs[count] = i;
+				count++;
+			}
+			else {
+				jq(items[i]).css('display', 'none');
+			}
+		}
+	}
+	else {
+		for (i = 0; i < items.length; i++) {
+			showIndexs[i] = i;
+			jq(items[i]).css('display', 'none');
+		}
+	}
+
+	/* 从未显示的中随机找出要显示的 */
+	for (i = 0; i < MAX_SHOW_COUNT && i < items.length; i++) {
+		var index = Math.floor(Math.random() * showIndexs.length);
+		jq(items[showIndexs[index]]).css('display', 'block');
+		showIndexs.splice(index, 1);
+	}
+}
+zyh_thumbnail_refresh_{id}();
+</script>
+[/index2]
+
+===========================================================================
+首页导航图标
+<div class="n5jj_fldh cl" style="margin:0">
+	<ul class="uk-thumbnav uk-grid-width-1-4 cl">
+		<li><a href="javascript:void(0);"><img src="template/zhikai_n5app/images/fldh_lp.png"><p>每日打卡</p></a></li>
+		<li><a href="javascript:void(0);"><img src="template/zhikai_n5app/images/fldh_cl.png"><p>作业清单</p></a></li>
+		<li><a href="home.php?mod=space&do=thread&filter=common&dubbing=1&searchkey=public&mobile=2"><img src="template/zhikai_n5app/images/fldh_hy.png"><p>我的配音</p></a></li>
+		<li><a href="javascript:void(0);"><img src="template/zhikai_n5app/images/fldh_hd.png"><p>错题集</p></a></li>
+	</ul>
+</div>
+===========================================================================

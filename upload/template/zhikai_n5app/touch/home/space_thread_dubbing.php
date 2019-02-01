@@ -57,12 +57,23 @@
     font-size: 1rem;
     line-height: 1rem;
 }
+
+/* 标题文字 */
+.zyh-dubbing-subject {
+	display:block;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+	overflow:hidden;
+	width:100%;
+	height:2rem;
+}
+
 </style>
 
 <div class="zyh-space-thread-dubbing-ui">
 	<!-- 标题区域 -->
 	<div class="n5qj_tbys nbg cl">
-		<a href="javascript:history.back();" class="n5qj_zcan"><div class="zcanfh">{$n5app['lang']['qjfanhui']}</div></a>
+		<a href="forum.php?mod=guide&view=newthread&mobile=2" class="n5qj_zcan"><div class="zcanfh">{$n5app['lang']['qjfanhui']}</div></a>
 		<!--{if $list}--><a href="javascript:void(0)" class="zyh-edit-switch n5qj_ycan"></a><!--{/if}-->
 		<span>{$n5app['lang']['wdgrdhwdpy']}</span>
 	</div>
@@ -129,7 +140,7 @@
 		<!--{else}-->
 			<div class="n5qj_wnr">
 				<img src="template/zhikai_n5app/images/n5sq_gzts.png">
-				<p>{lang no_related_posts}</p>
+				<p>没有相关的配音作品</p>
 			</div>
 		<!--{/if}-->
 		</form>

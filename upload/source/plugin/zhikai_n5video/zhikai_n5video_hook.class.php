@@ -291,12 +291,12 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 	function forumdisplay_mobile_output(){
 		global $_G;
 		$config = self::$config;
-
 		if (in_array($_G['fid'], dunserialize($config['forum_dubbing']))) {
 			// 获取配音资源主题贴的封面。
 			foreach($_G['forum_threadlist'] as $key => $thread) {
 				$attachInfo = dubbing_replace($thread['tid']);
 				$_G['forum_threadlist'][$key]['coverpath'] = $attachInfo['cover'];
+				$_G['forum_threadlist'][$key]['cover'] = 1;
 			}
 		}
 		else if ($_G['fid'] == $config['forum_userdubbing']) {
