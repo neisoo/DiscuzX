@@ -2055,10 +2055,12 @@ function uploadDubbingCallback(data) {
 function mergeRecord2Commpany()
 {
 	// 先混合伴奏。
-	dubbingBuffer = audioCtx.createBuffer(accompanyBuffer.numberOfChannels, accompanyBuffer.length, accompanyBuffer.sampleRate);
-	dubbingBuffer.copyToChannel(accompanyBuffer.getChannelData(0), 0, 0);
-	if (accompanyBuffer.numberOfChannels > 1) {
-		dubbingBuffer.copyToChannel(accompanyBuffer.getChannelData(1), 1, 0);
+	dubbingBuffer = audioCtx.createBuffer(2, parseInt(recorder.outputSampleRate * player.duration()), recorder.outputSampleRate);
+	if (accompanyBuffer != null) {
+		dubbingBuffer.copyToChannel(accompanyBuffer.getChannelData(0), 0, 0);
+		if (accompanyBuffer.numberOfChannels > 1) {
+			dubbingBuffer.copyToChannel(accompanyBuffer.getChannelData(1), 1, 0);
+		}
 	}
 
 	var i = 0;
@@ -2392,8 +2394,10 @@ previewPlayer.on('timeupdate', function () {
 // 播放器时间更新回调。
 previewPlayer.on('timeupdate', function() {
 	// 更新播放进度，当前时间。
-	previewSeekBar.setValue(previewPlayer.currentTime());
-	
+	if (previewSeekBar != null) {
+		previewSeekBar.setValue(previewPlayer.currentTime());
+	}
+
 	jq('.zyh-preview-process-bar .uk-progress-bar').css('width', ' ' + (previewPlayer.currentTime() * 100 / previewPlayer.duration()) + '%')
 	jq('.zyh-preview-current-time .zyh-icon-placeholder').html(getTimeString(previewPlayer.currentTime()));
 });

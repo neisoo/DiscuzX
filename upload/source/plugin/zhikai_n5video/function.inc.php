@@ -71,7 +71,7 @@ function attach_replace($matches, $is_match = FALSE)
 
     // 视频
     $video_url = null;
-    if (isset($ids[0])) {
+    if (!empty($ids[0])) {
         $aidtb = getattachtablebyaid($ids[0]);
         $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[0]));
         $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
@@ -80,7 +80,7 @@ function attach_replace($matches, $is_match = FALSE)
 
     // 封面
     $poster_url = null;
-    if (isset($ids[1])) {
+    if (!empty($ids[1])) {
         $aidtb = getattachtablebyaid($ids[1]);
         $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[1]));
         $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
@@ -89,7 +89,7 @@ function attach_replace($matches, $is_match = FALSE)
 
     // 原文
     $subtitle_url = null;
-    if (isset($ids[2])) {
+    if (!empty($ids[2])) {
         $aidtb = getattachtablebyaid($ids[2]);
         $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[2]));
         $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
@@ -98,7 +98,7 @@ function attach_replace($matches, $is_match = FALSE)
 
     // 译文
     $tsubtitle_url = null;
-    if (isset($ids[3])) {
+    if (!empty($ids[3])) {
         $aidtb = getattachtablebyaid($ids[3]);
         $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[3]));
         $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
@@ -107,7 +107,7 @@ function attach_replace($matches, $is_match = FALSE)
 
     // 伴奏
     $accompany_url = null;
-    if (isset($ids[4])) {
+    if (!empty($ids[4])) {
         $aidtb = getattachtablebyaid($ids[4]);
         $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[4]));
         $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
@@ -491,7 +491,7 @@ function dubbing_replace($tid)
 
             // 视频
             $video_url = null;
-            if (isset($ids[0])) {
+            if (!empty($ids[0])) {
                 $aidtb = getattachtablebyaid($ids[0]);
                 $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[0]));
                 $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
@@ -500,7 +500,7 @@ function dubbing_replace($tid)
 
             // 封面
             $poster_url = null;
-            if (isset($ids[1])) {
+            if (!empty($ids[1])) {
                 $aidtb = getattachtablebyaid($ids[1]);
                 $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[1]));
                 $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
@@ -509,7 +509,7 @@ function dubbing_replace($tid)
 
             // 原文
             $subtitle_url = null;
-            if (isset($ids[2])) {
+            if (!empty($ids[2])) {
                 $aidtb = getattachtablebyaid($ids[2]);
                 $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[2]));
                 $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
@@ -518,7 +518,7 @@ function dubbing_replace($tid)
 
             // 译文
             $tsubtitle_url = null;
-            if (isset($ids[3])) {
+            if (!empty($ids[3])) {
                 $aidtb = getattachtablebyaid($ids[3]);
                 $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[3]));
                 $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
@@ -527,7 +527,7 @@ function dubbing_replace($tid)
 
             // 伴奏
             $accompany_url = null;
-            if (isset($ids[4])) {
+            if (!empty($ids[4])) {
                 $aidtb = getattachtablebyaid($ids[4]);
                 $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $ids[4]));
                 $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
@@ -543,12 +543,12 @@ function dubbing_replace($tid)
             $attachInfo['tid'] = $tid; // 配音视频贴的tid
 
             $attachInfo['description'] = '';
-            if (isset($jsonData->data->description)) {
+            if (!empty($jsonData->data->description)) {
                 $attachInfo['description'] = $jsonData->data->description; // 配音视频的说明文字
             }
 
             $attachInfo['rate'] = 3;
-            if (isset($jsonData->data->rate)) {
+            if (!empty($jsonData->data->rate)) {
                 $attachInfo['rate'] = $jsonData->data->rate; // 配音视频的难度星级
             }
 

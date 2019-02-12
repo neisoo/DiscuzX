@@ -300,42 +300,4 @@
 		return false;
 	});
 </script>
-<script type="text/javascript">
-    $(function () {
-		var currYear = (new Date()).getFullYear();	
-		var opt={};
-		opt.date = {preset : 'date'};
-		opt.datetime = {preset : 'datetime'};
-		opt.time = {preset : 'time'};
-		opt.default = {
-			theme: 'android-ics light', 
-		    display: 'modal', 
-		    mode: 'scroller', 
-			dateFormat: 'yyyy-mm-dd',
-			lang: 'zh',
-			showNow: true,
-			nowText: "{$n5app['lang']['sqshijianjt']}",
-		    startYear: currYear - 10, 
-		    endYear: currYear + 10 
-		};
 
-		var optDateTime = $.extend(opt['datetime'], opt['default']);
-		var optTime = $.extend(opt['time'], opt['default']);
-		$("#rushreplyfrom").mobiscroll(optDateTime).datetime(optDateTime);
-		$("#rushreplyto").mobiscroll(optDateTime).datetime(optDateTime);
-		$("#endtime").mobiscroll(optDateTime).datetime(optDateTime);
-		$("#starttimefrom_0").mobiscroll(optDateTime).datetime(optDateTime);
-		$("#starttimefrom_1").mobiscroll(optDateTime).datetime(optDateTime);
-		$("#starttimeto").mobiscroll(optDateTime).datetime(optDateTime);
-		$("#activityexpiration").mobiscroll(optDateTime).datetime(optDateTime);
-		$("#item_expiration").mobiscroll(optDateTime).datetime(optDateTime);
-		$("#typeoption_lpkp").mobiscroll(optDateTime).datetime(optDateTime);
-		$("#typeoption_lpjf").mobiscroll(optDateTime).datetime(optDateTime);
-		$("#typeoption_grqzzpsr").mobiscroll(optDateTime).datetime(optDateTime);
-		$("#typeoption_grqzzpsj").mobiscroll(optDateTime).datetime(optDateTime);
-		$("#typeoption_escsp").mobiscroll(optDateTime).datetime(optDateTime);
-		$("#typeoption_escnj").mobiscroll(optDateTime).datetime(optDateTime);
-		$("#typeoption_escbx").mobiscroll(optDateTime).datetime(optDateTime);
-		$("#appTime").mobiscroll(optTime).time(optTime);
-    });
-</script>

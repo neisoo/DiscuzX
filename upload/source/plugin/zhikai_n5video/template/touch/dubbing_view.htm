@@ -640,8 +640,10 @@ function getTimeString(seconds) {
 // 播放器时间更新回调。
 previewPlayer.on('timeupdate', function() {
 	// 更新播放进度，当前时间。
-	previewSeekBar.setValue(previewPlayer.currentTime());
-	
+	if (previewSeekBar != null) {
+		previewSeekBar.setValue(previewPlayer.currentTime());
+	}
+
 	jq('.zyh-preview-process-bar .uk-progress-bar').css('width', ' ' + (previewPlayer.currentTime() * 100 / previewPlayer.duration()) + '%')
 	jq('.zyh-preview-current-time .zyh-icon-placeholder').html(getTimeString(previewPlayer.currentTime()));
 });
