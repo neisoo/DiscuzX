@@ -74,6 +74,7 @@
 
   function setBoxHeights(element) {
     var el = element.clone().css({
+          display: 'block',
           height: 'auto',
           width: element.width(),
           maxHeight: 'none',
