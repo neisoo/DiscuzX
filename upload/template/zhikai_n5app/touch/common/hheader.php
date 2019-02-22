@@ -21,7 +21,7 @@
 <script src="template/zhikai_n5app/js/mbcommon.js?{VERHASH}" charset="{CHARSET}"></script>
 <script type="text/javascript" src="template/zhikai_n5app/js/jquery.min.js"></script>
 <script src="template/zhikai_n5app/js/script.js" type="text/javascript"></script>
-<script src="https://static.ydbimg.com/API/YdbOnline.js" type="text/javascript"></script>
+<script src="template/zhikai_n5app/js/YdbOnline.js" type="text/javascript"></script>
 <script type="text/javascript" src="template/zhikai_n5app/js/nvbing5app.js"></script>
 </head>
 <body class="bg">

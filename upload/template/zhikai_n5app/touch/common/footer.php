@@ -8,7 +8,6 @@
 <!--{elseif strpos($useragent, 'windows phone') !== false}-->
 <!--{eval $clienturl = $_G['cache']['mobileoem_data']['iframeUrl'] ? $_G['cache']['mobileoem_data']['iframeUrl'].'&platform=windowsphone' : 'http://www.discuz.net/mobile.php?platform=windowsphone';}-->
 <!--{/if}-->
-<div style="display:none;"><img nodata-echo="yes" src="http://app.nvbing5.net/template/zhikai_n5app/images/wxflogo.png"></div>
 {if $n5app['glykzgn']}
 <!--{eval include_once DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/nvbing5_tphc.php'}-->
 {/if}
