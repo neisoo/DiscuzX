@@ -5,6 +5,7 @@
 .zyh-thumbnail-panel {
 	margin-bottom: 1rem;
 	margin-top: 1rem;
+	width:100%;
 }
 .zyh-thumbnail-caption {
 	display:block;
@@ -27,7 +28,8 @@
 }
 </style>
 
-<div class="zyh-thumbnail-panel uk-panel uk-panel-box">
+<div class="zyh-thumbnail-panel">
+<div class="uk-panel uk-panel-box">
 	<div class="uk-panel-title">{forumname}</div>
 	<div class="zyh-thumbnail-{id} uk-grid uk-grid-small uk-grid-width-1-2 uk-grid-small-width-1-2 uk-grid-width-medium-1-4 uk-grid-width-medium-1-8"  data-uk-grid-margin>
 [/index1]
@@ -42,17 +44,17 @@
 [index2=1]
 	</div>
 	<hr/>
-	<div>
-		<div class="uk-grid uk-grid-small uk-grid-divider uk-grid-width-1-2 uk-grid-small-width-1-2 uk-grid-width-medium-1-4 uk-grid-width-medium-1-8">
-			<div class="zyh-thumbnail-button">
-				<a href="{forumurl}">查看更多 <i class="uk-icon-chevron-circle-right"></i></a>
-			</div>
-			<div class="zyh-thumbnail-button">
-				<a href="javascript:void(0);" onclick="zyh_thumbnail_refresh_{id}()">换一批看看 <i class="uk-icon-rotate-right"></i></a>
-			</div>
+	<div class="uk-grid uk-grid-small uk-grid-width-1-2 uk-grid-small-width-1-2 uk-grid-width-medium-1-4 uk-grid-width-medium-1-8">
+		<div class="zyh-thumbnail-button">
+			<a href="{forumurl}">查看更多 <i class="uk-icon-chevron-circle-right"></i></a>
+		</div>
+		<div class="zyh-thumbnail-button">
+			<a href="javascript:void(0);" onclick="zyh_thumbnail_refresh_{id}()">换一批看看 <i class="uk-icon-rotate-right"></i></a>
 		</div>
 	</div>
 </div>
+</div>
+
 
 <script type="text/javascript">
 var jq = jQuery.noConflict();
