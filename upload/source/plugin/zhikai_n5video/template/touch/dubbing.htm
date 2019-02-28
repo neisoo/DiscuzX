@@ -10,6 +10,8 @@
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/jquery.seekbar.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/cordova/cordova.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/cordova/audiorecorder.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/mp3-recorder/recorder.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/mp3-recorder/mp3encoder.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/mp3-recorder/wavencoder.js"></script>
@@ -1696,8 +1698,81 @@ var recorder = new MP3Recorder({
 // 录音时间到结束录音
 function onStopRecord() {
 	if (isRecordStart) {
+/* HTML5录音版本
 		//停止录音，触发complete()。
 		recorder.stop();
+*/
+		// ++++++++++++++++++++++++++++++++++++++++++++++++++
+		// cordova 录音版本，TODO:以后做成自适应
+
+		if (window.audiorecord /*(window.audioinput.isCapturing()*/) {
+			window.audiorecord.stopRecord(function(data) {
+				var blob = new Blob([data], { type: 'audio/mp3' });
+				if (blob.size > 0) {
+					var mp3Name = 'recording_' + Date.now() + '.mp3';
+					
+					var reader = new FileReader();
+					reader.onload = function (evt) {
+					
+						// 保存句子声音数据
+						jq('#audio_data_' + subtitleCurrent).html('').
+							append('<a href="' + evt.target.result + '" download="' + mp3Name + '">' + mp3Name + '</a>').
+							append('<audio controls src="' + evt.target.result + '" id="record_audio_' + subtitleCurrent + '"></audio>');
+
+						// 将data录音mp3数据ArrayBuffer，并保存到recordRawData。
+						// 用于最终的伴奏和录音的合并。
+						recordRawData[subtitleCurrent]['data'] = data;
+
+						// 上传服务器，录音数据比较小，所以一次上传不用分块。
+						var form = new FormData();
+						form.append("file_data", blob);
+						form.append("file_name", mp3Name);
+						form.append("file_total", 1)
+						form.append("file_index", 1);
+						form.append("file_size", blob.size);
+						form.append("file_id", parseInt(Math.random() * 9999 + 10001)); // 随机id，100001~19999
+
+						var xhr = new XMLHttpRequest();
+						var uploadUrl = 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}';
+						xhr.open("POST", uploadUrl, true);
+						xhr.onreadystatechange = function () {
+							if (xhr.readyState == 4 && xhr.status == 200) {
+								uploadRecordCallback(xhr.responseText);
+								// TODO: 录音打分。
+							}
+						}
+						xhr.send(form);
+
+						// 显示句子播放按钮
+						jq('#play_btn_' + subtitleCurrent).css('display', 'inline-block');
+
+						// 录音完成。
+						isRecordStart = false;
+
+						if (bPlayAfterRecord) {
+							// 录完后自动播放用户的录音。
+							var sentence = jq('#sentence_' + subtitleCurrent);
+							var event = {data: {index: subtitleCurrent, startTime: sentence.attr('startTime'), endTime: sentence.attr('endTime')}};
+							jq('#play_btn_' + subtitleCurrent).trigger('click', event);
+						}
+						else {
+							playStatus = 0;
+
+							// 停止视频播放
+							player.userActive(true);
+						}
+
+					
+					};
+
+					consoleMessage("Loading from BLOB");
+					reader.readAsDataURL(blob);
+				}
+			});
+		}
+
+		consoleMessage("Stopped!");
+		//-------------------------------
 
 		var elem = jq('#record_progress_' + subtitleCurrent);
 		if (bPlayAfterRecord) {
@@ -1722,6 +1797,7 @@ if (!recorder.support) writeError("您的浏览器不支持HTML5录音！");
 
 function onRecordStart() {
 	if (playStatus == 1) {
+/* HTML5录音版本
 		//提示音结束后开始录音和播放视频（已经静音）
 		recorder.start(function () {
 			// 开始录音动画
@@ -1749,6 +1825,48 @@ function onRecordStart() {
 					break;
 			}
 		});
+*/
+		// ++++++++++++++++++++++++++++++++++++++++++++++++++
+		// cordova 录音版本，TODO:以后做成自适应
+		try {
+			if (window.audiorecord/* && !window.audioinput.isCapturing()*/) {
+
+				getRecordPermission(function () {
+					// Connect the audioinput to the speaker(s) in order to hear the captured sound.
+					// We're using a filter here to avoid too much feedback looping...
+					// Start with default values and let the plugin handle conversion from raw data to web audio.
+
+					consoleMessage("Microphone input starting...");
+					window.audiorecord.startRecord({
+						isChatMode: true,
+						duration:10
+						}, function(result) {
+						consoleMessage("Record success:" + result);
+						
+						// 开始录音动画
+						jq('#record_progress_' + subtitleCurrent).css('transition', 'width ' + (sentenceEndTime - sentenceStartTime) + 's linear');
+						jq('#record_progress_' + subtitleCurrent).css('width', '100%');
+
+						dubbingPlaybackMode = 1;
+						player.userActive(false);
+					});
+					consoleMessage("Microphone input started!");
+					consoleMessage("Capturing audio!");
+				}, function (deniedMsg) {
+					consoleMessage(deniedMsg);
+				}, function (errorMsg) {
+					consoleMessage(errorMsg);
+				});
+			}
+			else {
+				alert("Already capturing!");
+			}
+		}
+		catch (ex) {
+			alert("startCapture exception: " + ex);
+		}
+		//-------------------------------------
+
 	}
 }
 startRecordSnd.addEventListener('ended', onRecordStart, false);
