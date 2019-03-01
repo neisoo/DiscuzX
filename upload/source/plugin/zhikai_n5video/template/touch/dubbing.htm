@@ -729,7 +729,7 @@
 	<input type="hidden" id="postsave" name="save" value="">
 
 	<!--{if $attachInfo['accompany'] != null}-->
-	<audio id="accompany" src="{$attachInfo[accompany]}"></audio>
+	<div id="accompany" accompany="{$attachInfo[accompany]}"></div>
 	<!--{/if}--> 
 	<audio id="dubbing"></audio>
 	<audio id="startRecordSnd" src="source/plugin/zhikai_n5video/di.ogg"></audio>
@@ -876,30 +876,24 @@ var audioPlayer = new AudioSourcePlayer(); // 录音播放器
 var accompanyBuffer = null; // 伴奏解码后声音数据, AudioBuffer类型
 var accompanyPlayer = null; // 伴奏播放器
 if (jq('#accompany').length > 0) {
-	accompanyPlayer = jq('#accompany')[0];
+	// 请求伴奏声音文件数据。
+	var request = new XMLHttpRequest();
+	request.responseType = "arraybuffer";
+	request.open("GET", jq('#accompany').attr('accompany'), true);
 
-	// 伴奏声音文件加载完成时，解码声音数据到缓存。
-	accompanyPlayer.addEventListener("canplaythrough", function() {
-
-		// 请求伴奏声音文件数据。
-		// TODO: 有没有办法直接从元素中获取声音数据？
-		var request = new XMLHttpRequest();
-		request.responseType = "arraybuffer";
-		request.open("GET", jq('#accompany').attr('src'), true);
-
-		request.addEventListener("load", function(e) {
-			// 解码数据到accompanyBuffer。
-
-			if (audioCtx.decodeAudioData) {
-				audioCtx.decodeAudioData(request.response, function(audioBuffer) {
-					// 初始化伴奏数据缓存。
-					accompanyBuffer = audioBuffer;
-				});
-			}
-		}, false);
-
-		request.send(null);
+	request.addEventListener("load", function(e) {
+		// 解码数据到accompanyBuffer。
+		if (audioCtx.decodeAudioData) {
+			audioCtx.decodeAudioData(request.response, function(audioBuffer) {
+				// 初始化伴奏数据缓存。
+				accompanyBuffer = audioBuffer;
+				accompanyPlayer = new AudioSourcePlayer();
+				accompanyPlayer.setBuffer(audioBuffer);
+			});
+		}
 	}, false);
+
+	request.send(null);
 }
 
 // 配音声音
@@ -1045,10 +1039,6 @@ player.on("canplay", function(){
 		if (transTrack) {
 			transTrack.mode = 'hidden';
 		}
-
-		// 更新播放时间。
-		jq('.zyh-dubbing-current-time .vjs-icon-placeholder').html(getTimeString(0));
-		jq('.zyh-dubbing-duration-time .vjs-icon-placeholder').html(getTimeString(player.duration()));
 
 		// 定位于列表开始。
 		UIkit.Utils.scrollToElement(jq('#sentence_0'), {
@@ -1271,6 +1261,7 @@ function onUserActive() {
 			if (accompanyPlayer != null) {
 				accompanyPlayer.play();
 			}
+			accompanyPlayer.play();
 			audioPlayer.play();
 		}
 		
@@ -1327,9 +1318,16 @@ player.on('timeupdate', function() {
 		stopRecordOrPlay();
 	}
 
-	// 更新播放进度，当前时间。
-	jq('.zyh-dubbing-process-bar .uk-progress-bar').css('width', ' ' + (player.currentTime() * 100 / player.duration()) + '%')
-	jq('.zyh-dubbing-current-time .vjs-icon-placeholder').html(getTimeString(player.currentTime()));
+	// 更新播放进度，当前时间和总时间。
+	var currentTime = player.currentTime();
+	var duration = player.duration();
+	if (currentTime != null) {
+		jq('.zyh-dubbing-current-time .vjs-icon-placeholder').html(getTimeString(currentTime));
+		if (!isNaN(duration)) {
+			jq('.zyh-dubbing-process-bar .uk-progress-bar').css('width', ' ' + (currentTime * 100 / duration) + '%')
+			jq('.zyh-dubbing-duration-time .vjs-icon-placeholder').html(getTimeString(duration));
+		}
+	}
 });
 
 // 设置播放区间到句子的时间范围内。
@@ -1956,7 +1954,8 @@ function onPlayBtnClick(event) {
 
 	// 重新播放伴奏和录音。
 	if (accompanyPlayer != null) {
-		accompanyPlayer.currentTime = sentenceStartTime;
+		accompanyPlayer.stop();
+		accompanyPlayer.play();
 	}
 
 	// 让视频静音播放，并隐藏大播放按钮和控制条。

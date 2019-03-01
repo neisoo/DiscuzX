@@ -104,9 +104,11 @@
 		stop: function() {
 			var self = this;
 
-			self.source.stop();
-			self.currentTime = 0;
-			self.isPlaying = false;
+			if (self.isPlaying) {
+				self.source.stop();
+				self.currentTime = 0;
+				self.isPlaying = false;
+			}
 		}
     };
 
