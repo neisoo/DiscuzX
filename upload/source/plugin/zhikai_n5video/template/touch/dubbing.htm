@@ -971,6 +971,7 @@ player.on("canplay", function(){
 				recordRawData[i]['startTime'] = cue.startTime;
 				recordRawData[i]['endTime'] = cue.endTime;
 				recordRawData[i]['data'] = null;
+				recordRawData[i]['audioBuffer'] = null;
 			}
 
 			for (var i = 0; i < subtitleCount; i++) {
