@@ -2094,6 +2094,36 @@ function mixAudioBuffer(context, buffer1, buffer2, startTime) {
 	}
 }
 
+//数据从32位浮点转成16位整形，编码器只识别16位整形PCM采样。
+function convertBufferFloat32ToInt16(buffer) {
+	// 合并左声道
+	var srcDataLeft = buffer.getChannelData(0);
+	var inputLeft = new Float32Array(srcDataLeft);
+	var length = inputLeft.length;
+	var output = new Int16Array(length * (buffer.numberOfChannels == 1 ? 1 : 2));
+	var i = 0, j = 0;
+	var s;
+
+	if (buffer.numberOfChannels == 1) {
+		for (i = 0; i < length; i++) {
+			var s = Math.max(-1, Math.min(1, inputLeft[i]));
+			output[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+		}
+	}
+	else {
+		var srcDataRight = buffer.getChannelData(1);
+		var inputRight = new Float32Array(srcDataRight);
+		for (i = 0, j = 0; i < length; i++) {
+			s = Math.max(-1, Math.min(1, inputLeft[i]));
+			output[j++] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+			s = Math.max(-1, Math.min(1, inputRight[i]));
+			output[j++] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+		}
+	}
+
+	return output;
+}
+	
 // 上传最终的mp3 blob到服务器。
 function uploadDubbing() {
 	// 显示正在保存提示
@@ -2213,7 +2243,50 @@ function mergeRecord2Commpany()
 	// 切换到预览界面。
 	jq('.zyh-dubbing-ui').css('visibility', 'hidden');
 	jq('.zyh-preview-ui').css('visibility', 'visible');
+	
+	// 将PCM数据保存到文件中，然后编码成Ogg格式。
+	window.resolveLocalFileSystemURL(cordova.file.cacheDirectory, function (dir) {
+		var fileName = "dubbing_" + Date.now() + ".pcm";
+		dir.getFile(fileName, {create: true}, function (file) {
+			file.createWriter(function (fileWriter) {
+				var pcmInt16 = convertBufferFloat32ToInt16(dubbingBuffer);
+				var dataObj = new Blob([pcmInt16], { type: 'audio/pcm' });
 
+				// 将pcm数据保存到文件。
+				fileWriter.onwriteend = function() {
+					console.log("Successful file write...");
+
+					// 编码成ogg数据。
+					window.audiorecord.encoder({
+							outEncodeFormat: "ogg",
+							inFileName: fileName,
+							outSamplingRate: dubbingBuffer.sampleRate,
+							outNumberOfChannels: dubbingBuffer.numberOfChannels,
+							outBitRate: 128000
+						}, function(data) {
+							// 获取编码后的ogg数据。
+							consoleMessage("Encoder success");
+							dubbingBlob = new Blob([data], { type: 'audio/ogg' });
+							dubbingBlobName = 'dubbing_' + Date.now() + '.ogg';
+
+						}, function(result) {
+							consoleMessage("Encoder fail:" + result);
+						});
+
+				};
+				fileWriter.onerror = function (e) {
+					console.log("Failed file write: " + e.toString());
+				};
+				fileWriter.write(dataObj);
+
+				consoleMessage("File created!");
+			}, function () {
+				alert("FileWriter error!");
+			});
+		});
+	});
+
+/*
 	// 在后台编码成mp3格式。
 	mp3Encoder = null;
 	mp3Encoder = new MP3Encoder({
@@ -2231,7 +2304,7 @@ function mergeRecord2Commpany()
 		}
 	});
 	mp3Encoder.encode(dubbingBuffer);
-
+*/
 	/*
 	// 全部混合完成后，先将audiobuffer转成wav数据存放在ArrayBuffer中。
 	// 并产生<audio>供用户预览使用。这样是为了尽快给用户提供能播放的
