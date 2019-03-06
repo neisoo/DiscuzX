@@ -2207,13 +2207,6 @@ function mergeRecord2Commpany()
 	// 后台进行耗时的mp3格式编码，用户确认时，编码应该早就结束了，
 	// 这里就可以立即上传mp3格式的声音到服务器。
 
-	// 到这里用户已经可以进行预览了，取消等待显示。
-	toggleDialog(mergingAlert);
-
-	// 切换到预览界面。
-	jq('.zyh-dubbing-ui').css('visibility', 'hidden');
-	jq('.zyh-preview-ui').css('visibility', 'visible');
-	
 	// 将PCM数据保存到文件中，然后编码成Ogg格式。
 	window.resolveLocalFileSystemURL(cordova.file.cacheDirectory, function (dir) {
 		var fileName = "dubbing_" + Date.now() + ".pcm";
@@ -2226,7 +2219,14 @@ function mergeRecord2Commpany()
 				fileWriter.onwriteend = function() {
 					console.log("Successful file write...");
 
-					// 编码成ogg数据。
+					// 到这里用户已经可以进行预览了，取消等待显示。
+					toggleDialog(mergingAlert);
+
+					// 切换到预览界面。
+					jq('.zyh-dubbing-ui').css('visibility', 'hidden');
+					jq('.zyh-preview-ui').css('visibility', 'visible');
+
+					// 后台编码成ogg数据。
 					window.audiorecord.encoder({
 							outEncodeFormat: "ogg",
 							inFileName: fileName,
