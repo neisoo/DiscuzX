@@ -13,9 +13,6 @@
 <script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/cordova/cordova.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/cordova/audiorecorder.js"></script>
-<script type="text/javascript" src="source/plugin/zhikai_n5video/mp3-recorder/recorder.js"></script>
-<script type="text/javascript" src="source/plugin/zhikai_n5video/mp3-recorder/mp3encoder.js"></script>
-<script type="text/javascript" src="source/plugin/zhikai_n5video/mp3-recorder/wavencoder.js"></script>
 
 <style>
 
@@ -902,9 +899,6 @@ var dubbingBlob = null; // 存放伴奏和录音的混合并压缩后的mp3数�
 var dubbingBlobName = null;
 var dubbingBuffer = null; // 存放伴奏和录音的混合后的声音数据，AudioBuffer类型。
 
-// mp3编码器
-var mp3Encoder = null;
-
 var attachInfo; // 存放录音的附件id。
 
 // 不要让整个页面滚动
@@ -1608,98 +1602,10 @@ function uploadRecordCallback(data) {
 	}
 }
 
-//唯一影响mp3文件大小的参数为 bitRate
-//sampleRate 仅供特殊需求的人使用
-var recorder = new MP3Recorder({
-	WORKER_PATH: 'source/plugin/zhikai_n5video/mp3-recorder/recorder-worker.js',
-	//numChannels: 1,     //声道数,默认为1
-	//sampleRate: 8000,   //采样率,一般由设备提供,比如 48000
-	bitRate: 128,//64,        //比特率,不要低于64,否则可能录制无声音（人声）
-
-	// 录音结束事件, data中返回的是一个Array数组，
-	// 数组的每个元素是Ini8Array来存放一个mp3帧数据。
-	complete: function (data, type) {
-		var blob = new Blob(data, { type: type });
-		if (blob.size > 0) {
-			var url = URL.createObjectURL(blob);
-			var mp3Name = 'recording_' + Date.now() + '.mp3';
-
-			// 保存句子声音数据
-			jq('#audio_data_' + subtitleCurrent).html('').
-				append('<a href="' + url + '" download="' + mp3Name + '">' + mp3Name + '</a>').
-				append('<audio controls src="' + url + '" id="record_audio_' + subtitleCurrent + '"></audio>');
-
-			// 将录音mp3数据转成ArrayBuffer，并保存到recordRawData。
-			// 用于最终的伴奏和录音的合并。
-			var length = 0;
-			for (var i = 0; i < data.length; i++) {
-				length += data[i].length;
-			}
-			var buffer = new ArrayBuffer(length);
-			var dstData = new Int8Array(buffer);
-			for (var i = 0, offset = 0; i < data.length; i++) {
-				dstData.set(data[i], offset);
-				offset += data[i].length;
-			}
-			recordRawData[subtitleCurrent]['data'] = buffer;
-
-			// 上传服务器，录音数据比较小，所以一次上传不用分块。
-			var form = new FormData();
-			form.append("file_data", blob);
-			form.append("file_name", mp3Name);
-			form.append("file_total", 1)
-			form.append("file_index", 1);
-			form.append("file_size", blob.size);
-			form.append("file_id", parseInt(Math.random() * 9999 + 10001)); // 随机id，100001~19999
-
-			var xhr = new XMLHttpRequest();
-			var uploadUrl = 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}';
-			xhr.open("POST", uploadUrl, true);
-			xhr.onreadystatechange = function () {
-				if (xhr.readyState == 4 && xhr.status == 200) {
-					uploadRecordCallback(xhr.responseText);
-					// TODO: 录音打分。
-				}
-			}
-			xhr.send(form);
-
-			// 显示句子播放按钮
-			jq('#play_btn_' + subtitleCurrent).css('display', 'inline-block');
-
-			// 录音完成。
-			isRecordStart = false;
-
-			if (bPlayAfterRecord) {
-				// 录完后自动播放用户的录音。
-				var sentence = jq('#sentence_' + subtitleCurrent);
-				var event = {data: {index: subtitleCurrent, startTime: sentence.attr('startTime'), endTime: sentence.attr('endTime')}};
-				jq('#play_btn_' + subtitleCurrent).trigger('click', event);
-			}
-			else {
-				playStatus = 0;
-
-				// 停止视频播放
-				player.userActive(true);
-			}
-		}
-
-	},
-
-	error: function (data) {
-		console.log("encode error.");
-	}
-});
-
 // 录音时间到结束录音
 function onStopRecord() {
 	if (isRecordStart) {
-/* HTML5录音版本
-		//停止录音，触发complete()。
-		recorder.stop();
-*/
-		// ++++++++++++++++++++++++++++++++++++++++++++++++++
-		// cordova 录音版本，TODO:以后做成自适应
-
+		// cordova 录音版本。
 		if (window.audiorecord /*(window.audioinput.isCapturing()*/) {
 			window.audiorecord.stopRecord(function(data) {
 			
@@ -1707,11 +1613,6 @@ function onStopRecord() {
 				if (blob.size > 0) {
 					var url = URL.createObjectURL(blob);
 					var oggName = 'recording_' + Date.now() + '.ogg';
-
-					// 保存句子声音数据
-					//jq('#audio_data_' + subtitleCurrent).html('').
-					//	append('<a href="' + url + '" download="' + oggName + '">' + oggName + '</a>').
-					//	append('<audio controls src="' + url + '" id="record_audio_' + subtitleCurrent + '" type="audio/ogg"></audio>');
 
 					// 将data录音mp3数据ArrayBuffer，并保存到recordRawData。
 					// 用于最终的伴奏和录音的合并。
@@ -1800,8 +1701,6 @@ function writeError(msg) {
 	console.log(msg);
 }
 
-if (!recorder.support) writeError("您的浏览器不支持HTML5录音！");
-
 // 提示音播放后开始录音。
 function onRecordStart() {
 	if (playStatus == 1) {
@@ -1849,8 +1748,6 @@ startRecordSnd.addEventListener('ended', onRecordStart, false);
 
 // 当前句子录音按钮按下
 function onRecordBtnClick(event) {
-	if (!recorder.support) return;
-
 	if (!isRecordStart) {
 		isRecordStart = true;
 		bPlayAfterRecord = true;
@@ -2098,24 +1995,18 @@ function convertBufferFloat32ToInt16(buffer) {
 	return output;
 }
 	
-// 上传最终的mp3 blob到服务器。
+// 上传最终的ogg blob到服务器。
 function uploadDubbing() {
 	// 显示正在保存提示
 	toggleDialog(savingAlert);
 
-	// 如果mp3还没有生成，等待。
+	// 如果后台还没有ogg编码完成配音，则等待。
 	if (dubbingBlob == null) {
 		var timer = window.setInterval(function() {
 			if (dubbingBlob != null) {
 				window.clearInterval(timer);
 
-				// 释放后台worker.
-				if (mp3Encoder != null) {
-					mp3Encoder.worker.terminate();
-					mp3Encoder = null;
-				}
-
-				// mp3上传服务器。
+				// ogg配音数据上传服务器。
 				blobShardUpload(dubbingBlob, {
 					url: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
 					name: dubbingBlobName,
@@ -2125,7 +2016,7 @@ function uploadDubbing() {
 		}, 1000);
 	}
 	else {
-		// mp3已经生成完毕，立即上传服务器。
+		// ogg已经生成完毕，立即上传服务器。
 		blobShardUpload(dubbingBlob, {
 			url: 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}',
 			name: dubbingBlobName,
@@ -2182,7 +2073,7 @@ function uploadDubbingCallback(data) {
 function mergeRecord2Commpany()
 {
 	// 先复制伴奏。
-	dubbingBuffer = audioCtx.createBuffer(2, parseInt(recorder.outputSampleRate * player.duration()), recorder.outputSampleRate);
+	dubbingBuffer = audioCtx.createBuffer(2, parseInt(48000 * player.duration()), 48000);
 	if (accompanyBuffer != null) {
 		dubbingBuffer.copyToChannel(accompanyBuffer.getChannelData(0), 0, 0);
 		if (accompanyBuffer.numberOfChannels > 1) {
