@@ -1799,62 +1799,34 @@ function writeError(msg) {
 
 if (!recorder.support) writeError("您的浏览器不支持HTML5录音！");
 
+// 提示音播放后开始录音。
 function onRecordStart() {
 	if (playStatus == 1) {
-/* HTML5录音版本
-		//提示音结束后开始录音和播放视频（已经静音）
-		recorder.start(function () {
-			// 开始录音动画
-			jq('#record_progress_' + subtitleCurrent).css('transition', 'width ' + (sentenceEndTime - sentenceStartTime) + 's linear');
-			jq('#record_progress_' + subtitleCurrent).css('width', '100%');
-
-			dubbingPlaybackMode = 1;
-			player.userActive(false);
-		}, function (e) {
-			switch (e.code || e.name) {
-				case 'PERMISSION_DENIED':
-				case 'PermissionDeniedError':
-					writeError('用户拒绝提供设备。');
-					break;
-				case 'NOT_SUPPORTED_ERROR':
-				case 'NotSupportedError':
-					writeError('浏览器不支持硬件设备。');
-					break;
-				case 'MANDATORY_UNSATISFIED_ERROR':
-				case 'MandatoryUnsatisfiedError':
-					writeError('无法发现指定的硬件设备。');
-					break;
-				default:
-					writeError('无法打开麦克风。异常信息:' + (e.code || e.name));
-					break;
-			}
-		});
-*/
-		// ++++++++++++++++++++++++++++++++++++++++++++++++++
-		// cordova 录音版本，TODO:以后做成自适应
+		// cordova 录音版本
 		try {
-			if (window.audiorecord/* && !window.audioinput.isCapturing()*/) {
-
+			if (window.audiorecord) {
+				// 获取录音权限。
 				getRecordPermission(function () {
-					// Connect the audioinput to the speaker(s) in order to hear the captured sound.
-					// We're using a filter here to avoid too much feedback looping...
-					// Start with default values and let the plugin handle conversion from raw data to web audio.
+					// 	等待一段时间才开始录音，避免把提示音录进来。
+					var timer = window.setInterval(function() {
+						window.clearInterval(timer);
 
-					consoleMessage("Microphone input starting...");
-					window.audiorecord.startRecord({
-							outEncodeFormat: "ogg"
-						}, function(result) {
-						consoleMessage("Record success:" + result);
-						
-						// 开始录音动画
-						jq('#record_progress_' + subtitleCurrent).css('transition', 'width ' + (sentenceEndTime - sentenceStartTime) + 's linear');
-						jq('#record_progress_' + subtitleCurrent).css('width', '100%');
+						consoleMessage("Microphone input starting...");
+						window.audiorecord.startRecord({
+								outEncodeFormat: "ogg"
+							}, function(result) {
+							consoleMessage("Record success:" + result);
+							
+							// 开始录音动画
+							jq('#record_progress_' + subtitleCurrent).css('transition', 'width ' + (sentenceEndTime - sentenceStartTime) + 's linear');
+							jq('#record_progress_' + subtitleCurrent).css('width', '100%');
 
-						dubbingPlaybackMode = 1;
-						player.userActive(false);
-					});
-					consoleMessage("Microphone input started!");
-					consoleMessage("Capturing audio!");
+							dubbingPlaybackMode = 1;
+							player.userActive(false);
+						});
+						consoleMessage("Microphone input started!");
+						consoleMessage("Capturing audio!");
+					}, 500);
 				}, function (deniedMsg) {
 					consoleMessage(deniedMsg);
 				}, function (errorMsg) {
@@ -1868,8 +1840,6 @@ function onRecordStart() {
 		catch (ex) {
 			alert("startCapture exception: " + ex);
 		}
-		//-------------------------------------
-
 	}
 }
 startRecordSnd.addEventListener('ended', onRecordStart, false);
