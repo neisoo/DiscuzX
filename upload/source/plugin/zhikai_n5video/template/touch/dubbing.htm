@@ -851,6 +851,7 @@ var audioCtx  = new AudioContext();
 var videoOptions = {
 	poster: '{$attachInfo[cover]}',
 	controls: true,
+	preload: true,
 	// 禁用自带来的控制条和播放按钮。
 	children: ['mediaLoader', 'posterImage', 'textTrackDisplay', 'loadingSpinner', 'errorDisplay', 'textTrackSettings', 'resizeManager', 'audioTrackButton'],
 	inactivityTimeout: -1, // 不要超时inactive.
@@ -1011,7 +1012,7 @@ player.on("canplay", function(){
 				dom +=				'</div>';
 				dom +=				'<div class="uk-width-1-6 uk-vertical-align">';
 				dom +=					'<div class="uk-panel uk-vertical-align-middle">';
-				dom +=						'<button id="record_btn_' + i + '" class="uk-button uk-button-success sentence-record-button" type="button"' + (i == 0 ? '>' : ' disabled>');
+				dom +=						'<button id="record_btn_' + i + '" class="uk-button uk-button-success sentence-record-button" type="button" disabled>';
 				dom +=							'<i class="uk-icon-microphone"></i>';
 				dom +=						'</button>';
 				dom +=					'</div>';
@@ -1356,10 +1357,12 @@ function sentencePlay(index) {
 				window.clearInterval(sentenceTimer);
 				sentenceTimer = null;
 				
-				// 禁用之前句子的录音按钮，并使能当前句子的录音按钮。
+				// 禁用之前句子的录音按钮，并在播放器定位成功后，使能当前句子的录音按钮。
 				$('#record_btn_' + subtitleCurrent).attr('disabled', '1');
 				subtitleCurrent = index;
-				$('#record_btn_' + subtitleCurrent).removeAttr('disabled');
+				player.on("seeked", function() {
+					$('#record_btn_' + subtitleCurrent).removeAttr('disabled');
+				});
 
 				// 播放视频
 				sentenceStartTime = $('#sentence_' + subtitleCurrent).attr('startTime');
@@ -1942,6 +1945,7 @@ function onPlayBtnClick(event) {
 var previewVideoOptions = {
 	poster: '{$attachInfo[cover]}',
 	controls: true,
+	preload: true,
 	// 禁用自带来的控制条和播放按钮。
 	children: ['mediaLoader', 'posterImage', 'textTrackDisplay', 'loadingSpinner', 'errorDisplay', 'textTrackSettings', 'resizeManager', 'audioTrackButton'],
 	inactivityTimeout: 5000, // 在active状态会显示控制面板，用户5秒不操作视频，进入inactive收起控制面板。
