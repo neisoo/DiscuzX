@@ -2073,7 +2073,7 @@ function mixAudioBuffer(context, buffer1, buffer2, startTime) {
 
 	// 合并重合的数据
 	for (var i = offset, j = 0; j < count; i++, j++) {
-		src1[i] = (src1[i] + src2[j]) / 2;
+		src1[i] = src1[i] + src2[j];
 	}
 	buffer1.copyToChannel(src1, 0, 0);
 
@@ -2207,7 +2207,7 @@ function uploadDubbingCallback(data) {
 
 function mergeRecord2Commpany()
 {
-	// 先混合伴奏。
+	// 先复制伴奏。
 	dubbingBuffer = audioCtx.createBuffer(2, parseInt(recorder.outputSampleRate * player.duration()), recorder.outputSampleRate);
 	if (accompanyBuffer != null) {
 		dubbingBuffer.copyToChannel(accompanyBuffer.getChannelData(0), 0, 0);
@@ -2285,78 +2285,6 @@ function mergeRecord2Commpany()
 			});
 		});
 	});
-
-/*
-	// 在后台编码成mp3格式。
-	mp3Encoder = null;
-	mp3Encoder = new MP3Encoder({
-		WORKER_PATH: 'source/plugin/zhikai_n5video/mp3-recorder/recorder-worker.js',
-		bitRate: 128,//64,        //比特率,不要低于64,否则可能录制无声音（人声）
-
-		complete: function (data, type) {
-			// 得到mp3数据。
-			dubbingBlob = new Blob(data, { type: type });
-			dubbingBlobName = 'dubbing_' + Date.now() + '.mp3';
-		},
-
-		error: function (data) {
-			console.log("mp3 encode error.");
-		}
-	});
-	mp3Encoder.encode(dubbingBuffer);
-*/
-	/*
-	// 全部混合完成后，先将audiobuffer转成wav数据存放在ArrayBuffer中。
-	// 并产生<audio>供用户预览使用。这样是为了尽快给用户提供能播放的
-	// 声音用于预览。然后在后台进行耗时的mp3格式编码，用户确认时，
-	// 编码应该早就结束了，这里就可以立即上传mp3格式的声音到服务器。
-	
-	// 转wav格式。
-	var wav = new WAVEncoder({float32: 1});
-	var wavArrayBuffer = wav.encode(dubbingBuffer);
-
-	var blob = new Blob([wavArrayBuffer], { type: 'audio/wav' });
-	if (blob.size > 0) {
-		var wavName = 'dubbing_' + Date.now() + '.wav';
-		
-		var reader = new FileReader();
-			reader.onload = function (evt) {
-			// 生成audio界面元素。
-			jq('#audio-mixer').html('').
-				append('<a href="' + evt.target.result + '" download="' + wavName + '">' + wavName + '</a>').
-				append('<audio controls src="' + evt.target.result + '" id="dubbing_wav"></audio>');
-
-			// 到这里用户已经可以进行预览了，取消等待显示。
-			toggleDialog(mergingAlert);
-
-			// 切换到预览界面。
-			jq('.zyh-dubbing-ui').css('visibility', 'hidden');
-			jq('.zyh-preview-ui').css('visibility', 'visible');
-
-			// 在后台编码成mp3格式。
-			mp3Encoder = null;
-			mp3Encoder = new MP3Encoder({
-				WORKER_PATH: 'source/plugin/zhikai_n5video/mp3-recorder/recorder-worker.js',
-				bitRate: 128,//64,        //比特率,不要低于64,否则可能录制无声音（人声）
-
-				complete: function (data, type) {
-					// 得到mp3数据。
-					dubbingBlob = new Blob(data, { type: type });
-					dubbingBlobName = 'dubbing_' + Date.now() + '.mp3';
-				},
-
-				error: function (data) {
-					console.log("mp3 encode error.");
-				}
-			});
-			mp3Encoder.encode(dubbingBuffer);
-		}
-		reader.readAsDataURL(blob);
-	}
-	else {
-		console.log("encode wave error.");
-	}
-	*/
 }
 
 // 切换到预览界面。
