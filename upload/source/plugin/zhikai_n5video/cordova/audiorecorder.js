@@ -14,24 +14,25 @@ var consoleMessage = function (msg) {
  * @param onError
  */
 var getRecordPermission = function (onSuccess, onDenied, onError) {
-    window.audiorecord.hasPermission(function (hasPermission) {
+    window.audiorecord.hasPermission(function (result) {
         try {
-            if (hasPermission) {
+            if (result.hasPermission) {
                 if (onSuccess) onSuccess();
             }
             else {
-                window.audiorecord.requestPermission(function (hasPermission, message) {
+                window.audiorecord.requestPermission(function (result) {
                     try {
-                        if (hasPermission) {
-                            if (onSuccess) onSuccess();
-                        }
-                        else {
-                            if (onDenied) onDenied("User denied permission to record: " + message);
-                        }
-                    }
+						if (result.hasPermission) {
+							if (onSuccess) onSuccess();
+							else if (onDenied) onDenied();
+						}
+					}
                     catch (ex) {
                         if (onError) onError("Start after getting permission exception: " + ex);
                     }
+				},
+				function (errMsg) {
+					if (onError) onError("getRecordPermission: " + errMsg);
                 });
             }
         }

@@ -2268,12 +2268,6 @@ function previewPlayBtnPlugin(options) {
 			playStatus = 0;
 		}
 
-		// 释放后台worker.
-		if (mp3Encoder != null) {
-			mp3Encoder.worker.terminate();
-			mp3Encoder = null;
-		}
-
 		backForDubbing();
 	};
 
@@ -2353,6 +2347,9 @@ videojs.registerPlugin('previewPlayBtnPlugin', previewPlayBtnPlugin);
 previewPlayer.previewPlayBtnPlugin({});
 
 previewPlayer.userActive(false);
+//previewPlayer.currentTime(0);
+//previewPlayer.preload(true);
+//previewPlayer.play();
 //////////////////////////////////
 // 下面这一段用来保持声音和画面同步。
 
