@@ -1701,51 +1701,6 @@ function writeError(msg) {
 	console.log(msg);
 }
 
-// 提示音播放后开始录音。
-function onRecordStart() {
-	if (playStatus == 1) {
-		// cordova 录音版本
-		try {
-			if (window.audiorecord) {
-				// 获取录音权限。
-				getRecordPermission(function () {
-					// 	等待一段时间才开始录音，避免把提示音录进来。
-					var timer = window.setInterval(function() {
-						window.clearInterval(timer);
-
-						consoleMessage("Microphone input starting...");
-						window.audiorecord.startRecord({
-								outEncodeFormat: "ogg"
-							}, function(result) {
-							consoleMessage("Record success:" + result);
-							
-							// 开始录音动画
-							jq('#record_progress_' + subtitleCurrent).css('transition', 'width ' + (sentenceEndTime - sentenceStartTime) + 's linear');
-							jq('#record_progress_' + subtitleCurrent).css('width', '100%');
-
-							dubbingPlaybackMode = 1;
-							player.userActive(false);
-						});
-						consoleMessage("Microphone input started!");
-						consoleMessage("Capturing audio!");
-					}, 500);
-				}, function (deniedMsg) {
-					consoleMessage(deniedMsg);
-				}, function (errorMsg) {
-					consoleMessage(errorMsg);
-				});
-			}
-			else {
-				alert("Already capturing!");
-			}
-		}
-		catch (ex) {
-			alert("startCapture exception: " + ex);
-		}
-	}
-}
-startRecordSnd.addEventListener('ended', onRecordStart, false);
-
 // 当前句子录音按钮按下
 function onRecordBtnClick(event) {
 	if (!isRecordStart) {
@@ -1785,8 +1740,47 @@ function onRecordBtnClick(event) {
 			attachInfo['data']['record'][subtitleCurrent] = null;
 		}
 
-		// 播放提示音,时长100ms,播放完成开始录音。
-		startRecordSnd.play();
+		// 检查录音权限。
+		try {
+			if (window.audiorecord) {
+				// 获取录音权限。
+				getRecordPermission(function () {
+					// 播放提示音,时长100ms,播放完成开始录音。
+					startRecordSnd.play();
+
+					// 	等待一段时间才开始录音，避免把提示音录进来。
+					var timer = window.setInterval(function() {
+						window.clearInterval(timer);
+
+						consoleMessage("Microphone input starting...");
+						window.audiorecord.startRecord({
+								outEncodeFormat: "ogg"
+							}, function(result) {
+							consoleMessage("Record success:" + result);
+							
+							// 开始录音动画
+							jq('#record_progress_' + subtitleCurrent).css('transition', 'width ' + (sentenceEndTime - sentenceStartTime) + 's linear');
+							jq('#record_progress_' + subtitleCurrent).css('width', '100%');
+
+							dubbingPlaybackMode = 1;
+							player.userActive(false);
+						});
+						consoleMessage("Microphone input started!");
+						consoleMessage("Capturing audio!");
+					}, 500);
+				}, function (deniedMsg) {
+					consoleMessage(deniedMsg);
+				}, function (errorMsg) {
+					consoleMessage(errorMsg);
+				});
+			}
+			else {
+				alert("Already capturing!");
+			}
+		}
+		catch (ex) {
+			alert("startCapture exception: " + ex);
+		}		
 	} else {
 		//停止录音
 		bPlayAfterRecord = false;
