@@ -2066,6 +2066,12 @@ function uploadDubbingCallback(data) {
 
 function mergeRecord2Commpany()
 {
+	// 清除以前的配音
+	dubbingBlob = null;
+
+	// 显示等待合成。
+	toggleDialog(mergingAlert);
+
 	// 先复制伴奏。
 	dubbingBuffer = audioCtx.createBuffer(2, parseInt(48000 * player.duration()), 48000);
 	if (accompanyBuffer != null) {
@@ -2098,15 +2104,21 @@ function mergeRecord2Commpany()
 
 	// 将PCM数据保存到文件中，然后编码成Ogg格式。
 	window.resolveLocalFileSystemURL(cordova.file.cacheDirectory, function (dir) {
+		consoleMessage("File dir load ok.");
+
 		var fileName = "dubbing_" + Date.now() + ".pcm";
 		dir.getFile(fileName, {create: true}, function (file) {
+			consoleMessage("File get ok.");
+
 			file.createWriter(function (fileWriter) {
+				consoleMessage("File create writer ok.");
+
 				var pcmInt16 = convertBufferFloat32ToInt16(dubbingBuffer);
 				var dataObj = new Blob([pcmInt16], { type: 'audio/pcm' });
 
 				// 将pcm数据保存到文件。
 				fileWriter.onwriteend = function() {
-					console.log("Successful file write...");
+					consoleMessage("File write ok.");
 
 					// 到这里用户已经可以进行预览了，取消等待显示。
 					toggleDialog(mergingAlert);
@@ -2128,21 +2140,41 @@ function mergeRecord2Commpany()
 							dubbingBlob = new Blob([data], { type: 'audio/ogg' });
 							dubbingBlobName = 'dubbing_' + Date.now() + '.ogg';
 
+							// 不处理句子列表的滚动。
+							dragSwitchSentence.deinit();
+
+							playStatus = 3;
+							previewPlayer.muted(true);
+							previewPlayer.pause();
+							previewPlayer.currentTime(0);
+							previewPlayer.userActive(true);
+
+
 						}, function(result) {
 							consoleMessage("Encoder fail:" + result);
 						});
 
 				};
 				fileWriter.onerror = function (e) {
-					console.log("Failed file write: " + e.toString());
+					alert("Failed file write: " + e.toString());
+					// 取消等待显示。
+					toggleDialog(mergingAlert);
 				};
 				fileWriter.write(dataObj);
-
-				consoleMessage("File created!");
 			}, function () {
 				alert("FileWriter error!");
+				// 取消等待显示。
+				toggleDialog(mergingAlert);
 			});
+		}, function (err) {
+			//alert("File creat fail!");
+			// 取消等待显示。
+			toggleDialog(mergingAlert);
 		});
+	}, function (err) {
+		alert("File system load fail.");
+		// 取消等待显示。
+		toggleDialog(mergingAlert);
 	});
 }
 
@@ -2159,9 +2191,6 @@ function switch2PreviewUI() {
 			window.clearInterval(stopRecTimer);
 			stopRecTimer = null;
 
-			// 不处理句子列表的滚动。
-			dragSwitchSentence.deinit();
-
 			// 暂停播放
 			player.pause();
 			jq(".vjs-control-panel").css("display","block");
@@ -2169,18 +2198,6 @@ function switch2PreviewUI() {
 				accompanyPlayer.pause();
 			}
 			audioPlayer.stop();
-			playStatus = 3;
-
-			previewPlayer.muted(true);
-			previewPlayer.pause();
-			previewPlayer.currentTime(0);
-			previewPlayer.userActive(true);
-
-			// 清除以前的配音
-			dubbingBlob = null;
-
-			// 显示等待合成。
-			toggleDialog(mergingAlert);
 
 			// 生成合并声音。
 			mergeRecord2Commpany();
@@ -2190,6 +2207,17 @@ function switch2PreviewUI() {
 		}
 	}, 100);
 }
+
+// 切换回配音界面。
+function switch2Dubbing() {
+	previewPlayer.pause();
+	audioPlayer.pause();
+	jq('.zyh-dubbing-ui').css('visibility', 'visible');
+	jq('.zyh-preview-ui').css('visibility', 'hidden');
+	dragSwitchSentence.init();
+	playStatus = 0;
+}
+
 
 jq('.zyh-dubbing-complete-dialog-cancel').click(function(e) {
 	toggleDialog(completeDialog);
@@ -2251,18 +2279,7 @@ function previewPlayBtnPlugin(options) {
 	elBackButton.innerHTML = '<span aria-hidden="true" class="zyh-icon-placeholder uk-icon-angle-left"></span>';
 	elTopBar.appendChild(elBackButton);
 	elBackButton.onclick = function (e) {
-
-		// 切换回配音界面。
-		function backForDubbing() {
-			previewPlayer.pause();
-			audioPlayer.pause();
-			jq('.zyh-dubbing-ui').css('visibility', 'visible');
-			jq('.zyh-preview-ui').css('visibility', 'hidden');
-			dragSwitchSentence.init();
-			playStatus = 0;
-		}
-
-		backForDubbing();
+		switch2Dubbing();
 	};
 
 	// 右上角菜单按钮
