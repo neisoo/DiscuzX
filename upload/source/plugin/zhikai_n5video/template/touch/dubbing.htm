@@ -12,7 +12,6 @@
 <script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/cordova/cordova.js"></script>
-<script type="text/javascript" src="source/plugin/zhikai_n5video/cordova/audiorecorder.js"></script>
 
 <style>
 
@@ -726,7 +725,7 @@
 	<input type="hidden" id="postsave" name="save" value="">
 
 	<!--{if $attachInfo['accompany'] != null}-->
-	<div id="accompany" accompany="{$attachInfo[accompany]}"></div>
+	<audio id="accompany" src="{$attachInfo[accompany]}"></audio>
 	<!--{/if}--> 
 	<audio id="dubbing"></audio>
 	<audio id="startRecordSnd" src="source/plugin/zhikai_n5video/di.ogg"></audio>
@@ -764,6 +763,7 @@
 			<button class="zyh-dubbing-done-button uk-button uk-button-success uk-button-large uk-width-1-1" type="button" disabled>预览发布</button>
 		</div>
 	</div>
+	
 
 	<!-- 点击退出时弹出的模态对话框 -->
 	<div class="zyh-dubbing-back-dialog uk-modal">
@@ -774,10 +774,7 @@
 			<ul class="uk-nav uk-nav-side uk-text-large">
 				<li><a id="back_dialog_continue" href="javascript:void(0)">继续配音</a></li>
 				<li class="uk-nav-divider"></li>
-				<li><a id="back_dialog_save" href="javascript:void(0)">保存到草稿箱</a></li>
-				<li class="uk-nav-divider"></li>
-				<li><a id="back_dialog_exitonly" href="javascript:void(0)">直接返回</a></li>
-				
+				<li><a id="back_dialog_exitonly" href="javascript:void(0)">放弃返回</a></li>
 			</ul>
 		</div>
 	</div>
@@ -862,11 +859,14 @@ var dubbingPlaybackMode = 0; // 0=播放视频原声，1=不播放声音，2=播
 var subtitleInit = false;
 var subtitleCount = 0;
 var subtitleCurrent = -1;
-var sentenceStartTime = 0;
-var sentenceEndTime = 0;
+var sentenceStartTime = 0.0;
+var sentenceEndTime = 0.0;
 
 
 // 录音声音
+var recordBeginTime, recordEndTime; // 用来测试实际的录音时间
+var recordStartTimer;
+var recordStopTimer;
 var recordRawData = null; // 存放录音信息，开始和结束时间，mp3帧数据。
 var audioPlayer = new AudioSourcePlayer(); // 录音播放器
 
@@ -874,24 +874,29 @@ var audioPlayer = new AudioSourcePlayer(); // 录音播放器
 var accompanyBuffer = null; // 伴奏解码后声音数据, AudioBuffer类型
 var accompanyPlayer = null; // 伴奏播放器
 if (jq('#accompany').length > 0) {
-	// 请求伴奏声音文件数据。
-	var request = new XMLHttpRequest();
-	request.responseType = "arraybuffer";
-	request.open("GET", jq('#accompany').attr('accompany'), true);
+	accompanyPlayer = jq('#accompany')[0];
 
-	request.addEventListener("load", function(e) {
-		// 解码数据到accompanyBuffer。
-		if (audioCtx.decodeAudioData) {
-			audioCtx.decodeAudioData(request.response, function(audioBuffer) {
-				// 初始化伴奏数据缓存。
-				accompanyBuffer = audioBuffer;
-				accompanyPlayer = new AudioSourcePlayer();
-				accompanyPlayer.setBuffer(audioBuffer);
-			});
-		}
-	}, false);
+	// 伴奏声音文件加载完成时，解码声音数据到缓存。
+	accompanyPlayer.addEventListener("canplaythrough", function() {
 
-	request.send(null);
+		// 请求伴奏声音文件数据。
+		// TODO: 有没有办法直接从元素中获取声音数据？
+		var request = new XMLHttpRequest();
+		request.responseType = "arraybuffer";
+		request.open("GET", jq('#accompany').attr('src'), true);
+
+		request.addEventListener("load", function(e) {
+			// 解码数据到accompanyBuffer。
+			if (audioCtx.decodeAudioData) {
+				audioCtx.decodeAudioData(request.response, function(audioBuffer) {
+					// 初始化伴奏数据缓存。
+					accompanyBuffer = audioBuffer;
+				});
+			}
+		}, false);
+
+		request.send(null);
+	});
 }
 
 // 配音声音
@@ -943,7 +948,7 @@ player.on("canplay", function(){
 
 		var origTrack = player.textTracks().getTrackById("original");
 		var transTrack = player.textTracks().getTrackById("translation");
-		
+
 		// 获取原文、译文和时间段。
 		if (origTrack) {
 			subtitleCount = origTrack.cues.length;
@@ -953,10 +958,6 @@ player.on("canplay", function(){
 			attachInfo['type'] = 'dubbing';
 			attachInfo['data'] = {};
 			attachInfo['data']['tid'] = jq('#tid').attr('tid');
-			attachInfo['data']['record'] = new Array(subtitleCount);
-			for (var i = 0; i < subtitleCount; i++){
-				attachInfo['data']['record'][i] = "";
-			}
 
 			// 创建数组，用于存放录音压缩声音数据。
 			recordRawData = new Array(subtitleCount);
@@ -1011,8 +1012,6 @@ player.on("canplay", function(){
 				dom +=						'</button>';
 				dom +=					'</div>';
 				dom +=				'</div>';
-				dom +=				'<div id="attach_data_' + i + '" style="display: none;">'; // 在里存放录音的表单数据。
-				dom +=				'</div>';
 				dom +=			'</div>';
 
 				dom +=		'</div>';
@@ -1045,15 +1044,23 @@ player.on("canplay", function(){
 		var elScroll = jq('.zyh-dubbing-scroll-area');
 		elScroll.css('top', (jq('.zyh-dubbing-player-area').outerHeight()) + 'px');
 		elScroll.css('bottom', '0px');
-		
+		elScroll.css('width', (jq('.zyh-dubbing-player-area').outerWidth() - (elScroll.innerWidth() - elScroll.width())) + 'px');
+
 		var elDubbingDoneBtn = jq('.zyh-dubbing-done-button');
 		elDubbingDoneBtn.css('margin-bottom', (elScroll.outerHeight() - elDubbingDoneBtn.outerHeight()) + 'px');
 
-		// 切换到第一条句子开始播放。
-		sentencePlay(0);
-
 		// 监听触屏拖动。
 		dragSwitchSentence.init();
+
+		// 自动播放第一句
+		var timer = window.setInterval(function(){
+			window.clearInterval(timer);
+			player.userActive(false);
+			timer = window.setInterval(function(){
+				window.clearInterval(timer);
+				sentencePlay(0);
+			}, 2000);
+		}, 200);
 	}
 });
 
@@ -1069,7 +1076,7 @@ function dummyBigPlayBtnPlugin(options) {
 	elBackButton.onclick = function (e) {
 		var haveData = false;
 		for (var i = 0; i < subtitleCount; i++){
-			if (attachInfo['data']['record'][i] != "") {
+			if (recordRawData[i]['data'] != null) {
 				haveData = true;
 				break;
 			}
@@ -1161,78 +1168,15 @@ function dummyBigPlayBtnPlugin(options) {
 videojs.registerPlugin('dummyBigPlayBtnPlugin', dummyBigPlayBtnPlugin);
 player.dummyBigPlayBtnPlugin({});
 
-////////////////////////////////////////////////////////
-// 删除所有录音附件。
-function removeAllRecordAttach(callback) {
-	var haveData = false;
-	var aidsUrl = '';
-
-	// 找出已经提交的附件。
-	for (var i = 0, j = 0; i < subtitleCount; i++) {
-		if (attachInfo['data']['record'][i] != "") {
-			haveData = true;
-			aidsUrl += '&aids[]=' + attachInfo['data']['record'][i];
-			attachInfo['data']['record'][i] = '';
-		}
-	}
-
-	// 删除提交的附件。
-	if (haveData) {
-		$.ajax({
-			type:'GET',
-			url:'forum.php?mod=ajax&action=deleteattach&inajax=yes' + aidsUrl,
-		})
-		.success(function(s) {
-			for (var i = 0, j = 0; i < subtitleCount; i++) {
-				if (attachInfo['data']['record'][i] != "") {
-					attachInfo['data']['record'][i] = '';
-				}
-			}
-			delete attachInfo['data']['record'];
-
-			// 更新帖子正文中的标记。
-			jq('#needmessage').val('[dubbing]' + JSON.stringify(attachInfo) + '[/dubbing]');
-
-			var timer = window.setInterval(function(){
-				window.clearInterval(timer);
-				if (typeof callback == 'function') {
-					callback();
-				}
-			}, 100);
-		})
-		.error(function() {
-			popup.open('{lang networkerror}', 'alert');
-		});
-	}
-	else {
-		if (typeof callback == 'function') {
-			callback();
-		}
-	}
-}
-
 // 继续配音
 jq('#back_dialog_continue').click(function(event){
 	toggleDialog(backDialog);
 });
 
-// 保存草稿并退出。
-jq('#back_dialog_save').click(function(event){
-	toggleDialog(backDialog);
-
-	// 在标题区增加draft来区分已发布配音。
-	jq('#needsubject').val('draft:' + jq('#subject').attr('subject'));
-
-	jq('#postsubmit').click();
-});
-
 // 仅退出配音界面
 jq('#back_dialog_exitonly').click(function(event){
 	toggleDialog(backDialog);
-
-	removeAllRecordAttach(function() {
-		history.back(-1); 
-	});
+	history.back(-1);
 });
 
 ///////////////////////////////////////////////////////////////
@@ -1257,7 +1201,6 @@ function onUserActive() {
 			if (accompanyPlayer != null) {
 				accompanyPlayer.play();
 			}
-			accompanyPlayer.play();
 			audioPlayer.play();
 		}
 		
@@ -1277,14 +1220,16 @@ player.on("useractive", onUserActive);
 player.on("userinactive", onUserActive);
 
 // 停止录音或录音回放。
-function stopRecordOrPlay()
+function stopRecordingOrRecordPlayback()
 {
 	if (playStatus == 1) {
-		// 停止播放视频和录音。
-		onStopRecord();
+		// 用户录音中：停止播放视频和录音。
+		playStatus = 0;
+		onCancelRecord();
+		player.userActive(true);
 	}
 	else if (playStatus == 2) {
-		// 录音回放完毕，停止播放。
+		// 用户录音回放中：录音回放完毕，停止播放。
 		playStatus = 0;
 		player.userActive(true);
 	}
@@ -1309,9 +1254,29 @@ function getTimeString(seconds) {
 // 播放器时间更新回调。
 player.on('timeupdate', function() {
 	// 限制视频播放区间。
-	if (player.currentTime() >= sentenceEndTime) {
+	var currentTime = player.currentTime();
+	console.log("time:", currentTime, " playStatus=", playStatus, " range[", sentenceStartTime, "-", sentenceEndTime, "]");
+	if (currentTime >= sentenceEndTime) {
+		console.log("time seek to:", sentenceStartTime);
+
+		player.pause();
 		player.currentTime(sentenceStartTime);
-		stopRecordOrPlay();
+		if (accompanyPlayer != null) {
+			accompanyPlayer.pause();
+		}
+
+		if (playStatus == 0) {
+			// 区间循环播放
+			var timer = window.setInterval(function(){
+				window.clearInterval(timer);
+				timer = null;
+				player.play();
+			}, 200);
+		}
+		else if (playStatus == 2) {
+			// 状态改变
+			playStatus = 0;
+		}
 	}
 
 	// 更新播放进度，当前时间和总时间。
@@ -1335,8 +1300,7 @@ function sentencePlay(index) {
 		//console.log("sentence new:", index);
 
 		// 切换句子之前关闭录音和录音回放。
-		bPlayAfterRecord = false;
-		stopRecordOrPlay();
+		stopRecordingOrRecordPlayback();
 
 		// 等待录音完成后，才能切换。因为保存录音是在一个后台work中，
 		// 不等待保存录音就切换，录音会保存到切换后的句子上。
@@ -1359,8 +1323,8 @@ function sentencePlay(index) {
 				});
 
 				// 播放视频
-				sentenceStartTime = $('#sentence_' + subtitleCurrent).attr('startTime');
-				sentenceEndTime = $('#sentence_' + subtitleCurrent).attr('endTime');
+				sentenceStartTime = parseFloat($('#sentence_' + subtitleCurrent).attr('startTime'));
+				sentenceEndTime = parseFloat($('#sentence_' + subtitleCurrent).attr('endTime'));
 				player.currentTime(sentenceStartTime);
 				dubbingPlaybackMode = 0;
 				dubbingPlaybackRate = 1;
@@ -1502,7 +1466,7 @@ var dragSwitchSentence = {
 				//if (_self.needStop && Math.abs(pullheight) > 50) {
 				//	//console.log('stop');
 				//	_self.needStop = false;
-				//	stopRecordOrPlay();
+				//	stopRecordingOrRecordPlayback();
 				//}
 			}
 
@@ -1554,51 +1518,12 @@ var dragSwitchSentence = {
 ////////////////////////////////////////////////////////////////
 // 录音
 var isRecordStart = false;
-var bPlayAfterRecord = false;
-var waitRecordStopTimer = null;
 
-function uploadRecordCallback(data) {
-	if (data.indexOf('DISCUZUPLOAD') > -1) {
-		var arr = data.split('|');
-		if (arr[1] == 0) {
-			// 记录上传文件的附件ID。
-			attachInfo['data']['record'][subtitleCurrent] = arr[2];
-
-			// 更新帖子正文中的标记。
-			jq('#needmessage').val('[dubbing]' + JSON.stringify(attachInfo) + '[/dubbing]');
-
-			// 附件提交的表单数据，表单中至少有一个attachnew['附件ID'][xxx]的表单项，
-			// 提交后附件ID对应的附件才会被视为已使用附件。
-			// 表单项的内容只是简单的填充一个字符串，暂时未使用。
-			jq('#attach_data_' + subtitleCurrent).html('').
-				append('<input type="text" value="record' + subtitleCurrent + '" name="attachnew['+ arr[2] +'][description]"/>');
-
-			// 使能预览按钮。
-			jq('.zyh-dubbing-done-button').removeAttr('disabled');
-
-			// 充许提交贴子。
-			needsubject = true; // 在post.php中定义。
-			needmessage = true;
-			$('.btn_pn').removeClass('btn_pn_grey').addClass('btn_pn_blue');
-			$('.btn_pn').attr('disable', 'false');
-		}
-		else if (lang_msg[arr[1]] != undefined ) {
-			// 出错，显示出错原因。
-			var sizelimit = '';
-			if(arr[8] == 'ban') {
-				sizelimit = '{lang uploadpicatttypeban}';
-			} else if(arr[8] == 'perday') {
-				sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
-			} else if(arr[8] > 0) {
-				sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
-			}
-			popup.open(lang_msg[arr[1]] + sizelimit, 'alert');
-		}
-	}
-	else {
-		if (data) {
-			popup.open(lang_msg[data], 'alert');
-		}
+function onCancelRecord() {
+	// 停止录音，并丢弃数据。
+	if (isRecordStart) {
+		window.audiorecord.stopRecord(function(data) {});
+		isRecordStart = false;
 	}
 }
 
@@ -1606,9 +1531,12 @@ function uploadRecordCallback(data) {
 function onStopRecord() {
 	if (isRecordStart) {
 		// cordova 录音版本。
+		recordEndTime = audioCtx.currentTime;
+		console.log("Record stoping... duration=" + (recordEndTime - recordBeginTime));
+
 		if (window.audiorecord /*(window.audioinput.isCapturing()*/) {
 			window.audiorecord.stopRecord(function(data) {
-			
+				console.log("Record success.");
 				var blob = new Blob([data], { type: 'audio/ogg' });
 				if (blob.size > 0) {
 					var url = URL.createObjectURL(blob);
@@ -1616,62 +1544,51 @@ function onStopRecord() {
 
 					// 将data录音mp3数据ArrayBuffer，并保存到recordRawData。
 					// 用于最终的伴奏和录音的合并。
+					if (recordRawData[subtitleCurrent]['data'] != null) {
+						delete recordRawData[subtitleCurrent]['data'];
+						recordRawData[subtitleCurrent]['data'] = null;
+					}
 					recordRawData[subtitleCurrent]['data'] = data;
 					audioCtx.decodeAudioData(data, function (audioBuffer) { //解码成功时的回调函数
-						recordRawData[subtitleCurrent]['audioBuffer'] = audioBuffer;
-						if (bPlayAfterRecord) {
-							// 录完后自动播放用户的录音。
-							var sentence = jq('#sentence_' + subtitleCurrent);
-							var event = {data: {index: subtitleCurrent, startTime: sentence.attr('startTime'), endTime: sentence.attr('endTime')}};
-							jq('#play_btn_' + subtitleCurrent).trigger('click', event);
+						console.log("Record decode success: duration=" + audioBuffer.duration);
+						// 保存解码后的数据。
+						if (recordRawData[subtitleCurrent]['audioBuffer'] != null) {
+							delete recordRawData[subtitleCurrent]['audioBuffer'];
+							recordRawData[subtitleCurrent]['audioBuffer'] = null;
 						}
+						recordRawData[subtitleCurrent]['audioBuffer'] = audioBuffer;
+
+						// 录完后自动播放用户的录音。
+						var sentence = jq('#sentence_' + subtitleCurrent);
+						var event = {data: {index: subtitleCurrent, startTime: sentence.attr('startTime'), endTime: sentence.attr('endTime')}};
+						jq('#play_btn_' + subtitleCurrent).trigger('click', event);
 					}, function (e) { //解码出错时的回调函数
-						console.log('Error decoding:', e);
-
-						playStatus = 0;
-
-						// 停止视频播放
-						player.userActive(true);
-						
+						console.log('Record decode error:', e);
 					});
 
-					// 上传服务器，录音数据比较小，所以一次上传不用分块。
-					var form = new FormData();
-					form.append("file_data", blob);
-					form.append("file_name", oggName);
-					form.append("file_total", 1)
-					form.append("file_index", 1);
-					form.append("file_size", blob.size);
-					form.append("file_id", parseInt(Math.random() * 9999 + 10001)); // 随机id，100001~19999
+					// 使能预览按钮。
+					jq('.zyh-dubbing-done-button').removeAttr('disabled');
 
-					var xhr = new XMLHttpRequest();
-					var uploadUrl = 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}';
-					xhr.open("POST", uploadUrl, true);
-					xhr.onreadystatechange = function () {
-						if (xhr.readyState == 4 && xhr.status == 200) {
-							uploadRecordCallback(xhr.responseText);
-							// TODO: 录音打分。
-						}
-					}
-					xhr.send(form);
+					// 充许提交贴子。
+					needsubject = true; // 在post.php中定义。
+					needmessage = true;
+					$('.btn_pn').removeClass('btn_pn_grey').addClass('btn_pn_blue');
+					$('.btn_pn').attr('disable', 'false');
 
-					// 显示句子播放按钮
+					// 显示句子播放按钮。
 					jq('#play_btn_' + subtitleCurrent).css('display', 'inline-block');
 
 					// 录音完成。
 					isRecordStart = false;
+					playStatus = 0;
 
-					if (!bPlayAfterRecord) {
-						playStatus = 0;
-
-						// 停止视频播放
-						player.userActive(true);
-					}
+					// 停止视频播放
+					player.userActive(true);
 				}
-			}, function() {
+			}, function(errMsg) {
+				console.log('Record stop error:', errMsg);
 				// 录音完成。
 				isRecordStart = false;
-
 				playStatus = 0;
 
 				// 停止视频播放
@@ -1679,33 +1596,55 @@ function onStopRecord() {
 			});
 		}
 
-		consoleMessage("Stopped!");
+		console.log("Record stopped!");
 		//-------------------------------
 
+		// 录音正常结束，进度条动画在100%位置停止。
 		var elem = jq('#record_progress_' + subtitleCurrent);
-		if (bPlayAfterRecord) {
-			// 录音正常结束，进度条动画在100%位置停止。
-			elem.css('transition', 'width 0s linear');
-			elem.css('width', '100%');
-		}
-		else {
-			// 录音被中断，进度条动画在当前位置停止。
-			elem.css('transition', 'width 0s linear');
-			elem.css('width', ' ' + elem[0].offsetWidth + 'px');
-		}
+		elem.css('transition', 'width 0s linear');
+		elem.css('width', '100%');
 	}
 }
 
-//输出错误信息
-function writeError(msg) {
-	console.log(msg);
-}
+/**
+ *
+ * @param onSuccess
+ * @param onDenied
+ * @param onError
+ */
+var getRecordPermission = function (onSuccess, onDenied, onError) {
+	window.audiorecord.hasPermission(function (result) {
+		try {
+			if (result.hasPermission) {
+				if (onSuccess) onSuccess();
+			}
+			else {
+				window.audiorecord.requestPermission(function (result) {
+					try {
+						if (result.hasPermission) {
+							if (onSuccess) onSuccess();
+							else if (onDenied) onDenied();
+						}
+					}
+					catch (ex) {
+						if (onError) onError("Start after getting permission exception: " + ex);
+					}
+				},
+				function (errMsg) {
+					if (onError) onError("getRecordPermission: " + errMsg);
+				});
+			}
+		}
+		catch (ex) {
+			if (onError) onError("getRecordPermission exception: " + ex);
+		}
+	});
+};
 
 // 当前句子录音按钮按下
 function onRecordBtnClick(event) {
 	if (!isRecordStart) {
 		isRecordStart = true;
-		bPlayAfterRecord = true;
 		playStatus = 1;
 
 		// 隐藏播放按钮。
@@ -1724,22 +1663,6 @@ function onRecordBtnClick(event) {
 		jq('#record_progress_' + subtitleCurrent).css('transition', 'width 0s');
 		jq('#record_progress_' + subtitleCurrent).css('width', '0%');
 
-		// 删除之前上传的录音附件。
-		if (attachInfo['data']['record'][subtitleCurrent] != null) {
-			var aid = attachInfo['data']['record'][subtitleCurrent];
-			$.ajax({
-				type:'GET',
-				url:'forum.php?mod=ajax&action=deleteattach&inajax=yes&aids[]=' + aid,
-			})
-			.success(function(s) {
-			})
-			.error(function() {
-				popup.open('{lang networkerror}', 'alert');
-			});
-
-			attachInfo['data']['record'][subtitleCurrent] = null;
-		}
-
 		// 检查录音权限。
 		try {
 			if (window.audiorecord) {
@@ -1749,29 +1672,46 @@ function onRecordBtnClick(event) {
 					startRecordSnd.play();
 
 					// 	等待一段时间才开始录音，避免把提示音录进来。
-					var timer = window.setInterval(function() {
-						window.clearInterval(timer);
+					if (recordStartTimer != null) {
+						window.clearInterval(recordStartTimer);
+					}
+					recordStartTimer = window.setInterval(function() {
+						window.clearInterval(recordStartTimer);
+						recordStartTimer = null;
 
-						consoleMessage("Microphone input starting...");
+						console.log("Record starting...");
 						window.audiorecord.startRecord({
 								outEncodeFormat: "ogg"
 							}, function(result) {
-							consoleMessage("Record success:" + result);
-							
-							// 开始录音动画
+							console.log("Record start success:" + result);
+
+							recordBeginTime = audioCtx.currentTime;
+
+							// 开始录音进度条动画。
 							jq('#record_progress_' + subtitleCurrent).css('transition', 'width ' + (sentenceEndTime - sentenceStartTime) + 's linear');
 							jq('#record_progress_' + subtitleCurrent).css('width', '100%');
 
+							// 启动录音时的播放。
 							dubbingPlaybackMode = 1;
+							player.userActive_ = true; // 强制执行。
 							player.userActive(false);
+
+							// 时间到后停止录音。
+							if (recordStopTimer != null) {
+								window.clearInterval(recordStopTimer);
+							}
+							recordStopTimer = window.setInterval(function() {
+								window.clearInterval(recordStopTimer);
+								recordStopTimer = null;
+								onStopRecord();
+							}, (sentenceEndTime - sentenceStartTime + 1) * 1000); // 加1，实际录音时间比进度条的视觉效果多录1秒。
 						});
-						consoleMessage("Microphone input started!");
-						consoleMessage("Capturing audio!");
+						console.log("Recor started!");
 					}, 500);
 				}, function (deniedMsg) {
-					consoleMessage(deniedMsg);
+					console.log(deniedMsg);
 				}, function (errorMsg) {
-					consoleMessage(errorMsg);
+					console.log(errorMsg);
 				});
 			}
 			else {
@@ -1782,28 +1722,11 @@ function onRecordBtnClick(event) {
 			alert("startCapture exception: " + ex);
 		}		
 	} else {
-		//停止录音
-		bPlayAfterRecord = false;
-		onStopRecord();
+		// 停止录音，并丢弃数据。
+		onCancelRecord();
 
-		if (waitRecordStopTimer != null) {
-			window.clearInterval(waitRecordStopTimer);
-		}
-
-		// 等待录音完成，再开始新的录音。
-		waitRecordStopTimer = window.setInterval(function(){
-			if (!isRecordStart) {
-				//console.log("record has done.")
-				window.clearInterval(waitRecordStopTimer);
-				waitRecordStopTimer = null;
-
-				onRecordBtnClick();
-			}
-			else {
-				//console.log("record hasn't done.")
-			}
-		}, 100);
-		
+		// 重新开始录音。
+		onRecordBtnClick();
 	}
 }
 
@@ -1819,8 +1742,7 @@ function onPlayBtnClick(event) {
 
 	// 重新播放伴奏和录音。
 	if (accompanyPlayer != null) {
-		accompanyPlayer.stop();
-		accompanyPlayer.play();
+		accompanyPlayer.currentTime = sentenceStartTime;
 	}
 
 	// 让视频静音播放，并隐藏大播放按钮和控制条。
@@ -1880,6 +1802,10 @@ function mergeAudioBuffer(context, buffer1, buffer2) {
 	}
 	dstAudioBuffer.copyToChannel (dst, 0, 0);
 
+	delete src1;
+	delete src2;
+	delete dst;
+
 	// 合并右声道
 	if (dstAudioBuffer.numberOfChannels > 1) {
 		srcData1 = buffer1.numberOfChannels > 1 ? buffer1.getChannelData(1) : null;
@@ -1909,6 +1835,10 @@ function mergeAudioBuffer(context, buffer1, buffer2) {
 			dst.set(src2);
 		}
 		dstAudioBuffer.copyToChannel (dst, 1, 0);
+
+		delete src1;
+		delete src2;
+		delete dst;
 	}
 
 	return dstAudioBuffer;
@@ -1924,71 +1854,76 @@ function mixAudioBuffer(context, buffer1, buffer2, startTime) {
 
 	var sampleRate = Math.min(buffer1.sampleRate, buffer2.sampleRate);
 	var offset = Math.floor(startTime * buffer1.sampleRate);
-	var length = Math.max(buffer1.length, offset + buffer2.length);
 	var channelCount = Math.max(buffer1.numberOfChannels, buffer2.numberOfChannels);
-	var dstAudioBuffer = context.createBuffer(channelCount, length, sampleRate);
 
 	// 合并左声道
-	var srcData1 = buffer1.getChannelData(0);
-	var srcData2 = buffer2.getChannelData(0);
-
-	var src1 = new Float32Array(srcData1);
-	var src2 = new Float32Array(srcData2);
+	var src1 = buffer1.getChannelData(0);
+	var src2 = buffer2.getChannelData(0);
 	var count = Math.min(src1.length - offset, src2.length);
+	console.log("mixAudioBuffer - left startTime:", startTime, " src1:", src1.length, " src2:", src2.length);
 
 	// 合并重合的数据
 	for (var i = offset, j = 0; j < count; i++, j++) {
 		src1[i] = src1[i] + src2[j];
 	}
-	buffer1.copyToChannel(src1, 0, 0);
+
+	console.log("mixAudioBuffer - left ok.");
 
 	// 合并右声道
 	if (buffer1.numberOfChannels > 1) {
-		srcData1 = buffer1.getChannelData(1);
-		srcData2 = buffer2.numberOfChannels > 1 ? buffer2.getChannelData(1) : buffer2.getChannelData(0);
-
-		src1 = new Float32Array(srcData1);
-		src2 = new Float32Array(srcData2);
+		src1 = buffer1.getChannelData(1);
+		src2 = buffer2.numberOfChannels > 1 ? buffer2.getChannelData(1) : buffer2.getChannelData(0);
 		count = Math.min(src1.length - offset, src2.length);
+		console.log("mixAudioBuffer - right src1:", src1.length, " src2:", src2.length);
 
 		// 合并重合的数据
 		for (var i = offset, j = 0; j < count; i++, j++) {
-			src1[i] = (src1[i] + src2[j]) / 2;
+			src1[i] = src1[i] + src2[j];
 		}
-		buffer1.copyToChannel(src1, 1, 0);
+
+		console.log("mixAudioBuffer - mix right ok.");
 	}
 }
 
 //数据从32位浮点转成16位整形，编码器只识别16位整形PCM采样。
 function convertBufferFloat32ToInt16(buffer) {
 	// 合并左声道
-	var srcDataLeft = buffer.getChannelData(0);
-	var inputLeft = new Float32Array(srcDataLeft);
+	var inputLeft = buffer.getChannelData(0);
 	var length = inputLeft.length;
-	var output = new Int16Array(length * (buffer.numberOfChannels == 1 ? 1 : 2));
+	var outputBuffer = new ArrayBuffer(2 * length * (buffer.numberOfChannels == 1 ? 1 : 2));
+	var output = new Int16Array(outputBuffer);
 	var i = 0, j = 0;
 	var s;
 
-	if (buffer.numberOfChannels == 1) {
-		for (i = 0; i < length; i++) {
-			var s = Math.max(-1, Math.min(1, inputLeft[i]));
-			output[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+	if (inputLeft != null && output != null) {
+		if (buffer.numberOfChannels == 1) {
+			for (i = 0; i < length; i++) {
+				var s = Math.max(-1, Math.min(1, inputLeft[i]));
+				output[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+			}
+		}
+		else {
+			var inputRight = buffer.getChannelData(1);
+			if (inputRight != null) {
+				for (i = 0, j = 0; i < length; i++) {
+					s = Math.max(-1, Math.min(1, inputLeft[i]));
+					output[j++] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+					s = Math.max(-1, Math.min(1, inputRight[i]));
+					output[j++] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+				}
+			}
 		}
 	}
 	else {
-		var srcDataRight = buffer.getChannelData(1);
-		var inputRight = new Float32Array(srcDataRight);
-		for (i = 0, j = 0; i < length; i++) {
-			s = Math.max(-1, Math.min(1, inputLeft[i]));
-			output[j++] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-			s = Math.max(-1, Math.min(1, inputRight[i]));
-			output[j++] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-		}
+		delete output;
+		delete outputBuffer;
+		output = null;
+		buffer = null;
 	}
 
-	return output;
+	return outputBuffer;
 }
-	
+
 // 上传最终的ogg blob到服务器。
 function uploadDubbing() {
 	// 显示正在保存提示
@@ -2036,11 +1971,8 @@ function uploadDubbingCallback(data) {
 			jq('#zyh-attach-dubbing').html('').
 				append('<input type="text" value="dubbing" name="attachnew['+ arr[2] +'][description]"/>');
 
-			// 删除所有录音附件
-			removeAllRecordAttach(function() {
-				// 提交
-				jq('#postsubmit').click();
-			});
+			// 提交
+			jq('#postsubmit').click();
 		}
 		else if (lang_msg[arr[1]] != undefined ) {
 			// 出错，显示出错原因。
@@ -2085,6 +2017,7 @@ function mergeRecord2Commpany()
 	var i = 0;
 	while (recordRawData.hasOwnProperty(i)) {
 		if (recordRawData[i]['audioBuffer'] != null) {
+			console.log("mixAudioBuffer #", i);
 			mixAudioBuffer(audioCtx, dubbingBuffer, recordRawData[i]['audioBuffer'], recordRawData[i]['startTime']);
 		}
 		i++;
@@ -2103,22 +2036,30 @@ function mergeRecord2Commpany()
 	// 这里就可以立即上传mp3格式的声音到服务器。
 
 	// 将PCM数据保存到文件中，然后编码成Ogg格式。
-	window.resolveLocalFileSystemURL(cordova.file.cacheDirectory, function (dir) {
-		consoleMessage("File dir load ok.");
+	window.resolveLocalFileSystemURL(cordova.file.cacheDirectory , function (dir) {
+		console.log("File dir load ok:", dir.nativeURL);
 
 		var fileName = "dubbing_" + Date.now() + ".pcm";
 		dir.getFile(fileName, {create: true}, function (file) {
-			consoleMessage("File get ok.");
+			console.log("File get ok:", file.nativeURL);
 
 			file.createWriter(function (fileWriter) {
-				consoleMessage("File create writer ok.");
+				console.log("File create writer ok.");
 
 				var pcmInt16 = convertBufferFloat32ToInt16(dubbingBuffer);
-				var dataObj = new Blob([pcmInt16], { type: 'audio/pcm' });
+				if (pcmInt16 == null) {
+					console.log("convertBufferFloat32ToInt16 fail.");
+				}
+				//var dataObj = new Blob([pcmInt16], { type: 'audio/pcm' });
+				//if (dataObj == null) {
+				//	console.log("new blob fail.");
+				//}
 
 				// 将pcm数据保存到文件。
 				fileWriter.onwriteend = function() {
-					consoleMessage("File write ok.");
+					console.log("File write ok.");
+				//	delete dataObj;
+					delete pcmInt16;
 
 					// 到这里用户已经可以进行预览了，取消等待显示。
 					toggleDialog(mergingAlert);
@@ -2126,6 +2067,15 @@ function mergeRecord2Commpany()
 					// 切换到预览界面。
 					jq('.zyh-dubbing-ui').css('visibility', 'hidden');
 					jq('.zyh-preview-ui').css('visibility', 'visible');
+
+					// 不处理句子列表的滚动。
+					dragSwitchSentence.deinit();
+
+					playStatus = 3;
+					previewPlayer.muted(true);
+					previewPlayer.pause();
+					previewPlayer.currentTime(0);
+					previewPlayer.userActive(true);
 
 					// 后台编码成ogg数据。
 					window.audiorecord.encoder({
@@ -2136,31 +2086,29 @@ function mergeRecord2Commpany()
 							outBitRate: 128000
 						}, function(data) {
 							// 获取编码后的ogg数据。
-							consoleMessage("Encoder success");
+							console.log("Encoder success");
+							
+							if (dubbingBlob != null) {
+								delete dubbingBlob;
+								dubbingBlob = null;
+							}
+
 							dubbingBlob = new Blob([data], { type: 'audio/ogg' });
 							dubbingBlobName = 'dubbing_' + Date.now() + '.ogg';
 
-							// 不处理句子列表的滚动。
-							dragSwitchSentence.deinit();
-
-							playStatus = 3;
-							previewPlayer.muted(true);
-							previewPlayer.pause();
-							previewPlayer.currentTime(0);
-							previewPlayer.userActive(true);
-
-
 						}, function(result) {
-							consoleMessage("Encoder fail:" + result);
+							console.log("Encoder fail:" + result);
 						});
-
 				};
 				fileWriter.onerror = function (e) {
 					alert("Failed file write: " + e.toString());
+				//	delete dataObj;
+					delete pcmInt16;
+
 					// 取消等待显示。
 					toggleDialog(mergingAlert);
 				};
-				fileWriter.write(dataObj);
+				fileWriter.write(pcmInt16);
 			}, function () {
 				alert("FileWriter error!");
 				// 取消等待显示。
@@ -2234,15 +2182,14 @@ jq('.zyh-dubbing-complete-dialog-ok').click(function(e) {
 
 jq('.zyh-dubbing-done-button').click(function(e){
 	// 切换之前关闭录音和录音回放。
-	bPlayAfterRecord = false;
-	stopRecordOrPlay();
+	stopRecordingOrRecordPlayback();
 
 	// 确认所有录音都已经完成。
 	function allRecordDone() {
 		var result = true;
 
 		for (var i = 0; i < subtitleCount; i++) {
-			if (attachInfo['data']['record'][i] == "") {
+			if (recordRawData[subtitleCurrent]['data'] == null) {
 				result = false;
 				break;
 			}
@@ -2357,36 +2304,44 @@ function previewPlayBtnPlugin(options) {
 videojs.registerPlugin('previewPlayBtnPlugin', previewPlayBtnPlugin);
 previewPlayer.previewPlayBtnPlugin({});
 
-previewPlayer.userActive(false);
-//previewPlayer.currentTime(0);
-//previewPlayer.preload(true);
-//previewPlayer.play();
 //////////////////////////////////
 // 下面这一段用来保持声音和画面同步。
 
 // 开始或恢复播放
 previewPlayer.on("play", function() {
-	audioPlayer.play()
+	if (playStatus == 3) {
+		audioPlayer.play();
+	}
+	else {
+		previewPlayer.pause();
+		audioPlayer.pause();
+	}
 });
 
 // 暂停播放
 previewPlayer.on("pause", function() {
-	audioPlayer.pause()
+	if (playStatus == 3) {
+		audioPlayer.pause();
+	}
 });
 
 // 视频跳转
 previewPlayer.on("seeked", function() {
-	var currentTime = previewPlayer.currentTime();
-	if (currentTime > audioPlayer.duration) {
-		currentTime = audioPlayer.duration;
-	}
-	audioPlayer.pause();
-	audioPlayer.currentTime = currentTime;
-	if (!previewPlayer.paused()  && audioPlayer.paused) {
-		audioPlayer.play();
+	if (playStatus == 3) {
+		var currentTime = previewPlayer.currentTime();
+		if (currentTime > audioPlayer.duration) {
+			currentTime = audioPlayer.duration;
+		}
+		audioPlayer.pause();
+		audioPlayer.currentTime = currentTime;
+		if (!previewPlayer.paused()  && audioPlayer.paused) {
+			audioPlayer.play();
+		}
 	}
 });
 
+previewPlayer.userActive(false);
+previewPlayer.play();
 ////////////////////////////////////
 
 // 播放器时间更新回调。

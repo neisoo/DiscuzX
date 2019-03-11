@@ -158,14 +158,6 @@ module.exports = [
         "clobbers": [
           "audiorecord"
         ]
-    },
-    {
-        "id": "cordova-plugin-audioinput.AudioInput",
-        "file": "plugins/cordova-plugin-audioinput/www/audioInputCapture.js",
-        "pluginId": "cordova-plugin-audioinput",
-        "clobbers": [
-          "audioinput"
-        ]
     }
 ];
 module.exports.metadata = 
@@ -174,7 +166,6 @@ module.exports.metadata =
     "cordova-plugin-file": "4.1.1",
     "cordova-plugin-whitelist": "1.3.3",
     "cordova-plugin-audiorecorder": "0.7.0",
-    "cordova-plugin-audioinput": "1.0.1"
 };
 // BOTTOM OF METADATA
 });
