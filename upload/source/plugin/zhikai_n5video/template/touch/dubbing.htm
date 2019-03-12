@@ -1201,7 +1201,7 @@ function onUserActive() {
 			if (accompanyPlayer != null) {
 				accompanyPlayer.play();
 			}
-			audioPlayer.play();
+			audioPlayer.start();
 		}
 		
 	}
@@ -1211,7 +1211,7 @@ function onUserActive() {
 		if (accompanyPlayer != null) {
 			accompanyPlayer.pause();
 		}
-		audioPlayer.pause();
+		audioPlayer.stop();
 	}
 }
 
@@ -1737,7 +1737,8 @@ function onPlayBtnClick(event) {
 
 	// 播放用户录音。
 	if (recordRawData[subtitleCurrent]['audioBuffer'] != null) {
-		audioPlayer.start(recordRawData[subtitleCurrent]['audioBuffer']);
+		audioPlayer.attach(player, recordRawData[subtitleCurrent]['audioBuffer'], sentenceStartTime);
+		audioPlayer.start();
 	}
 
 	// 重新播放伴奏和录音。
@@ -1999,6 +2000,7 @@ function uploadDubbingCallback(data) {
 function mergeRecord2Commpany()
 {
 	// 清除以前的配音
+	delete dubbingBlob;
 	dubbingBlob = null;
 
 	// 显示等待合成。
@@ -2023,7 +2025,7 @@ function mergeRecord2Commpany()
 		i++;
 	}
 
-	audioPlayer.setBuffer(dubbingBuffer);
+	audioPlayer.attach(previewPlayer, dubbingBuffer, 0);
 
 	// for test.
 	//var source = audioCtx.createBufferSource();
@@ -2050,15 +2052,10 @@ function mergeRecord2Commpany()
 				if (pcmInt16 == null) {
 					console.log("convertBufferFloat32ToInt16 fail.");
 				}
-				//var dataObj = new Blob([pcmInt16], { type: 'audio/pcm' });
-				//if (dataObj == null) {
-				//	console.log("new blob fail.");
-				//}
 
 				// 将pcm数据保存到文件。
 				fileWriter.onwriteend = function() {
 					console.log("File write ok.");
-				//	delete dataObj;
 					delete pcmInt16;
 
 					// 到这里用户已经可以进行预览了，取消等待显示。
@@ -2076,6 +2073,7 @@ function mergeRecord2Commpany()
 					previewPlayer.pause();
 					previewPlayer.currentTime(0);
 					previewPlayer.userActive(true);
+					previewPlayer.play();
 
 					// 后台编码成ogg数据。
 					window.audiorecord.encoder({
@@ -2102,7 +2100,6 @@ function mergeRecord2Commpany()
 				};
 				fileWriter.onerror = function (e) {
 					alert("Failed file write: " + e.toString());
-				//	delete dataObj;
 					delete pcmInt16;
 
 					// 取消等待显示。
@@ -2159,7 +2156,7 @@ function switch2PreviewUI() {
 // 切换回配音界面。
 function switch2Dubbing() {
 	previewPlayer.pause();
-	audioPlayer.pause();
+	audioPlayer.stop();
 	jq('.zyh-dubbing-ui').css('visibility', 'visible');
 	jq('.zyh-preview-ui').css('visibility', 'hidden');
 	dragSwitchSentence.init();
@@ -2309,33 +2306,30 @@ previewPlayer.previewPlayBtnPlugin({});
 
 // 开始或恢复播放
 previewPlayer.on("play", function() {
+	console.log("previewPlayer: play");
+
 	if (playStatus == 3) {
-		audioPlayer.play();
-	}
-	else {
-		previewPlayer.pause();
-		audioPlayer.pause();
+		audioPlayer.start();
 	}
 });
 
 // 暂停播放
 previewPlayer.on("pause", function() {
+	console.log("previewPlayer: pause");
+
 	if (playStatus == 3) {
-		audioPlayer.pause();
+		audioPlayer.stop();
 	}
 });
 
 // 视频跳转
 previewPlayer.on("seeked", function() {
+	console.log("previewPlayer: seeked");
+
 	if (playStatus == 3) {
-		var currentTime = previewPlayer.currentTime();
-		if (currentTime > audioPlayer.duration) {
-			currentTime = audioPlayer.duration;
-		}
-		audioPlayer.pause();
-		audioPlayer.currentTime = currentTime;
-		if (!previewPlayer.paused()  && audioPlayer.paused) {
-			audioPlayer.play();
+		audioPlayer.stop();
+		if (!previewPlayer.paused()) {
+			audioPlayer.start();
 		}
 	}
 });

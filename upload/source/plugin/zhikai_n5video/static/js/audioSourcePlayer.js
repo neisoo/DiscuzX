@@ -34,69 +34,37 @@
 
             if (!self.support) return;
             self.context = new AudioContext();
+			self.attached = false;
         },
 
-		setBuffer: function(buffer) {
+		// 绑定播放器和声音数据，
+		// offset表示声音数据在播放器的多少秒处开始播放。
+		attach: function(player, buffer, offset) {
 			var self = this;
-			self.currentTime = 0;
+			self.player = player;
 			self.audioBuffer = buffer;
-		},
-
-		// 重新开始播放。
-		start: function(buffer) {
-			var self = this;
-
-			if (self.isPlaying) {
+			self.offset = offset;
+			if (self.source != null) {
 				self.source.stop();
-				self.isPlaying = false;
+				self.source = null;
 			}
-
-			self.audioBuffer = buffer;
-			self.source = self.context.createBufferSource();
-			self.source.buffer = self.audioBuffer;
-			self.source.loop = false;
-			self.source.connect(self.context.destination);
-			self.source.onended = function(event) {
-				self.isPlaying = false;
-				self.currentTime = 0;
-			}
-
-			self.currentTime = 0;
-			self.startTime = self.context.currentTime;
-			self.source.start(self.startTime, self.currentTime);
-			self.isPlaying = true;
+			self.attached = true;
 		},
 
-		// 恢复或重新开始播放。
-		play: function() {
+		// 播放。
+		start: function() {
 			var self = this;
 
-			if (!self.isPlaying) {
-				self.startTime = self.context.currentTime;
-
+			if (self.attached) {
+				if (self.source != null) {
+					self.source.stop();
+					self.source = null;
+				}
 				self.source = self.context.createBufferSource();
 				self.source.buffer = self.audioBuffer;
 				self.source.loop = false;
 				self.source.connect(self.context.destination);
-				self.source.onended = function(event) {
-					self.isPlaying = false;
-					self.currentTime = 0;
-				}
-
-				self.startTime = self.context.currentTime;
-				self.source.start(self.startTime, self.currentTime);
-				self.isPlaying = true;
-			}
-		},
-		
-		// 暂停
-		pause: function() {
-			var self = this;
-
-			if (self.isPlaying) {
-				self.source.stop();
-				// 记录暂停的位置，下次恢得播放时从这个位置开始播放。
-				self.currentTime = self.context.currentTime - self.startTime;
+				self.source.start(0, self.player.currentTime() - self.offset, self.player.duration() - self.player.currentTime());
 			}
 		},
 
@@ -104,10 +72,8 @@
 		stop: function() {
 			var self = this;
 
-			if (self.isPlaying) {
+			if (self.attached && self.source != null) {
 				self.source.stop();
-				self.currentTime = 0;
-				self.isPlaying = false;
 			}
 		}
     };
