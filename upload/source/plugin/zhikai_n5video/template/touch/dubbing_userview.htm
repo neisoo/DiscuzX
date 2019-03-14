@@ -702,8 +702,10 @@ previewPlayer.on("canplay", function() {
 	}
 });
 
-previewPlayer.on("fullscreenchange", function() {
-	console.log("previewPlayer: fullscreenchange");
+// 切换全屏后会解发resize，在这里修改进度条的长度。
+previewPlayer.on("playerresize", function() {
+	console.log("previewPlayer: playerresize");
+
 	if (previewSeekBar != null) {
 		previewSeekBar.resize();
 	}
