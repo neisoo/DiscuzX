@@ -258,6 +258,11 @@
 	font-size: 1.5rem;
 }
 
+/* 全屏状态下不显示左上角回退按钮 */
+.vjs-fullscreen .zyh-preview-back-button {
+	display:none;
+}
+
 /* 右上角菜单按钮 */
 .zyh-preview-menu-button {
 	/* 位置: 靠顶部左则 */
@@ -645,34 +650,42 @@ function getTimeString(seconds) {
 
 // 播放器时间更新回调。
 previewPlayer.on('timeupdate', function() {
-	// 更新播放进度，当前时间。
-	previewSeekBar.setValue(previewPlayer.currentTime());
-	
-	jq('.zyh-preview-process-bar .uk-progress-bar').css('width', ' ' + (previewPlayer.currentTime() * 100 / previewPlayer.duration()) + '%')
-	jq('.zyh-preview-current-time .zyh-icon-placeholder').html(getTimeString(previewPlayer.currentTime()));
+	// 更新播放进度，当前时间和总时间。
+	var currentTime = previewPlayer.currentTime();
+	var duration = previewPlayer.duration();
+	if (currentTime != null) {
+		// 更新播放进度，当前时间。
+		jq('.zyh-preview-current-time .zyh-icon-placeholder').html(getTimeString(currentTime));
+
+		if (!isNaN(duration)) {
+			// 初始化进度条
+			if (previewSeekBar == null) {
+				previewSeekBar = new Seekbar.Seekbar({
+					renderTo: ".zyh-preview-seekbar",
+					minValue: 0, maxValue: previewPlayer.duration(),
+					valueListener: function (value) {
+						previewPlayer.currentTime(value);
+						previewPlayer.reportUserActivity(null);
+					},
+					thumbColor: '#82bb42',
+					negativeColor: '#82bb42',
+					positiveColor: '#CCC',
+					value: 0
+				});
+			}
+			if (previewSeekBar != null) {
+				previewSeekBar.setValue(currentTime);
+			}
+
+			jq('.zyh-preview-process-bar .uk-progress-bar').css('width', ' ' + (currentTime * 100 / duration) + '%')
+			jq('.zyh-preview-duration-time .zyh-icon-placeholder').html(getTimeString(duration));
+		}
+	}
 });
 
 previewPlayer.on("canplay", function() {
 	if (!previewInit) {
 		previewInit = true;
-
-		// 初始化播放时间。
-		jq('.zyh-preview-current-time .zyh-icon-placeholder').html(getTimeString(0));
-		jq('.zyh-preview-duration-time .zyh-icon-placeholder').html(getTimeString(previewPlayer.duration()));
-
-		// 初始化进度条
-		previewSeekBar = new Seekbar.Seekbar({
-			renderTo: ".zyh-preview-seekbar",
-			minValue: 0, maxValue: previewPlayer.duration(),
-			valueListener: function (value) {
-				previewPlayer.currentTime(value);
-				previewPlayer.reportUserActivity(null);
-			},
-			thumbColor: '#82bb42',
-			negativeColor: '#82bb42',
-			positiveColor: '#CCC',
-			value: 0
-		});
 
 		var origTrack = previewPlayer.textTracks().getTrackById("original");
 		var transTrack = previewPlayer.textTracks().getTrackById("translation");
@@ -686,6 +699,13 @@ previewPlayer.on("canplay", function() {
 		// 自动播放。
 		previewPlayer.muted(true);
 		previewPlayer.play();
+	}
+});
+
+previewPlayer.on("fullscreenchange", function() {
+	console.log("previewPlayer: fullscreenchange");
+	if (previewSeekBar != null) {
+		previewSeekBar.resize();
 	}
 });
 
