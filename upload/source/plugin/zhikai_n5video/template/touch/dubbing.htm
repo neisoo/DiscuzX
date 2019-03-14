@@ -2389,6 +2389,13 @@ previewPlayer.on("canplay", function() {
 	}
 });
 
+previewPlayer.on("fullscreenchange", function() {
+	console.log("previewPlayer: fullscreenchange");
+	if (previewSeekBar != null) {
+		previewSeekBar.resize();
+	}
+});
+
 // blob分片上传。
 // url, name, shardSize, progressCallback, stepCallback, userData
 function blobShardUpload(blob, options) {

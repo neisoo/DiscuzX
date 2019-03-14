@@ -230,6 +230,13 @@ $.extend(Seekbar.Seekbar.prototype, {
 
     },
 
+    resize: function () {
+        this.area.width = this.el.width();
+        this.area.height = this.el.height();
+        this.area.size = Math.max(this.area.width, this.area.height);
+        this.positionItems();
+    },
+
     getValuePos: function () {
         if (this.orientation == 'horizontal') {
             return (this.valueArea.size * (this.value - this.minValue) / this.maxValue);
