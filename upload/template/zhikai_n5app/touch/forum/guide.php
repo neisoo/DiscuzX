@@ -36,10 +36,10 @@
 <div class="cldh_hyxx cl">
 	<div class="cldh_hytx z cl"><div class="cldh_txys"><a href="<!--{if $_G[uid]}-->home.php?mod=space&uid=$_G[uid]&do=profile&mycenter=1<!--{else}-->member.php?mod=logging&action=login<!--{/if}-->"><!--{avatar($_G[uid])}--></a></div></div>
 	<div class="cldh_hymc z cl">
-		<div class="cldh_hync cl"><a href="<!--{if $_G[uid]}-->home.php?mod=space&uid=$_G[uid]&do=profile&mycenter=1<!--{else}-->member.php?mod=logging&action=login<!--{/if}-->"><!--{if $_G[uid]}-->{$_G[member][username]}<!--{else}-->{$n5app['lang']['qjclyngjc']}<!--{/if}--></a><!--{if $_G[uid]}--><span>$_G[group][grouptitle]</span><!--{/if}--></div>
+		<div class="cldh_hync cl"><a href="<!--{if $_G[uid]}-->home.php?mod=space&uid=$_G[uid]&do=profile&mycenter=1<!--{else}-->member.php?mod=logging&action=login<!--{/if}-->"><!--{if $_G[uid]}-->{$_G[member][username]}<!--{else}-->{$n5app['lang']['qjclyngjc']}<!--{/if}--></a><!--{if $_G[uid]}--><span style="display:none;">$_G[group][grouptitle]</span><!--{/if}--></div>
 		<div class="cldh_hyqm cl">
 			<!--{if $_G[uid]}-->
-			<div class="cldh_hycz z cl"><a href="{$n5app['sign']}" class="mrqdys">{$n5app['lang']['qiandoa']}</a></div>
+			<div class="cldh_hycz z cl" style="display:none;"><a href="{$n5app['sign']}" class="mrqdys">{$n5app['lang']['qiandoa']}</a></div>
 			<div class="cldh_hycz z cl"><a href="member.php?mod=logging&action=logout&formhash={FORMHASH}" class="tcdlys dialog">{lang logout}</a></div>
 			<!--{else}-->
 			<div class="cldh_hycz z cl"><a href="member.php?mod=logging&action=login" class="tcdlys">{$n5app['lang']['login']}</a></div>
@@ -47,12 +47,12 @@
 			<!--{/if}-->
 		</div>
 	</div>
-	<div class="n5jj_hdhd">
+	<div class="n5jj_hdhd" style="display:none;">
 		<div class="n5jj_hdhd_1"></div>
 		<div class="n5jj_hdhd_2"></div>
 	</div>
 </div>
-<div class="cldh_xxtx cl">
+<div class="cldh_xxtx cl" style="display:none;">
 	<ul>
 		<li><a href="home.php?mod=space&do=notice&view=mypost" {if $_G['uid']}{else}class="n5app_wdlts"{/if}><img src="template/zhikai_n5app/images/xxtx_tx.png"><p>{$n5app['lang']['tixing']}</p></a><!--{if $_G[member][newprompt]}--><span></span><!--{/if}--></li>
 		<li><a href="home.php?mod=space&do=pm" {if $_G['uid']}{else}class="n5app_wdlts"{/if}><img src="template/zhikai_n5app/images/xxtx_xx.png"><p>{$n5app['lang']['xiaoxi']}</p></a><!--{if $_G[member][newpm]}--><span></span><!--{/if}--></li>
@@ -61,6 +61,9 @@
 	</ul>
 </div>
 <div class="cldh_kjdh cl">
+	<a href="home.php?mod=space&do=thread&filter=common&dubbing=1&searchkey=public&mobile=2" class="n5ico"><div class="kjdh_kjtb"><i style="color:#F37D7D;" class="iconfont icon-clxwzx"></i></div><div class="kjdh_kjbt">我的配音</div><div class="kjdh_xytb"><i class="iconfont icon-n5appxy"></i></div></a>
+</div>
+<div class="cldh_kjdh cl" style="display:none;">
 	<a href="{$n5app['news_url']}" class="n5ico"><div class="kjdh_kjtb"><i style="color:#F37D7D;" class="iconfont icon-clxwzx"></i></div><div class="kjdh_kjbt">{$n5app['lang']['xinwen']}</div><div class="kjdh_xytb"><i class="iconfont icon-n5appxy"></i></div></a>
 	<a href="home.php?mod=task" class="n5ico"><div class="kjdh_kjtb"><i style="color:#FFB300;" class="iconfont icon-n5appwdrw"></i></div><div class="kjdh_kjbt">{$n5app['lang']['renwu']}</div><div class="kjdh_xytb"><i class="iconfont icon-n5appxy"></i></div></a>
 	<a href="forum.php?mod=announcement" class="n5ico"><div class="kjdh_kjtb"><i style="color:#3EBBFD;" class="iconfont icon-n5apphdtx"></i></div><div class="kjdh_kjbt">{$n5app['lang']['gonggao']}</div><div class="kjdh_xytb"><i class="iconfont icon-n5appxy"></i></div></a>
