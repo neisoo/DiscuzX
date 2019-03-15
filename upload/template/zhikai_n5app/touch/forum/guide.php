@@ -75,6 +75,38 @@
 </div>
 </div>
 
+<script type="text/javascript" src="source/plugin/zhikai_n5video/cordova/cordova.js"></script>
+<script type="text/javascript">
+//////////////////////////////////////////////////////////////
+// + 2秒内连续点击返回按键要退出app 。
+
+// 处理系统Back键。
+document.addEventListener("deviceready", onDeviceReady, false);
+
+function onDeviceReady() {
+	document.addEventListener("backbutton", onBackKeyDown, false);
+}
+
+var lastBackTime = 0;
+function onBackKeyDown() {
+	if (lastBackTime == 0) {
+		// 第一次点击Back键。
+		lastBackTime = new Date();
+	}
+	else {
+		// 第n次点击Back键
+		if (new Date() - lastBackTime < 2000) {
+			// 点击间隔小于2s，退出程序。
+			navigator.app.exitApp();
+		}
+		else {
+			// 点击间隔大于2s，重置时间戳。
+			lastBackTime = new Date();
+		}
+	}
+}
+</script>
+
 {$n5app['guide_block']}
 
 {if $n5app['jjnrlxkg']}
