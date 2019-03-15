@@ -19,7 +19,7 @@
 </style>
 <div class="n5qj_tbys nbg cl">
 	<a href="javascript:void(0);" class="n5qj_zcan"><div class="zcancl"><div class="cltxy"><!--{avatar($_G[uid])}--><!--{if $_G[member][newprompt]}--><b></b><!--{/if}--><!--{if $_G[member][newpm]}--><b></b><!--{/if}--></div></div></a>
-	<a href="search.php?mod=forum" class="n5qj_ycan sousuo"></a>
+	<a href="search.php?mod=forum" class="n5qj_ycan sousuo" style="display:none;"></a>
 	<!--{if $n5app['index_logo'] == 1}-->
 	<span><img src="{$n5app['index_logodz']}"></span>
 	<!--{elseif $n5app['index_logo'] == 2}-->
