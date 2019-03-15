@@ -1069,6 +1069,24 @@ player.on("canplay", function(){
 	}
 });
 
+function onDubbingBack(e) {
+	var haveData = false;
+	for (var i = 0; i < subtitleCount; i++){
+		if (recordRawData[i]['data'] != null) {
+			haveData = true;
+			break;
+		}
+	}
+
+	if (haveData) {
+		// 弹出对话框让用户选择是否退出。
+		toggleDialog(backDialog);
+	}
+	else {
+		history.back(-1);
+	}
+}
+
 // 添加自定义的播放元素，点击视频时暂停和播放视频。
 function dummyBigPlayBtnPlugin(options) {
 	var elTop = document.createElement('div');
@@ -1078,23 +1096,7 @@ function dummyBigPlayBtnPlugin(options) {
 	var elBackButton = document.createElement('div');
 	elBackButton.className = 'zyh-dubbing-back-button';
 	elBackButton.innerHTML = '<span class="uk-icon-angle-left vjs-icon-placeholder"></span>';
-	elBackButton.onclick = function (e) {
-		var haveData = false;
-		for (var i = 0; i < subtitleCount; i++){
-			if (recordRawData[i]['data'] != null) {
-				haveData = true;
-				break;
-			}
-		}
-
-		if (haveData) {
-			// 弹出对话框让用户选择是否退出。
-			toggleDialog(backDialog);
-		}
-		else {
-			history.back(-1);
-		}
-	};
+	elBackButton.onclick = onDubbingBack;
 
 	// 顶部条
 	var elTopBar = document.createElement('div');
@@ -2100,7 +2102,10 @@ function mergeRecord2Commpany()
 							dubbingBlobName = 'dubbing_' + Date.now() + '.ogg';
 
 						}, function(result) {
-							console.log("Encoder fail:" + result);
+							alert("Encoder fail: " + e.toString());
+
+							// 取消等待显示。
+							toggleDialog(mergingAlert);
 						});
 				};
 				fileWriter.onerror = function (e) {
@@ -2505,6 +2510,30 @@ jq('.zyh-preview-private-button').click(function() {
 	// 禁止提交，由上面的回调函数进行提交。
 	return false;
 });
+
+//////////////////////////////////////////////////////////////
+// 处理系统Back键
+document.addEventListener("deviceready", onDeviceReady, false);
+
+function onDeviceReady() {
+	document.addEventListener("backbutton", onBackKeyDown, false);
+}
+
+function onBackKeyDown() {
+	if (mergingAlert.isActive() || savingAlert.isActive() || backDialog.isActive() || completeDialog.isActive()) {
+		// 有对话框或提示框弹出时，不做处理。
+		return;
+	}
+
+	if (playStatus == 3) {
+		// 从预览返回到配音
+		switch2Dubbing();
+	}
+	else {
+		// 退出配音。
+		onDubbingBack();
+	}
+}
 
 </script>
 
