@@ -154,7 +154,7 @@ var jq = jQuery.noConflict();
 </div>
 {/if}
 
-<div class="n5qj_wbys cl">
+<div class="n5qj_wbys cl" style="display:none;">
 	<a href="forum.php?mod=guide&view=newthread&mobile=2" class="qjyw_jjgl on"><i class="iconfont icon-n5appsyon"></i><br/>{$n5app['lang']['qjjujiao']}</a>
 	<a href="forum.php?forumlist=1" class=""><i class="iconfont icon-n5appsq"></i><br/>{$n5app['lang']['sqshequ']}</a>
 	<a onClick="ywksfb()" class="qjyw_fbxx"><i class="iconfont icon-n5appfb"></i></a>
@@ -165,5 +165,5 @@ var jq = jQuery.noConflict();
 	<!--{if $n5app['dbdhssl'] == 1}--><a href="<!--{if $_G[uid]}-->home.php?mod=space&uid=$_G[uid]&do=profile&mycenter=1<!--{else}-->member.php?mod=logging&action=login<!--{/if}-->"  class="<!--{if $_G[uid]}-->qjyw_txys<!--{else}-->qjyw_wdkz<!--{/if}-->"><!--{if $_G[uid]}--><!--{avatar($_G[uid])}--><!--{else}--><i class="iconfont icon-n5appwd"></i><!--{/if}--><br/>{$n5app['lang']['qjwode']}<!--{if $_G[member][newprompt]}--><b></b><!--{/if}--><!--{if $_G[member][newpm]}--><b></b><!--{/if}--></a>
 	<!--{elseif $n5app['dbdhssl'] == 2}--><a href="{$n5app['dbdhssllj']}" class="qjyw_fxxx"><i class="iconfont icon-n5appfx"></i><br/>{$n5app['dbdhsslwz']}</a><!--{/if}-->
 </div>
-<div class="wbys_yqmb"></div>
+<div class="wbys_yqmb" style="display:none;"></div>
 <!--{template common/footer}-->
