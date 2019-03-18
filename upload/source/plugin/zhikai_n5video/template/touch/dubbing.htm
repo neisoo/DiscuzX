@@ -884,7 +884,6 @@ var subtitleCurrent = -1;
 var sentenceStartTime = 0.0;
 var sentenceEndTime = 0.0;
 
-
 // 录音声音
 var recordBeginTime, recordEndTime; // 用来测试实际的录音时间
 var recordStartTimer;
@@ -1212,17 +1211,26 @@ function onUserActive() {
 			player.playbackRate(dubbingPlaybackRate);
 			player.muted(false);
 			player.play();
+			if (accompanyPlayer != null) {
+				accompanyPlayer.muted = true;
+				accompanyPlayer.play();
+			}
 		}
 		else if (dubbingPlaybackMode == 1) {
 			player.playbackRate(1);
 			player.muted(true);
 			player.play();
+			if (accompanyPlayer != null) {
+				accompanyPlayer.muted = true;
+				accompanyPlayer.play();
+			}
 		}
 		else if (dubbingPlaybackMode == 2) {
 			player.playbackRate(1);
 			player.muted(true);
 			player.play();
 			if (accompanyPlayer != null) {
+				accompanyPlayer.muted = false;
 				accompanyPlayer.play();
 			}
 			audioPlayer.start();
@@ -1338,7 +1346,7 @@ function sentencePlay(index) {
 				//console.log("record has done.")
 				window.clearInterval(sentenceTimer);
 				sentenceTimer = null;
-				
+
 				// 禁用之前句子的录音按钮，并在播放器定位成功后，使能当前句子的录音按钮。
 				$('#record_btn_' + subtitleCurrent).attr('disabled', '1');
 				subtitleCurrent = index;
