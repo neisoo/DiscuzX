@@ -11,6 +11,7 @@
 <script type="text/javascript" src="source/plugin/zhikai_n5video/static/js/readmore.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/uikit/js/uikit.min.js"></script>
 <script type="text/javascript" src="source/plugin/zhikai_n5video/video-js/video.min.js"></script>
+<script type="text/javascript" src="source/plugin/zhikai_n5video/cordova/cordova.js"></script>
 
 <style>
 
@@ -519,9 +520,9 @@
 
 	<!-- 开启配音 -->
 	<div class="zyh-dubbing-start uk-button-group uk-width-1-1">
-		<button class="zyh-dubbing-comment-button uk-button uk-button-large uk-width-3-10 uk-icon-commenting-o" type="button" fid="{$userDubbingForumID}" tid="{$_G[tid]}"> 评论</button>
+		<button class="zyh-dubbing-comment-button uk-button uk-button-large uk-width-3-10 uk-icon-commenting-o" style="visibility:hidden;" type="button" fid="{$userDubbingForumID}" tid="{$_G[tid]}"> 评论</button>
 		<button class="zyh-dubbing-start-button uk-button uk-button-success uk-button-large uk-width-4-10 uk-icon-microphone" type="button" fid="{$userDubbingForumID}" tid="{$attachInfo[tid]}"> 我要配音</button>
-		<button class="zyh-dubbing-share-button uk-button uk-button-large uk-width-3-10 uk-icon-share-square-o" type="button" fid="{$userDubbingForumID}" tid="{$_G[tid]}"> 分享</button>
+		<button class="zyh-dubbing-share-button uk-button uk-button-large uk-width-3-10 uk-icon-share-square-o" style="visibility:hidden;" type="button" fid="{$userDubbingForumID}" tid="{$_G[tid]}"> 分享</button>
 	</div>
 
 </div>
@@ -795,6 +796,26 @@ jq('.zyh-dubbing-desc-text').readmore({
 	}
 });
 
+//////////////////////////////////////////////////////////////
+// 处理系统Back键
+document.addEventListener("deviceready", onDeviceReady, false);
+
+function onDeviceReady() {
+	document.addEventListener("backbutton", onBackKeyDown, false);
+}
+
+function onBackKeyDown() {
+	console.log(document.referrer);
+	
+	if (document.referrer.indexOf('mod=post&action=newthread') != -1) {
+		// 前一页面是配音界面，则返回到主界面。
+		window.location.href = 'forum.php?mod=guide&view=newthread&mobile=2'; 
+	}
+	else {
+		// 回退到上面界面。
+		history.back(-1);
+	}
+}
 </script>
 
 

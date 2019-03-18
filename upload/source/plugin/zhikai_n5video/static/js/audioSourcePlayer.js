@@ -15,7 +15,7 @@
         self.ops = ops;
 		self.currentTime = 0;
 		self.startTime = 0;
-		self.isPlaying = false;
+		self.isStart = false;
 
         //支持检测
         self.support = !!(window.AudioContext);
@@ -49,6 +49,7 @@
 				self.source = null;
 			}
 			self.attached = true;
+            console.log('AudioSourcePlayer: attach.');
 		},
 
 		// 播放。
@@ -60,11 +61,23 @@
 					self.source.stop();
 					self.source = null;
 				}
-				self.source = self.context.createBufferSource();
-				self.source.buffer = self.audioBuffer;
-				self.source.loop = false;
-				self.source.connect(self.context.destination);
-				self.source.start(0, self.player.currentTime() - self.offset, self.player.duration() - self.player.currentTime());
+
+				var duration = self.player.duration();
+				var currentTime = self.player.currentTime();
+				if (!isNaN(duration) && !isNaN(currentTime) ) {
+					try {
+						self.source = self.context.createBufferSource();
+						self.source.buffer = self.audioBuffer;
+						self.source.loop = false;
+						self.source.connect(self.context.destination);
+						console.log('AudioSourcePlayer: start. currentTime=', currentTime, " duration=", duration, " offset=", self.offset);
+						self.source.start(0, currentTime - self.offset, duration - currentTime);
+						self.isStart = true;
+					}
+					catch (ex) {
+						console.log('AudioSourcePlayer: ' + ex);
+					}
+				}
 			}
 		},
 
@@ -72,8 +85,16 @@
 		stop: function() {
 			var self = this;
 
-			if (self.attached && self.source != null) {
-				self.source.stop();
+			if (self.attached && self.source != null && self.isStart) {
+				console.log('AudioSourcePlayer: stop.');
+				try {
+					self.source.stop();
+					self.isStart = false;
+					self.source = null;
+				}
+				catch (ex) {
+					console.log('AudioSourcePlayer:' + ex);
+				}
 			}
 		}
     };

@@ -297,7 +297,7 @@ jq(function(){
 .n5qj_ancdy {<!--{if $n5app['qjblcdfw'] == 1}-->left<!--{elseif $n5app['qjblcdfw'] == 2}-->right<!--{/if}-->: -50px;}
 .n5qj_ancdx {<!--{if $n5app['qjblcdfw'] == 1}-->left<!--{elseif $n5app['qjblcdfw'] == 2}-->right<!--{/if}-->: 10px;}
 </style>
-<div class="n5qj_ancd" id="fd">
+<div class="n5qj_ancd" style="display:none;" id="fd">
 	<i class="iconfont icon-n5appztcd"></i>
 	<span>{$n5app['lang']['jqclcd']}</span>
 	<div class="ancd_hcxx" style="display:none;">

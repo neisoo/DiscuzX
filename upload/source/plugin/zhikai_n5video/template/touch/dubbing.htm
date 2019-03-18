@@ -1666,6 +1666,9 @@ function onRecordBtnClick(event) {
 			accompanyPlayer.pause();
 		}
 
+		// 停止录音回放。
+		audioPlayer.stop();
+
 		// 复位录音进度条。
 		jq('#record_progress_' + subtitleCurrent).css('transition', 'width 0s');
 		jq('#record_progress_' + subtitleCurrent).css('width', '0%');
@@ -1745,7 +1748,6 @@ function onPlayBtnClick(event) {
 	// 播放用户录音。
 	if (recordRawData[subtitleCurrent]['audioBuffer'] != null) {
 		audioPlayer.attach(player, recordRawData[subtitleCurrent]['audioBuffer'], sentenceStartTime);
-		audioPlayer.start();
 	}
 
 	// 重新播放伴奏和录音。
@@ -2345,7 +2347,7 @@ previewPlayer.on("seeked", function() {
 });
 
 previewPlayer.userActive(false);
-previewPlayer.play();
+//previewPlayer.play();
 ////////////////////////////////////
 
 // 播放器时间更新回调。
