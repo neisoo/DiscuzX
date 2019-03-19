@@ -1583,6 +1583,10 @@ function onStopRecord() {
 					recordRawData[subtitleCurrent]['data'] = data;
 					audioCtx.decodeAudioData(data, function (audioBuffer) { //解码成功时的回调函数
 						console.log("Record decode success: duration=" + audioBuffer.duration);
+
+						// 加大音量。
+						increaseVolume(audioBuffer);
+
 						// 保存解码后的数据。
 						if (recordRawData[subtitleCurrent]['audioBuffer'] != null) {
 							delete recordRawData[subtitleCurrent]['audioBuffer'];
@@ -1959,6 +1963,67 @@ function convertBufferFloat32ToInt16(buffer) {
 	return outputBuffer;
 }
 
+// 将audio buffer中的音量放大到合适的值。
+function increaseVolume(buffer) {
+	// 合并左声道
+	var inputLeft = buffer.getChannelData(0);
+	var length = inputLeft.length;
+	var i = 0;
+	var s;
+	var min = 0;
+	var max = 0;
+	var scale = 0;
+
+	if (inputLeft != null) {
+		if (buffer.numberOfChannels == 1) {
+			// 找出合适的缩放值。
+			for (i = 0; i < length; i++) {
+				if (inputLeft[i] > max) {
+					max = inputLeft[i];
+				}
+				else if (inputLeft[i] < min) {
+					min = inputLeft[i];
+				}
+			}
+			scale = Math.max(Math.abs(max), Math.abs(min));
+			console.log("increaseVolume - scale:", scale);
+			if (scale < 1 && scale > 0) {
+				for (i = 0; i < length; i++) {
+					inputLeft[i] = inputLeft[i] / scale;
+				}
+			}
+
+		}
+		else {
+			var inputRight = buffer.getChannelData(1);
+			if (inputRight != null) {
+				// 找出合适的缩放值。
+				for (i = 0; i < length; i++) {
+					if (inputLeft[i] > max) {
+						max = inputLeft[i];
+					}
+					else if (inputLeft[i] < min) {
+						min = inputLeft[i];
+					}
+					if (inputRight[i] > max) {
+						max = inputRight[i];
+					}
+					else if (inputRight[i] < min) {
+						min = inputRight[i];
+					}
+				}
+				scale = Math.max(Math.abs(max), Math.abs(min));
+				console.log("increaseVolume - scale2:", scale);
+				if (scale < 1 && scale > 0) {
+					for (i = 0, j = 0; i < length; i++) {
+						inputLeft[i] = inputLeft[i] / scale;
+						inputRight[i] = inputRight[i] / scale;
+					}
+				}
+			}
+		}
+	}
+}
 // 上传最终的ogg blob到服务器。
 function uploadDubbing() {
 	// 显示正在保存提示
