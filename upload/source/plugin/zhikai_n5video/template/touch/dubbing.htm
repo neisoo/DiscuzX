@@ -1877,26 +1877,26 @@ function mergeAudioBuffer(context, buffer1, buffer2) {
 }
 
 // 将buffer2合并到buffer1，开始合并时间为startTime。
-// 合并后buffer1的时长不会改变，超出的部分会丢弃。
+// 合并后buffer1的时长不会改变，超出的部分会丢弃。采样率以通道数以buffer1为准。
 function mixAudioBuffer(context, buffer1, buffer2, startTime) {
+	var compression = 1;
 	if (buffer1.sampleRate != buffer2.sampleRate) {
-		// TODO: support resample.
-		return;
+		// Support resample.
+		compression = buffer2.sampleRate / buffer1.sampleRate;
 	}
 
-	var sampleRate = Math.min(buffer1.sampleRate, buffer2.sampleRate);
+	// 开始混音的偏移位置。
 	var offset = Math.floor(startTime * buffer1.sampleRate);
-	var channelCount = Math.max(buffer1.numberOfChannels, buffer2.numberOfChannels);
 
 	// 合并左声道
 	var src1 = buffer1.getChannelData(0);
 	var src2 = buffer2.getChannelData(0);
-	var count = Math.min(src1.length - offset, src2.length);
+	var count = Math.min((src1.length - offset) * compression, src2.length);
 	console.log("mixAudioBuffer - left startTime:", startTime, " src1:", src1.length, " src2:", src2.length);
 
 	// 合并重合的数据
-	for (var i = offset, j = 0; j < count; i++, j++) {
-		src1[i] = src1[i] + src2[j];
+	for (var i = offset, j = 0; j < count; i++, j += compression) {
+		src1[i] = src1[i] + src2[~~j];
 	}
 
 	console.log("mixAudioBuffer - left ok.");
@@ -1905,12 +1905,12 @@ function mixAudioBuffer(context, buffer1, buffer2, startTime) {
 	if (buffer1.numberOfChannels > 1) {
 		src1 = buffer1.getChannelData(1);
 		src2 = buffer2.numberOfChannels > 1 ? buffer2.getChannelData(1) : buffer2.getChannelData(0);
-		count = Math.min(src1.length - offset, src2.length);
+		count = Math.min((src1.length - offset) * compression, src2.length);
 		console.log("mixAudioBuffer - right src1:", src1.length, " src2:", src2.length);
 
 		// 合并重合的数据
-		for (var i = offset, j = 0; j < count; i++, j++) {
-			src1[i] = src1[i] + src2[j];
+		for (var i = offset, j = 0; j < count; i++, j += compression) {
+			src1[i] = src1[i] + src2[~~j];
 		}
 
 		console.log("mixAudioBuffer - mix right ok.");
