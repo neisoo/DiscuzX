@@ -1074,14 +1074,7 @@ player.on("canplay", function(){
 		dragSwitchSentence.init();
 
 		// 自动播放第一句
-		var timer = window.setInterval(function(){
-			window.clearInterval(timer);
-			player.userActive(false);
-			timer = window.setInterval(function(){
-				window.clearInterval(timer);
-				sentencePlay(0);
-			}, 2000);
-		}, 200);
+		sentencePlay(0);
 	}
 });
 
@@ -1288,7 +1281,7 @@ player.on('timeupdate', function() {
 	// 限制视频播放区间。
 	var currentTime = player.currentTime();
 	console.log("time:", currentTime, " playStatus=", playStatus, " range[", sentenceStartTime, "-", sentenceEndTime, "]");
-	if (currentTime >= sentenceEndTime) {
+	if (currentTime >= sentenceEndTime || currentTime < (sentenceStartTime - 1)) {
 		console.log("time seek to:", sentenceStartTime);
 
 		player.pause();
