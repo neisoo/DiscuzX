@@ -803,6 +803,12 @@
 			<p><i class="uk-icon-spinner uk-icon-spin"></i> 正在合成，请稍等下哦。</p>
 		</div>
 	</div>
+
+	<div class="zyh-dubbing-initing-alert uk-modal">
+		<div class="uk-modal-dialog">
+			<p><i class="uk-icon-spinner uk-icon-spin"></i> 正在加载配音数据，请稍等下哦。</p>
+		</div>
+	</div>
 </div>
 
 <!-- 预览界面 -->
@@ -912,6 +918,9 @@ if (jq('#accompany').length > 0) {
 				audioCtx.decodeAudioData(request.response, function(audioBuffer) {
 					// 初始化伴奏数据缓存。
 					accompanyBuffer = audioBuffer;
+
+					// 初始化配音缓存。
+					dubbingInit();
 				});
 			}
 		}, false);
@@ -925,6 +934,44 @@ var dubbingBlob = null; // 存放伴奏和录音的混合并压缩后的mp3数�
 var dubbingBlobName = null;
 var dubbingBuffer = null; // 存放伴奏和录音的混合后的声音数据，AudioBuffer类型。
 
+// 初始化配音缓存，如果还没有初始化。
+function dubbingInit() {
+	var duration = player.duration();
+	if (dubbingBuffer == null && !isNaN(duration)) {
+		if (jq('#accompany').length > 0) {
+			// 有伴奏
+			if (accompanyBuffer != null) {
+				dubbingBuffer = audioCtx.createBuffer(2, parseInt(accompanyBuffer.sampleRate * duration), accompanyBuffer.sampleRate);
+
+				if (dubbingBuffer != null) {
+					console.log("init: dubbingBuffer ok.");
+
+					// 配音缓存先填充伴奏数据。
+					dubbingBuffer.copyToChannel(accompanyBuffer.getChannelData(0), 0, 0);
+					if (accompanyBuffer.numberOfChannels > 1) {
+						dubbingBuffer.copyToChannel(accompanyBuffer.getChannelData(1), 1, 0);
+					}
+					toggleDialog(initingAlert);
+				}
+				else {
+					console.log("init: dubbingBuffer fail.");
+				}
+			}
+		}
+		else {
+			// 无伴奏
+			dubbingBuffer = audioCtx.createBuffer(2, parseInt(48000 * duration), 48000);
+			if (dubbingBuffer != null) {
+				console.log("init: dubbingBuffer ok1.");
+				toggleDialog(initingAlert);
+			}
+			else {
+				console.log("init: dubbingBuffer fail1.");
+			}
+		}
+	}
+}
+
 var attachInfo; // 存放录音的附件id。
 
 // 不要让整个页面滚动
@@ -932,6 +979,7 @@ jq('body').css('padding-top', '0px');
 
 /////////////////////////////////////////////////////////////////////////////
 // 用到的提示框或对话框。
+var initingAlert = UIkit.modal(".zyh-dubbing-initing-alert", {center:true, bgclose:false});
 var mergingAlert = UIkit.modal(".zyh-dubbing-merging-alert", {center:true, bgclose:false});
 var savingAlert = UIkit.modal(".zyh-preview-saving-alert", {center:true, bgclose:false});
 var backDialog = UIkit.modal(".zyh-dubbing-back-dialog", {center:true});
@@ -946,6 +994,7 @@ function toggleDialog(modal, force) {
 		modal.show();
 	}
 }
+toggleDialog(initingAlert);
 
 //////////////////////////////////////////////////////////////////////////
 player.on("ready", function(){
@@ -1278,6 +1327,8 @@ function getTimeString(seconds) {
 
 // 播放器时间更新回调。
 player.on('timeupdate', function() {
+	dubbingInit();
+
 	// 限制视频播放区间。
 	var currentTime = player.currentTime();
 	console.log("time:", currentTime, " playStatus=", playStatus, " range[", sentenceStartTime, "-", sentenceEndTime, "]");
@@ -1344,7 +1395,18 @@ function sentencePlay(index) {
 				$('#record_btn_' + subtitleCurrent).attr('disabled', '1');
 				subtitleCurrent = index;
 				player.on("seeked", function() {
-					$('#record_btn_' + subtitleCurrent).removeAttr('disabled');
+					if (dubbingBuffer == null) {
+						// 等待配音缓存初始化完成。
+						var timer = window.setInterval(function() {
+							if (dubbingBuffer != null) {
+								window.clearInterval(timer);
+								$('#record_btn_' + subtitleCurrent).removeAttr('disabled');
+							}
+						}, 200);
+					}
+					else {
+						$('#record_btn_' + subtitleCurrent).removeAttr('disabled');
+					}
 				});
 
 				// 播放视频
@@ -1586,6 +1648,17 @@ function onStopRecord() {
 							recordRawData[subtitleCurrent]['audioBuffer'] = null;
 						}
 						recordRawData[subtitleCurrent]['audioBuffer'] = audioBuffer;
+
+						// 配音缓冲的当前句子时间段填充伴奏。
+						if (accompanyBuffer == null) {
+							cleanAudioBuffer(dubbingBuffer, recordRawData[subtitleCurrent]['startTime'], recordRawData[subtitleCurrent]['endTime']);
+						}
+						else {
+							copyAudioBuffer(dubbingBuffer, accompanyBuffer, recordRawData[subtitleCurrent]['startTime'], recordRawData[subtitleCurrent]['endTime']);
+						}
+
+						// 再混合用户的录音
+						mixAudioBuffer(dubbingBuffer, recordRawData[subtitleCurrent]['audioBuffer'], recordRawData[subtitleCurrent]['startTime']);
 
 						// 录完后自动播放用户的录音。
 						var sentence = jq('#sentence_' + subtitleCurrent);
@@ -1878,7 +1951,7 @@ function mergeAudioBuffer(context, buffer1, buffer2) {
 
 // 将buffer2合并到buffer1，开始合并时间为startTime。
 // 合并后buffer1的时长不会改变，超出的部分会丢弃。采样率以通道数以buffer1为准。
-function mixAudioBuffer(context, buffer1, buffer2, startTime) {
+function mixAudioBuffer(buffer1, buffer2, startTime) {
 	var compression = 1;
 	if (buffer1.sampleRate != buffer2.sampleRate) {
 		// Support resample.
@@ -1914,6 +1987,62 @@ function mixAudioBuffer(context, buffer1, buffer2, startTime) {
 		}
 
 		console.log("mixAudioBuffer - mix right ok.");
+	}
+}
+
+// buffer2复制到buffer1，从timeBegin开始复制到timeEnd，采样率必须相同。
+function copyAudioBuffer(buffer1, buffer2, timeBegin, timeEnd) {
+	if (buffer1.sampleRate != buffer2.sampleRate) {
+		console.log("error: copyAudioBuffer - sampleRate must same.");
+		return;
+	}
+
+	// 开始复制的偏移位置和长度。
+	var offset = Math.floor(timeBegin * buffer1.sampleRate);
+	var length = Math.floor((timeEnd - timeBegin) * buffer1.sampleRate);
+
+	// 复制左声道
+	var src1 = buffer1.getChannelData(0);
+	var src2 = buffer2.getChannelData(0);
+	var count = Math.min(Math.min(src1.length - offset, src2.length), length);
+
+	for (var i = offset, j = 0; j < count; i++, j++) {
+		src1[i] = src2[i];
+	}
+
+	// 复制右声道
+	if (buffer1.numberOfChannels > 1) {
+		src1 = buffer1.getChannelData(1);
+		src2 = buffer2.numberOfChannels > 1 ? buffer2.getChannelData(1) : buffer2.getChannelData(0);
+		count = Math.min(Math.min(src1.length - offset, src2.length), length);
+
+		for (var i = offset, j = 0; j < count; i++, j++) {
+			src1[i] = src1[i] + src2[j];
+		}
+	}
+}
+
+function cleanAudioBuffer(buffer1, timeBegin, timeEnd) {
+	// 开始复制的偏移位置和长度。
+	var offset = Math.floor(timeBegin * buffer1.sampleRate);
+	var length = (timeEnd - timeBegin) * buffer1.sampleRate;
+
+	// 清除左声道
+	var src1 = buffer1.getChannelData(0);
+	var count = Math.min(src1.length - offset, length);
+
+	for (var i = offset, j = 0; j < count; i++, j++) {
+		src1[i] = 0;
+	}
+
+	// 清除右声道
+	if (buffer1.numberOfChannels > 1) {
+		src1 = buffer1.getChannelData(1);
+		count = Math.min(src1.length - offset, length);
+
+		for (var i = offset, j = 0; j < count; i++, j++) {
+			src1[i] = 0;
+		}
 	}
 }
 
@@ -2098,25 +2227,6 @@ function mergeRecord2Commpany()
 	// 显示等待合成。
 	toggleDialog(mergingAlert);
 
-	// 先复制伴奏。
-	dubbingBuffer = audioCtx.createBuffer(2, parseInt(48000 * player.duration()), 48000);
-	if (accompanyBuffer != null) {
-		dubbingBuffer.copyToChannel(accompanyBuffer.getChannelData(0), 0, 0);
-		if (accompanyBuffer.numberOfChannels > 1) {
-			dubbingBuffer.copyToChannel(accompanyBuffer.getChannelData(1), 1, 0);
-		}
-	}
-
-	// 再混合用户的录音
-	var i = 0;
-	while (recordRawData.hasOwnProperty(i)) {
-		if (recordRawData[i]['audioBuffer'] != null) {
-			console.log("mixAudioBuffer #", i);
-			mixAudioBuffer(audioCtx, dubbingBuffer, recordRawData[i]['audioBuffer'], recordRawData[i]['startTime']);
-		}
-		i++;
-	}
-
 	audioPlayer.attach(previewPlayer, dubbingBuffer, 0);
 
 	// for test.
@@ -2187,7 +2297,7 @@ function mergeRecord2Commpany()
 							dubbingBlobName = 'dubbing_' + Date.now() + '.ogg';
 
 						}, function(result) {
-							alert("Encoder fail: " + e.toString());
+							alert("Encoder fail: " + result.toString());
 
 							// 取消等待显示。
 							toggleDialog(mergingAlert);
