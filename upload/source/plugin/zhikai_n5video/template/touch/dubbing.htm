@@ -2239,13 +2239,37 @@ function mergeRecord2Commpany()
 	var timer = window.setInterval(function(){
 		window.clearInterval(timer);
 
+		// 填充数据，因为js bridge中的js代码不能太长。
+		var blockLen = (1024*1024);
+		var copyLen = 0;
+		var length = Math.floor(pcmInt16.byteLength / 2);
+		for (var i = 0; i < length; i += blockLen) {
+		
+			copyLen = Math.min(blockLen, length - i);
+			if (i == 0) {
+				window.audiorecord.feedEncodeData({
+					initLength: pcmInt16.byteLength
+				}, pcmInt16.slice(i, i + copyLen));
+			}
+			else {
+				window.audiorecord.feedEncodeData({}, pcmInt16.slice(i, i + copyLen));
+			}
+
+			if (copyLen < blockLen) {
+				break;
+			}
+		}
+
+		delete pcmInt16;
+		pcmInt16 = null;
+
 		// 启动后台编码成ogg数据。
 		window.audiorecord.startEncode({
 			outEncodeFormat: "ogg",
 			outSamplingRate: dubbingBuffer.sampleRate,
 			outNumberOfChannels: dubbingBuffer.numberOfChannels,
 			outBitRate: 128000
-		}, pcmInt16, function(data) {
+		}, function(data) {
 			// 获取编码后的ogg数据。
 			console.log("Encoder success");
 
@@ -2265,8 +2289,6 @@ function mergeRecord2Commpany()
 			console.log("Encoder fail: " + result.toString());
 		});
 
-		delete pcmInt16;
-		pcmInt16 = null;
 		
 		// 取消显示等待合成。
 		toggleDialog(mergingAlert);
