@@ -2017,7 +2017,7 @@ function copyAudioBuffer(buffer1, buffer2, timeBegin, timeEnd) {
 		count = Math.min(Math.min(src1.length - offset, src2.length), length);
 
 		for (var i = offset, j = 0; j < count; i++, j++) {
-			src1[i] = src1[i] + src2[j];
+			src1[i] = src2[i];
 		}
 	}
 }
@@ -2229,103 +2229,61 @@ function mergeRecord2Commpany()
 
 	audioPlayer.attach(previewPlayer, dubbingBuffer, 0);
 
-	// for test.
-	//var source = audioCtx.createBufferSource();
-	//source.buffer = dubbingBuffer;
-	//source.connect(audioCtx.destination);
-	//source.start();
+	// 转编码成16位
+	var pcmInt16 = convertBufferFloat32ToInt16(dubbingBuffer);
+	if (pcmInt16 == null) {
+		console.log("convertBufferFloat32ToInt16 fail.");
+		return;
+	}
 
-	// 全部混合完成后，尽快给用户提供能播放的声音用于预览。然后在
-	// 后台进行耗时的mp3格式编码，用户确认时，编码应该早就结束了，
-	// 这里就可以立即上传mp3格式的声音到服务器。
+	var timer = window.setInterval(function(){
+		window.clearInterval(timer);
 
-	// 将PCM数据保存到文件中，然后编码成Ogg格式。
-	window.resolveLocalFileSystemURL(cordova.file.cacheDirectory , function (dir) {
-		console.log("File dir load ok:", dir.nativeURL);
+		// 启动后台编码成ogg数据。
+		window.audiorecord.encoder({
+			outEncodeFormat: "ogg",
+			outSamplingRate: dubbingBuffer.sampleRate,
+			outNumberOfChannels: dubbingBuffer.numberOfChannels,
+			outBitRate: 128000
+		}, pcmInt16, function(data) {
+			// 获取编码后的ogg数据。
+			console.log("Encoder success");
 
-		var fileName = "dubbing_" + Date.now() + ".pcm";
-		dir.getFile(fileName, {create: true}, function (file) {
-			console.log("File get ok:", file.nativeURL);
+			if (dubbingBlob != null) {
+				delete dubbingBlob;
+				dubbingBlob = null;
+			}
 
-			file.createWriter(function (fileWriter) {
-				console.log("File create writer ok.");
+			dubbingBlob = new Blob([data], { type: 'audio/ogg' });
+			dubbingBlobName = 'dubbing_' + Date.now() + '.ogg';
 
-				var pcmInt16 = convertBufferFloat32ToInt16(dubbingBuffer);
-				if (pcmInt16 == null) {
-					console.log("convertBufferFloat32ToInt16 fail.");
-				}
-
-				// 将pcm数据保存到文件。
-				fileWriter.onwriteend = function() {
-					console.log("File write ok.");
-					delete pcmInt16;
-
-					// 到这里用户已经可以进行预览了，取消等待显示。
-					toggleDialog(mergingAlert);
-
-					// 切换到预览界面。
-					jq('.zyh-dubbing-ui').css('visibility', 'hidden');
-					jq('.zyh-preview-ui').css('visibility', 'visible');
-
-					// 不处理句子列表的滚动。
-					dragSwitchSentence.deinit();
-
-					playStatus = 3;
-					previewPlayer.muted(true);
-					previewPlayer.pause();
-					previewPlayer.currentTime(0);
-					previewPlayer.userActive(true);
-					previewPlayer.play();
-
-					// 后台编码成ogg数据。
-					window.audiorecord.encoder({
-							outEncodeFormat: "ogg",
-							inFileName: fileName,
-							outSamplingRate: dubbingBuffer.sampleRate,
-							outNumberOfChannels: dubbingBuffer.numberOfChannels,
-							outBitRate: 128000
-						}, function(data) {
-							// 获取编码后的ogg数据。
-							console.log("Encoder success");
-							
-							if (dubbingBlob != null) {
-								delete dubbingBlob;
-								dubbingBlob = null;
-							}
-
-							dubbingBlob = new Blob([data], { type: 'audio/ogg' });
-							dubbingBlobName = 'dubbing_' + Date.now() + '.ogg';
-
-						}, function(result) {
-							alert("Encoder fail: " + result.toString());
-
-							// 取消等待显示。
-							toggleDialog(mergingAlert);
-						});
-				};
-				fileWriter.onerror = function (e) {
-					alert("Failed file write: " + e.toString());
-					delete pcmInt16;
-
-					// 取消等待显示。
-					toggleDialog(mergingAlert);
-				};
-				fileWriter.write(pcmInt16);
-			}, function () {
-				alert("FileWriter error!");
-				// 取消等待显示。
-				toggleDialog(mergingAlert);
-			});
-		}, function (err) {
-			//alert("File creat fail!");
-			// 取消等待显示。
-			toggleDialog(mergingAlert);
+		}, function(result) {
+			console.log("Encoder fail: " + result.toString());
 		});
-	}, function (err) {
-		alert("File system load fail.");
-		// 取消等待显示。
+
+		delete pcmInt16;
+		pcmInt16 = null;
+		
+		// 取消显示等待合成。
 		toggleDialog(mergingAlert);
-	});
+		
+		// 切换到预览界面。
+		jq('.zyh-dubbing-ui').css('visibility', 'hidden');
+		jq('.zyh-preview-ui').css('visibility', 'visible');
+
+		// 不处理句子列表的滚动。
+		dragSwitchSentence.deinit();
+
+		playStatus = 3;
+		previewPlayer.muted(true);
+		previewPlayer.pause();
+		previewPlayer.currentTime(0);
+		previewPlayer.userActive(true);
+		previewPlayer.play();
+
+	}, 100);
+
+
 }
 
 // 切换到预览界面。
