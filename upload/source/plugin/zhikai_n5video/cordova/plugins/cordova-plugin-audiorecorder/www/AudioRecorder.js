@@ -48,10 +48,16 @@ audiorecorder.stopSound = function(success, error) {
     exec(success, error, 'AudioRecorder', 'stopSound');
 }
 
-audiorecorder.encoder = function(options, data, success, error) {
+audiorecorder.startEncode = function(options, data, success, error) {
     success = success || noop;
     error = error || noop;
-    exec(success, error, 'AudioRecorder', 'encoder', [options, data]);
+    exec(success, error, 'AudioRecorder', 'startEncode', [options, data]);
+}
+
+audiorecorder.stopEncode = function(success, error) {
+    success = success || noop;
+    error = error || noop;
+    exec(success, error, 'AudioRecorder', 'stopEncode');
 }
 
 module.exports = audiorecorder;

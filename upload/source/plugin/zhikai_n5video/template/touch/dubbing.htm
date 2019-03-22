@@ -2240,7 +2240,7 @@ function mergeRecord2Commpany()
 		window.clearInterval(timer);
 
 		// 启动后台编码成ogg数据。
-		window.audiorecord.encoder({
+		window.audiorecord.startEncode({
 			outEncodeFormat: "ogg",
 			outSamplingRate: dubbingBuffer.sampleRate,
 			outNumberOfChannels: dubbingBuffer.numberOfChannels,
@@ -2249,13 +2249,17 @@ function mergeRecord2Commpany()
 			// 获取编码后的ogg数据。
 			console.log("Encoder success");
 
-			if (dubbingBlob != null) {
-				delete dubbingBlob;
-				dubbingBlob = null;
-			}
+			// 预览界面时才接收编码好的ogg数据。
+			// 否则是退回配音界面时，因为中断编码而收到的部分编码数据。
+			if (playStatus == 3) {
+				if (dubbingBlob != null) {
+					delete dubbingBlob;
+					dubbingBlob = null;
+				}
 
-			dubbingBlob = new Blob([data], { type: 'audio/ogg' });
-			dubbingBlobName = 'dubbing_' + Date.now() + '.ogg';
+				dubbingBlob = new Blob([data], { type: 'audio/ogg' });
+				dubbingBlobName = 'dubbing_' + Date.now() + '.ogg';
+			}
 
 		}, function(result) {
 			console.log("Encoder fail: " + result.toString());
@@ -2324,6 +2328,7 @@ function switch2Dubbing() {
 	jq('.zyh-preview-ui').css('visibility', 'hidden');
 	dragSwitchSentence.init();
 	playStatus = 0;
+	window.audiorecord.stopEncode();
 }
 
 
