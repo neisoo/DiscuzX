@@ -479,22 +479,43 @@
 	opacity: 1;
 }
 
+.vjs-audio .vjs-poster:before {
+	font-family: VideoJS;
+	font-style: normal;
+	font-size: 2rem;
+	content: "\\f11e";
+	float:right;
+	margin: 1rem;
+}
 </style>
 
 <!-- 预览界面 -->
 <div class="zyh-preview-ui">
 	<!-- 预览播放器 -->
 	<div class="zyh-preview-player-area">
+		<!--{if substr(strrchr($attachInfo['video'], '.'), 1) != 'mp3'}-->
 		<video id="video-preview" class="video-js vjs-default-skin vidoe_wrap">
 			<source src="{$attachInfo[video]}" type='video/mp4'>
 			<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
-			<!--{if attachInfo['subtitle'] != null}-->
+			<!--{if $attachInfo['subtitle'] != null}-->
 			<track kind="subtitles" src="{$attachInfo[subtitle]}" srclang="en" id="original" label="{lang zhikai_n5video:lang_068}" default></track>
 			<!--{/if}--> 
 			<!--{if $attachInfo['tsubtitle'] != null}-->
 			<track kind="subtitles" src="{$attachInfo[tsubtitle]}" srclang="zh" id="translation" label="{lang zhikai_n5video:lang_069}"></track>
 			<!--{/if}--> 
 		</video>
+		<!--{else}--> 
+		<audio id="video-preview" class="video-js vjs-default-skin vidoe_wrap">
+			<source src="{$attachInfo[video]}" type='video/mp4'>
+			<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
+			<!--{if $attachInfo['subtitle'] != null}-->
+			<track kind="subtitles" src="{$attachInfo[subtitle]}" srclang="en" id="original" label="{lang zhikai_n5video:lang_068}" default></track>
+			<!--{/if}--> 
+			<!--{if $attachInfo['tsubtitle'] != null}-->
+			<track kind="subtitles" src="{$attachInfo[tsubtitle]}" srclang="zh" id="translation" label="{lang zhikai_n5video:lang_069}"></track>
+			<!--{/if}-->
+		</audio>
+		<!--{/if}-->
 	</div>
 
 	<!-- 用户配音 -->

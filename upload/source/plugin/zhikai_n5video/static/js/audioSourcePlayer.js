@@ -45,11 +45,13 @@
 			self.audioBuffer = buffer;
 			self.offset = offset;
 			if (self.source != null) {
-				self.source.stop();
+				if (self.isStart) {
+					self.source.stop();
+				}
 				self.source = null;
 			}
 			self.attached = true;
-            console.log('AudioSourcePlayer: attach.');
+			console.log('AudioSourcePlayer: attach.');
 		},
 
 		// 播放。
@@ -71,7 +73,7 @@
 						self.source.loop = false;
 						self.source.connect(self.context.destination);
 						console.log('AudioSourcePlayer: start. currentTime=', currentTime, " duration=", duration, " offset=", self.offset);
-						self.source.start(0, currentTime - self.offset, duration - currentTime);
+						self.source.start(0, Math.max(0, currentTime - self.offset), duration - currentTime);
 						self.isStart = true;
 					}
 					catch (ex) {

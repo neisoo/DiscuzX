@@ -716,7 +716,14 @@
 	content: "\\f101"; 
 }
 
-
+.vjs-audio .vjs-poster:before {
+	font-family: VideoJS;
+	font-style: normal;
+	font-size: 2rem;
+	content: "\\f11e";
+	float:right;
+	margin: 1rem;
+}
 </style>
 
 
@@ -750,16 +757,29 @@
 <div class="zyh-dubbing-ui">
 	<!-- 配音播放器 -->
 	<div class="zyh-dubbing-player-area">
+		<!--{if substr(strrchr($attachInfo['video'], '.'), 1) != 'mp3'}-->
 		<video id="video_{$attachInfo[tid]}" class="video-js vjs-default-skin vjs-big-play-centered vidoe_wrap">
 			<source src="{$attachInfo[video]}" type='video/mp4'>
 			<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
-			<!--{if attachInfo['subtitle'] != null}-->
+			<!--{if $attachInfo['subtitle'] != null}-->
 			<track kind="subtitles" src="{$attachInfo[subtitle]}" srclang="en" id="original" label="{lang zhikai_n5video:lang_068}" default></track>
 			<!--{/if}--> 
 			<!--{if $attachInfo['tsubtitle'] != null}-->
 			<track kind="subtitles" src="{$attachInfo[tsubtitle]}" srclang="zh" id="translation" label="{lang zhikai_n5video:lang_069}"></track>
 			<!--{/if}--> 
 		</video>
+		<!--{else}--> 
+		<audio id="video_{$attachInfo[tid]}" class="video-js vjs-default-skin vjs-big-play-centered vidoe_wrap">
+			<source src="{$attachInfo[video]}" type='video/mp4'>
+			<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
+			<!--{if $attachInfo['subtitle'] != null}-->
+			<track kind="subtitles" src="{$attachInfo[subtitle]}" srclang="en" id="original" label="{lang zhikai_n5video:lang_068}" default></track>
+			<!--{/if}--> 
+			<!--{if $attachInfo['tsubtitle'] != null}-->
+			<track kind="subtitles" src="{$attachInfo[tsubtitle]}" srclang="zh" id="translation" label="{lang zhikai_n5video:lang_069}"></track>
+			<!--{/if}--> 
+		</audio>
+		<!--{/if}-->
 	</div>
 	<!-- 配音列表滚动区域 -->
 	<div class="zyh-dubbing-scroll-area">
@@ -815,16 +835,29 @@
 <div class="zyh-preview-ui" style="visibility: hidden;">
 	<!-- 预览播放器 -->
 	<div class="zyh-preview-player-area">
+		<!--{if substr(strrchr($attachInfo['video'], '.'), 1) != 'mp3'}-->
 		<video id="video-preview" class="video-js vjs-default-skin vidoe_wrap">
 			<source src="{$attachInfo[video]}" type='video/mp4'>
 			<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
-			<!--{if attachInfo['subtitle'] != null}-->
+			<!--{if $attachInfo['subtitle'] != null}-->
 			<track kind="subtitles" src="{$attachInfo[subtitle]}" srclang="en" id="original" label="{lang zhikai_n5video:lang_068}" default></track>
 			<!--{/if}--> 
 			<!--{if $attachInfo['tsubtitle'] != null}-->
 			<track kind="subtitles" src="{$attachInfo[tsubtitle]}" srclang="zh" id="translation" label="{lang zhikai_n5video:lang_069}"></track>
 			<!--{/if}--> 
 		</video>
+		<!--{else}-->
+		<audio id="video-preview" class="video-js vjs-default-skin vidoe_wrap">
+			<source src="{$attachInfo[video]}" type='video/mp4'>
+			<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
+			<!--{if $attachInfo['subtitle'] != null}-->
+			<track kind="subtitles" src="{$attachInfo[subtitle]}" srclang="en" id="original" label="{lang zhikai_n5video:lang_068}" default></track>
+			<!--{/if}--> 
+			<!--{if $attachInfo['tsubtitle'] != null}-->
+			<track kind="subtitles" src="{$attachInfo[tsubtitle]}" srclang="zh" id="translation" label="{lang zhikai_n5video:lang_069}"></track>
+			<!--{/if}--> 
+		</audio>
+		<!--{/if}-->
 	</div>
 	<!-- 保存混音后的声音 -->
 	<div id="audio-dubbing">
@@ -1281,6 +1314,9 @@ function onUserActive() {
 	}
 	else {
 		console.log("useractive");
+		
+		onCancelRecord();
+
 		player.pause();
 		if (accompanyPlayer != null) {
 			accompanyPlayer.pause();
@@ -1611,6 +1647,11 @@ function onCancelRecord() {
 	if (isRecordStart) {
 		window.audiorecord.stopRecord(function(data) {});
 		isRecordStart = false;
+		
+		// 录音正常结束，进度条动画在100%位置停止。
+		var elem = jq('#record_progress_' + subtitleCurrent);
+		elem.css('transition', 'width 0s linear');
+		elem.css('width', '0%');
 	}
 }
 
@@ -1685,7 +1726,8 @@ function onStopRecord() {
 					playStatus = 0;
 
 					// 停止视频播放
-					player.userActive(true);
+					//player.userActive(true);
+					player.pause();
 				}
 			}, function(errMsg) {
 				console.log('Record stop error:', errMsg);
@@ -2239,10 +2281,10 @@ function mergeRecord2Commpany()
 	var timer = window.setInterval(function(){
 		window.clearInterval(timer);
 
-		// 填充数据，因为js bridge中的js代码不能太长。
+		// 分块填充数据，因为js bridge中的js代码不能太长，所以要分块传。
 		var blockLen = (1024*1024);
 		var copyLen = 0;
-		var length = Math.floor(pcmInt16.byteLength / 2);
+		var length = pcmInt16.byteLength;
 		for (var i = 0; i < length; i += blockLen) {
 		
 			copyLen = Math.min(blockLen, length - i);
