@@ -54,6 +54,13 @@
 	overflow: scroll;
 }
 
+.zyh-dubbing-subtitle {
+	font-size: 1.5rem;
+}
+.zyh-dubbing-tsubtitle {
+	font-size: 1rem;
+}
+
 .zyh-dubbing-done-button {
 	margin-top: 1rem;
 }
@@ -1081,11 +1088,11 @@ player.on("canplay", function(){
 					+		'<div class="uk-panel uk-panel-box" id="sentence_' + i + '" startTime="' + cue.startTime + '" endTime="' + cue.endTime + '">'
 					+			'<div class="uk-panel-badge uk-badge">Hot</div>'
 					+			'<h3 class="uk-panel-title">' + (i + 1) + '/' + subtitleCount + '</h3>'
-					+			'<p style="color:black;">' + cue.text + '</b></p>';
+					+			'<p class="zyh-dubbing-subtitle" style="color:black;">' + cue.text + '</b></p>';
 
 				// 译文
 				if (transTrack && transTrack.cues && transTrack.cues[i]) {
-					dom +=		'<p>' + transTrack.cues[i].text + '</p>';
+					dom +=		'<p class="zyh-dubbing-tsubtitle">' + transTrack.cues[i].text + '</p>';
 				}
 				dom +=			'<hr class="uk-article-divider">';
 				dom +=			'<div class="zyh-dubbing-control-panel uk-grid uk-grid-small">';
