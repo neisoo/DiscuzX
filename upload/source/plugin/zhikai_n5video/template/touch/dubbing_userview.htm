@@ -556,6 +556,7 @@ var previewVideoOptions = {
 	// 禁用自带来的控制条和播放按钮。
 	children: ['mediaLoader', 'posterImage', 'textTrackDisplay', 'loadingSpinner', 'errorDisplay', 'textTrackSettings', 'resizeManager', 'audioTrackButton'],
 	inactivityTimeout: 5000, // 在active状态会显示控制面板，用户5秒不操作视频，进入inactive收起控制面板。
+	loop:true //循环：boolean
 };
 
 var previewPlayer = videojs('video-preview', previewVideoOptions);
