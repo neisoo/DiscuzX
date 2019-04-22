@@ -2,6 +2,7 @@
 if (!defined('IN_DISCUZ')) {
     exit('Access Denied');
 }
+global $_G;
 
 // 使用金山词霸进行单词翻译。
 // 文档：http://open.iciba.com/index.php?c=wiki&t=cc
@@ -78,6 +79,11 @@ function getDict($word) {
 
 $word = $_GET['w'];
 $info = getDict($word);
+
+// 检查是否在生词本中。
+$profile = C::t('common_member_profile')->fetch($_G['uid']);
+$vocab = explode(",", $profile['field1']);
+$info['invocab'] = in_array($word, $vocab);
 
 /*
 $dir_url = './dict_download/';

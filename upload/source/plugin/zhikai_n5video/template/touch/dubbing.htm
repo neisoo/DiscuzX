@@ -893,6 +893,10 @@
 					<li>n. (Book)人名；(中)卜(广东话·威妥玛)；(朝)北；(英)布克；(瑞典)博克</li>
 				</ul>
 			</div>
+			<div class="uk-modal-footer">
+				<button class="vocab-add uk-button" type="button">加入生词本</button>
+				<button class="vocab-in uk-button" type="button" disabled>已加入生词本</button>
+			</div>
 		</div>
 	</div>
 
@@ -1270,6 +1274,16 @@ player.on("canplay", function(){
 								jq('#dictVoice')[0].play();
 							});
 
+							// 生词本按钮显示
+							if (info.invocab) {
+								jq('.vocab-add').hide();
+								jq('.vocab-in').show();
+							}
+							else {
+								jq('.vocab-add').show();
+								jq('.vocab-in').hide();
+							}
+
 							// 停止视频播放
 							player.userActive(true);
 
@@ -1277,11 +1291,25 @@ player.on("canplay", function(){
 							toggleDialog(dictDialog);
 						}
 						// 调试查词内容。
-						// alert(xhr.responseText);
+						alert(xhr.responseText);
 					}
 				}
 				xhr.send(null);
 			}
+
+			// 加入生词本按钮
+			jq('.vocab-add').click(function(event){
+				word = jq('.dictionary .keyword').text();
+				var xhr = new XMLHttpRequest();
+				xhr.open('POST', encodeURI('plugin.php?id=zhikai_n5video:vocabnotebook&w=' + word), true);
+				xhr.onreadystatechange = function () {
+					if (xhr.readyState == 4 && xhr.status == 200) {
+						jq('.vocab-add').hide();
+						jq('.vocab-in').show();
+					}
+				}
+				xhr.send(null);
+			});
 
 			text = text.replace("can't", 'can');
 			text = text.replace("n't", '');
