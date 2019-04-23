@@ -1301,7 +1301,7 @@ player.on("canplay", function(){
 			jq('.vocab-add').click(function(event){
 				word = jq('.dictionary .keyword').text();
 				var xhr = new XMLHttpRequest();
-				xhr.open('POST', encodeURI('plugin.php?id=zhikai_n5video:vocabnotebook&w=' + word), true);
+				xhr.open('POST', encodeURI('plugin.php?id=zhikai_n5video:vocabnotebook&op=add&w=' + word), true);
 				xhr.onreadystatechange = function () {
 					if (xhr.readyState == 4 && xhr.status == 200) {
 						jq('.vocab-add').hide();

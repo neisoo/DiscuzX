@@ -1,15 +1,11 @@
 <?php exit;?>
-<!--{if in_array($_GET[dubbing], array(1, 2, 3))}-->
+<!--{if in_array($_GET[vocab], array(1))}-->
+	<!--{subtemplate home/space_thread_vocab}-->
+<!--{elseif in_array($_GET[dubbing], array(1, 2, 3))}-->
 	<!--{template common/header}-->
 	<!--{eval if(!function_exists('init_n5app'))include DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/common.php'; if(!function_exists('init_n5app')) exit('Authorization error!');}-->
 	<!--{eval include_once DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/nvbing5.php'}-->
 	<!--{eval include_once DISCUZ_ROOT.'./source/plugin/zhikai_n5appgl/nvbing5_thread.php'}-->
-
-<style type="text/css">
-	.n5qj_tbys span {font-size: 0px;}
-	.small span {font-size: 17px;}
-	.n5jj_hdhd {bottom: -8px;}
-</style>
 
 	<!--{subtemplate home/space_thread_dubbing}-->
 <!-- {else}-->

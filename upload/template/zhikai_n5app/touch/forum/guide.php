@@ -61,7 +61,8 @@
 	</ul>
 </div>
 <div class="cldh_kjdh cl">
-	<a href="home.php?mod=space&do=thread&filter=common&dubbing=1&searchkey=public&mobile=2" class="n5ico"><div class="kjdh_kjtb"><i style="color:#F37D7D;" class="iconfont icon-clxwzx"></i></div><div class="kjdh_kjbt">我的配音</div><div class="kjdh_xytb"><i class="iconfont icon-n5appxy"></i></div></a>
+	<a href="home.php?mod=space&do=thread&filter=common&dubbing=1&searchkey=public&mobile=2" class="n5ico"><div class="kjdh_kjtb"><i style="color:#F37D7D;" class="uk-icon-microphone"></i></div><div class="kjdh_kjbt">我的配音</div><div class="kjdh_xytb"><i class="iconfont icon-n5appxy"></i></div></a>
+	<a href="home.php?mod=space&do=thread&filter=common&vocab=1&searchkey=public&mobile=2" class="n5ico"><div class="kjdh_kjtb"><i style="color:#F37D7D;" class="uk-icon-book"></i></div><div class="kjdh_kjbt">生词本</div><div class="kjdh_xytb"><i class="iconfont icon-n5appxy"></i></div></a>
 </div>
 <div class="cldh_kjdh cl" style="display:none;">
 	<a href="{$n5app['news_url']}" class="n5ico"><div class="kjdh_kjtb"><i style="color:#F37D7D;" class="iconfont icon-clxwzx"></i></div><div class="kjdh_kjbt">{$n5app['lang']['xinwen']}</div><div class="kjdh_xytb"><i class="iconfont icon-n5appxy"></i></div></a>
