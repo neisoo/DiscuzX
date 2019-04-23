@@ -27,7 +27,7 @@
 				</div>
 				<!-- 底部的保存按钮 -->
 				<div class="zyh-bottom-area uk-container-center uk-text-center uk-vertical-align n5qj_wbys cl n5qj_wbysx">
-					<button class="zyh-save-vocab-button uk-button uk-button-large uk-width-3-4 uk-vertical-align-middle">保存</button>
+					<button class="zyh-save-vocab-button uk-button uk-button-success uk-button-large uk-width-3-4 uk-vertical-align-middle" disabled="disabled">保存</button>
 				</div>
 			</fieldset>
 		</form>
@@ -39,6 +39,12 @@ var jq = jQuery.noConflict();
 
 <!--{eval $profile = C::t('common_member_profile')->fetch($_G['uid']);}-->
 jq('.vocab-textarea').val('{$profile['field1']}');
+
+// 内容变化时，使能保存按钮。
+jq('.vocab-textarea').bind('input propertychange', function(){  
+	jq('.zyh-save-vocab-button').removeAttr("disabled");
+});
+
 jq('.zyh-save-vocab-button').click(function(e) {
 	word = jq('.vocab-textarea').val();
 
@@ -51,7 +57,7 @@ jq('.zyh-save-vocab-button').click(function(e) {
 		}, 
 		cache: false,
 		success: function(){
-			alert("保存成功。")
+			jq('.zyh-save-vocab-button').attr("disabled", "disabled")
 		},
 		error: function() {
 			alert("保存失败。")
@@ -59,7 +65,6 @@ jq('.zyh-save-vocab-button').click(function(e) {
 	});
 	return false;
 });
-
 </script>
 
 <!--{template common/footer}-->
