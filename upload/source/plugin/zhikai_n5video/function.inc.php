@@ -567,9 +567,12 @@ function dubbing_user_replace($tid)
         loadcache('plugin');
     }
     $config = $_G['cache']['plugin']['zhikai_n5video'];
-    $post = DB::fetch_first('SELECT message, subject FROM %t WHERE tid=%d ', array(0 => 'forum_post', 1 => $tid));
+    $post = DB::fetch_first('SELECT message, subject, fid, pid FROM %t WHERE tid=%d ', array(0 => 'forum_post', 1 => $tid));
     $message = $post['message'];
     $subject = $post['subject'];
+    $fid = $post['fid'];
+    $pid = $post['pid'];
+
     if (strexists($message, '[/dubbing]') !== false) {
         if (preg_match_all('/\\[dubbing\\](.*?)\\[\\/dubbing\\]/is', $message, $mat)) {
             $jsonData = json_decode($mat[1][0], false);
@@ -603,6 +606,11 @@ function dubbing_user_replace($tid)
                         $attachInfo['progress'] = intval($count * 100 / $total);
                     }
                 }
+
+                // 加上s前缀，表示是用户配音贴的id，而非配音资源贴的id。
+                $attachInfo['sfid'] = $fid;
+                $attachInfo['stid'] = $tid;
+                $attachInfo['spid'] = $pid;
 
                 return $attachInfo;
             }

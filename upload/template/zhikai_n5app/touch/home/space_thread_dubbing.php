@@ -207,9 +207,9 @@ jq('.zyh-private-list-image-overlay').click(function(event) {
 	// TODO.
 });
 
-// 点击未发布配音列表项的非图片区域时，编辑用户配音。
+// 点击草稿配音列表项时，编辑用户配音贴子。
 jq('.zyh-draft-list-item').click(function(event) {
-	jq(window).attr('location', 'forum.php?mod=post&action=edit&tid=' + jq(this).attr('tid') + '&mobile=2');
+	jq(window).attr('location', 'forum.php?mod=post&action=edit&fid=' + jq(this).attr('fid') + '&tid=' + jq(this).attr('tid') + '&pid=' + jq(this).attr('pid') + '&mobile=2');
 });
 
 // 更新选择的数量。

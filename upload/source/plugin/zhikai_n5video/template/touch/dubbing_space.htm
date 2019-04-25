@@ -1,6 +1,6 @@
 <!--{block file}-->
 <!--{if $_GET[searchkey] == 'public'}-->
-<div class="zyh-public-list-item uk-grid uk-grid-small uk-position-relative" tid="{$stid}">
+<div class="zyh-public-list-item uk-grid uk-grid-small uk-position-relative" tid="{$attachInfo['stid']}">
 	<div class="uk-width-1-1">
 		<div class="uk-panel uk-panel-box uk-margin-small-left uk-margin-small-right" style="padding:0.5rem;">
 			<div class="uk-grid uk-grid-small" style="height:6rem;">
@@ -23,19 +23,19 @@
 	</div>
 	<div class="zyh-edit-checkbox uk-position-bottom-right uk-vertical-align uk-height-1-1" style="padding:0.5rem;">
 		<label class="checkbox uk-vertical-align-middle uk-margin-bottom-remove">
-			<input type="checkbox" name="threadCheckbox" value="{$stid}">
+			<input type="checkbox" name="threadCheckbox" value="{$attachInfo['stid']}">
 			<i class="fa fa-2x icon-checkbox"></i>
 		</label>
 	</div>
 </div>
 <!--{elseif $_GET[searchkey] == 'private'}-->
-<div class="zyh-private-list-item uk-grid uk-grid-small uk-position-relative" tid="{$stid}">
+<div class="zyh-private-list-item uk-grid uk-grid-small uk-position-relative" tid="{$attachInfo['stid']}">
 	<div class="uk-width-1-1">
 		<div class="uk-panel uk-panel-box uk-margin-small-left uk-margin-small-right" style="padding:0.5rem;">
 			<div class="uk-grid uk-grid-small" style="height:6rem;">
 				<figure class="uk-overlay">
 					<img class="" style="height:6rem; width:11rem;" src="{$attachInfo['cover']}">
-					<figcaption class="zyh-private-list-image-overlay uk-overlay-panel uk-icon-arrow-circle-up" tid="{$stid}"></figcaption>
+					<figcaption class="zyh-private-list-image-overlay uk-overlay-panel uk-icon-arrow-circle-up" tid="{$attachInfo['stid']}"></figcaption>
 				</figure>
 				<div class="" style="width:45%;">
 					<div class="" style="height:4rem;">
@@ -55,13 +55,13 @@
 	</div>
 	<div class="zyh-edit-checkbox uk-position-bottom-right uk-vertical-align uk-height-1-1" style="padding:0.5rem;">
 		<label class="checkbox uk-vertical-align-middle uk-margin-bottom-remove">
-			<input type="checkbox" name="threadCheckbox" value="{$stid}">
+			<input type="checkbox" name="threadCheckbox" value="{$attachInfo['stid']}">
 			<i class="fa fa-2x icon-checkbox"></i>
 		</label>
 	</div>
 </div>
 <!--{elseif $_GET[searchkey] == 'draft'}-->
-<div class="zyh-draft-list-item uk-grid uk-grid-small uk-position-relative" tid="{$stid}">
+<div class="zyh-draft-list-item uk-grid uk-grid-small uk-position-relative" fid="{$attachInfo['sfid']}" tid="{$attachInfo['stid']}" pid="{$attachInfo['spid']}">
 	<div class="uk-width-1-1">
 		<div class="uk-panel uk-panel-box uk-margin-small-left uk-margin-small-right" style="padding:0.5rem;">
 			<div class="uk-grid uk-grid-small" style="height:6rem;">
@@ -87,7 +87,7 @@
 	</div>
 	<div class="zyh-edit-checkbox uk-position-bottom-right uk-vertical-align uk-height-1-1" style="padding:0.5rem;">
 		<label class="checkbox uk-vertical-align-middle uk-margin-bottom-remove">
-			<input type="checkbox" name="threadCheckbox" value="{$stid}">
+			<input type="checkbox" name="threadCheckbox" value="{$attachInfo['stid']}">
 			<i class="fa fa-2x icon-checkbox"></i>
 		</label>
 	</div>
