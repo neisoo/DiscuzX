@@ -840,6 +840,8 @@
 			<ul class="uk-nav uk-nav-side uk-text-large">
 				<li><a id="back_dialog_continue" href="javascript:void(0)">继续配音</a></li>
 				<li class="uk-nav-divider"></li>
+				<li><a id="back_dialog_save" href="javascript:void(0)">保存到草稿箱</a></li>
+				<li class="uk-nav-divider"></li>
 				<li><a id="back_dialog_exitonly" href="javascript:void(0)">放弃返回</a></li>
 			</ul>
 		</div>
@@ -1132,7 +1134,11 @@ player.on("canplay", function(){
 			attachInfo = {};
 			attachInfo['type'] = 'dubbing';
 			attachInfo['data'] = {};
-			attachInfo['data']['tid'] = jq('#tid').attr('tid');
+			attachInfo['data']['tid'] = jq('#tid').attr('tid'); // 对哪一个主题贴的配音
+			attachInfo['data']['record'] = new Array(subtitleCount); // 每一句录音的附件ID
+			for (var i = 0; i < subtitleCount; i++){
+				attachInfo['data']['record'][i] = "";
+			}
 
 			// 创建数组，用于存放录音压缩声音数据。
 			recordRawData = new Array(subtitleCount);
@@ -1189,6 +1195,8 @@ player.on("canplay", function(){
 				dom +=							'<i class="uk-icon-microphone"></i>';
 				dom +=						'</button>';
 				dom +=					'</div>';
+				dom +=				'</div>';
+				dom +=				'<div id="attach_data_' + i + '" style="display: none;">'; // 在里存放录音的表单数据。
 				dom +=				'</div>';
 				dom +=			'</div>';
 
@@ -1456,14 +1464,82 @@ function dummyBigPlayBtnPlugin(options) {
 videojs.registerPlugin('dummyBigPlayBtnPlugin', dummyBigPlayBtnPlugin);
 player.dummyBigPlayBtnPlugin({});
 
+////////////////////////////////////////////////////////
+// 删除所有录音附件。
+function removeAllRecordAttach(callback) {
+	var haveData = false;
+	var aidsUrl = '';
+
+	// 找出已经提交的单句录音附件。
+	for (var i = 0, j = 0; i < subtitleCount; i++) {
+		if (attachInfo['data']['record'][i] != "") {
+			haveData = true;
+			aidsUrl += '&aids[]=' + attachInfo['data']['record'][i];
+			attachInfo['data']['record'][i] = '';
+		}
+	}
+
+	// 删除已经提交的单句录音附件。
+	if (haveData) {
+		$.ajax({
+			type:'GET',
+			url:'forum.php?mod=ajax&action=deleteattach&inajax=yes' + aidsUrl,
+		})
+		.success(function(s) {
+			for (var i = 0, j = 0; i < subtitleCount; i++) {
+				if (attachInfo['data']['record'][i] != "") {
+					attachInfo['data']['record'][i] = '';
+				}
+				// 删除相应的表单项。
+				jq('#attach_data_' + subtitleCurrent).html('')
+			}
+			delete attachInfo['data']['record'];
+
+			// 更新帖子正文中的标记。
+			jq('#needmessage').val('[dubbing]' + JSON.stringify(attachInfo) + '[/dubbing]');
+
+			if (typeof callback == 'function') {
+				var timer = window.setInterval(function(){
+					window.clearInterval(timer);
+					callback();
+				}, 100);
+			}
+		})
+		.error(function() {
+			popup.open('{lang networkerror}', 'alert');
+		});
+	}
+	else {
+		if (typeof callback == 'function') {
+			callback();
+		}
+	}
+}
+
 // 继续配音
 jq('#back_dialog_continue').click(function(event){
 	toggleDialog(backDialog);
 });
 
+// 保存草稿并退出。
+jq('#back_dialog_save').click(function(event){
+	toggleDialog(backDialog);
+
+	// 在标题区增加draft来区分已发布配音。
+	jq('#needsubject').val('draft:' + jq('#subject').attr('subject'));
+
+	jq('#postsubmit').click();
+});
+
 // 仅退出配音界面
 jq('#back_dialog_exitonly').click(function(event){
 	toggleDialog(backDialog);
+
+	// 删除所有已经上传的录音附件，退出。
+	removeAllRecordAttach(function() {
+		history.back(-1); 
+	});
+
 	history.back(-1);
 });
 
@@ -1832,6 +1908,62 @@ var dragSwitchSentence = {
 // 录音
 var isRecordStart = false;
 
+function uploadRecordCallback(data) {
+	if (data.indexOf('DISCUZUPLOAD') > -1) {
+		var arr = data.split('|');
+		if (arr[1] == 0) {
+			// 记录上传文件的附件ID。
+			attachInfo['data']['record'][subtitleCurrent] = arr[2];
+
+			// 更新帖子正文中的标记。
+			jq('#needmessage').val('[dubbing]' + JSON.stringify(attachInfo) + '[/dubbing]');
+
+			// 附件提交的表单数据，表单中至少有一个attachnew['附件ID'][xxx]的表单项，
+			// 提交后附件ID对应的附件才会被视为已使用附件。
+			// 表单项的内容只是简单的填充一个字符串，暂时未使用。
+			jq('#attach_data_' + subtitleCurrent).html('').
+				append('<input type="text" value="record' + subtitleCurrent + '" name="attachnew['+ arr[2] +'][description]"/>');
+
+			// 使能预览按钮。
+			jq('.zyh-dubbing-done-button').removeAttr('disabled');
+
+			// 充许提交贴子。
+			needsubject = true; // 在post.php中定义。
+			needmessage = true;
+			$('.btn_pn').removeClass('btn_pn_grey').addClass('btn_pn_blue');
+			$('.btn_pn').attr('disable', 'false');
+
+			// 显示句子播放按钮。
+			jq('#play_btn_' + subtitleCurrent).css('display', 'inline-block');
+
+			// 录音完成。
+			isRecordStart = false;
+			playStatus = 0;
+
+			// 停止视频播放
+			//player.userActive(true);
+			player.pause();
+		}
+		else if (lang_msg[arr[1]] != undefined ) {
+			// 出错，显示出错原因。
+			var sizelimit = '';
+			if(arr[8] == 'ban') {
+				sizelimit = '{lang uploadpicatttypeban}';
+			} else if(arr[8] == 'perday') {
+				sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+			} else if(arr[8] > 0) {
+				sizelimit = '{lang donotcross}'+Math.ceil(arr[8]/1024)+'K)';
+			}
+			popup.open(lang_msg[arr[1]] + sizelimit, 'alert');
+		}
+	}
+	else {
+		if (data) {
+			popup.open(lang_msg[data], 'alert');
+		}
+	}
+}
+
 function onCancelRecord() {
 	// 停止录音，并丢弃数据。
 	if (isRecordStart) {
@@ -1866,6 +1998,7 @@ function onStopRecord() {
 						delete recordRawData[subtitleCurrent]['data'];
 						recordRawData[subtitleCurrent]['data'] = null;
 					}
+
 					recordRawData[subtitleCurrent]['data'] = data;
 					audioCtx.decodeAudioData(data, function (audioBuffer) { //解码成功时的回调函数
 						console.log("Record decode success: duration=" + audioBuffer.duration);
@@ -1899,25 +2032,25 @@ function onStopRecord() {
 						console.log('Record decode error:', e);
 					});
 
-					// 使能预览按钮。
-					jq('.zyh-dubbing-done-button').removeAttr('disabled');
+					// 上传服务器，压缩后的录音数据比较小，所以一次上传不用分块。
+					var form = new FormData();
+					form.append("file_data", blob);
+					form.append("file_name", oggName);
+					form.append("file_total", 1)
+					form.append("file_index", 1);
+					form.append("file_size", blob.size);
+					form.append("file_id", parseInt(Math.random() * 9999 + 10001)); // 随机id，100001~19999
 
-					// 充许提交贴子。
-					needsubject = true; // 在post.php中定义。
-					needmessage = true;
-					$('.btn_pn').removeClass('btn_pn_grey').addClass('btn_pn_blue');
-					$('.btn_pn').attr('disable', 'false');
-
-					// 显示句子播放按钮。
-					jq('#play_btn_' + subtitleCurrent).css('display', 'inline-block');
-
-					// 录音完成。
-					isRecordStart = false;
-					playStatus = 0;
-
-					// 停止视频播放
-					//player.userActive(true);
-					player.pause();
+					var xhr = new XMLHttpRequest();
+					var uploadUrl = 'plugin.php?id=zhikai_n5video:upload&fid={$_G[fid]}&uid={$_G[uid]}&hash={$upfhash}';
+					xhr.open("POST", uploadUrl, true);
+					xhr.onreadystatechange = function () {
+						if (xhr.readyState == 4 && xhr.status == 200) {
+							uploadRecordCallback(xhr.responseText);
+							// TODO: 录音打分。
+						}
+					}
+					xhr.send(form);
 				}
 			}, function(errMsg) {
 				console.log('Record stop error:', errMsg);
@@ -2382,6 +2515,9 @@ function increaseVolume(buffer) {
 function uploadDubbing() {
 	// 显示正在保存提示
 	toggleDialog(savingAlert);
+
+	// 删除单句的录音附件。
+	removeAllRecordAttach();
 
 	// 如果后台还没有ogg编码完成配音，则等待。
 	if (dubbingBlob == null) {
