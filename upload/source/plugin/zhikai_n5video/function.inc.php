@@ -599,12 +599,21 @@ function dubbing_user_replace($tid)
                     if ($total >= 1) {
                         $count = 0;
                         for ($i = 0; $i < $total; $i++) {
-                            if ($jsonData->data->record[$i] != "") {
+                            $id = $jsonData->data->record[$i];
+                            if (!empty($id)) {
+                                // 获取已经完成录音的声音文件的url。
+                                $aidtb = getattachtablebyaid($id);
+                                $attach = DB::fetch_first('SELECT attachment, remote FROM %t WHERE aid=%d', array(0 => $aidtb, 1 => $id));
+                                $attachurl = ($attach['remote'] ? $_G['setting']['ftp']['attachurl'] : $_G['setting']['attachurl']) . 'forum/';
+                                $audio_url = $attachurl . $attach['attachment'];
+                                $attachInfo['srecord'][$i]['attachid'] = $id;
+                                $attachInfo['srecord'][$i]['url'] = $audio_url;
                                 $count++;
                             }
                         }
                         $attachInfo['progress'] = intval($count * 100 / $total);
                     }
+
                 }
 
                 // 加上s前缀，表示是用户配音贴的id，而非配音资源贴的id。

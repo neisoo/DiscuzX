@@ -251,6 +251,11 @@ class mobileplugin_zhikai_n5video_forum extends mobileplugin_zhikai_n5video {
 					include template('zhikai_n5video:dubbing_new');
 				}
 			}
+			else if($_GET['action'] == 'edit') {
+				// 修改用户配音贴
+				$attachInfo = dubbing_user_replace($_GET['tid']);
+				include template('zhikai_n5video:dubbing');
+			}
 			else if($_GET['action'] == 'reply') {
 				// DO LATER: 回贴
 				//$attachInfo = dubbing_replace($_G['tid']);

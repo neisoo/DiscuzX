@@ -256,6 +256,7 @@
 	<!--{if 0 && $_G['setting']['mobile']['geoposition']}-->
 	geo.getcurrentposition();
 	<!--{/if}-->
+	// 点击提交按钮
 	$('#postsubmit').on('click', function() {
 		var obj = $(this);
 		if(obj.attr('disable') == 'true') {
@@ -270,6 +271,7 @@
 //			postlocation = geo.longitude + '|' + geo.latitude + '|' + geo.loc;
 //		}
 
+		// post表单数据到action属性指定的页面。
 		jq.ajax({
 			type:'POST',
 			url:form.attr('action') + '&geoloc=' + postlocation + '&handlekey='+form.attr('id')+'&inajax=1',
@@ -277,7 +279,16 @@
 			dataType:'xml'
 		})
 		.success(function(s) {
-			popup.open(s.lastChild.firstChild.nodeValue);
+			//// 提交成功后，在对话框中显示提交页面返回的页面和脚本，脚本会跳转到指定的页面。
+			// popup.open(s.lastChild.firstChild.nodeValue);
+
+			<!--{if $_GET[action] == 'newthread'}-->
+				// 新建配音转入显示用户配音。
+				popup.open(s.lastChild.firstChild.nodeValue);
+			<!--{elseif $_GET[action] == 'edit'}-->
+				// 保存成草稿后转入草稿箱。
+				window.location.href = 'home.php?mod=space&do=thread&view=me&type=thread&filter=common&searchkey=draft&dubbing=3&mobile=2&fid=' + fid; 
+			<!--{/if}-->
 		})
 		.error(function() {
 			popup.open('{lang networkerror}', 'alert');

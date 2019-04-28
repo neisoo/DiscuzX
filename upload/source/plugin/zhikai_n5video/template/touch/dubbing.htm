@@ -770,7 +770,14 @@
 <div id="dubbing_params" style="display: none">
 	<div id="tid" tid="{$attachInfo[tid]}" ></div>
 	<div id="subject" subject="{$attachInfo[subject]}"></div>
-
+	<!--{if $attachInfo['srecord'] != null}-->
+	<div id="srecord">
+		<!--{loop $attachInfo['srecord'] $key $val}-->
+		<div id="srecord_{$key}" index="{$key}" fileurl="{$val[url]}" attachid="{$val[attachid]}""></div>
+		<!--{/loop}-->
+	</div>
+	<!--{/if}-->
+	
 	<input type="text" name="subject" value="dubbing:{$attachInfo[subject]}" id="needsubject" class="txt"/>
 	
 	<!--保存方式，value=1表示以草稿方式保存 -->
@@ -1050,17 +1057,19 @@ function dubbingInit() {
 				dubbingBuffer = audioCtx.createBuffer(2, parseInt(accompanyBuffer.sampleRate * duration), accompanyBuffer.sampleRate);
 
 				if (dubbingBuffer != null) {
-					console.log("init: dubbingBuffer ok.");
+					console.log("dubbingInit: well done.");
 
 					// 配音缓存先填充伴奏数据。
 					dubbingBuffer.copyToChannel(accompanyBuffer.getChannelData(0), 0, 0);
 					if (accompanyBuffer.numberOfChannels > 1) {
 						dubbingBuffer.copyToChannel(accompanyBuffer.getChannelData(1), 1, 0);
 					}
-					toggleDialog(initingAlert);
+
+					// 初始化已有的草稿配音。
+					draftRecordInit();
 				}
 				else {
-					console.log("init: dubbingBuffer fail.");
+					console.log("dubbingInit: fail: no memory.");
 				}
 			}
 		}
@@ -1068,13 +1077,116 @@ function dubbingInit() {
 			// 无伴奏
 			dubbingBuffer = audioCtx.createBuffer(2, parseInt(48000 * duration), 48000);
 			if (dubbingBuffer != null) {
-				console.log("init: dubbingBuffer ok1.");
-				toggleDialog(initingAlert);
+				console.log("dubbingInit: well done with no company.");
+
+				// 初始化已有的草稿配音。
+				draftRecordInit();
 			}
 			else {
-				console.log("init: dubbingBuffer fail1.");
+				console.log("dubbingInit: fail: no memory.");
 			}
 		}
+	}
+}
+
+// 获取已配音的句子录音。
+function draftRecordInit(callback) {
+	var srecord = [];
+	var i = 0;
+
+	if (jq('#srecord').length > 0) {
+		jq('#srecord').children().each(function() {
+			srecord[i] = [];
+			srecord[i]['index'] = jq(this).attr('index');;
+			srecord[i]['fileurl'] = jq(this).attr('fileurl');
+			srecord[i]['attachid'] = jq(this).attr('attachid');
+			i++;
+		});
+
+		// 将数组中的切片依次上传。
+		i = 0;
+		var index;
+		var fileurl;
+		var attachid;
+		var request = new XMLHttpRequest();
+		request.responseType = "arraybuffer";
+		function ajaxStack(stack) {
+			// 数组中是否还要有要上传的切片。
+			if (stack.hasOwnProperty(i)) {
+				index = stack[i]['index'];
+				fileurl = stack[i]['fileurl']
+				attachid = stack[i]['attachid'];
+				console.log('draftRecordInit: request: index=' + index + ', aid=' + attachid + ', url=' + fileurl);
+
+				// 加载声音数据文件
+				request.open("GET", fileurl, true);
+
+				request.onreadystatechange = function () {
+					// 更新状态信息和上传进度。
+					if (request.readyState == 4 && request.status == 200) {
+						// 解码数据到accompanyBuffer。
+						if (audioCtx.decodeAudioData) {
+							audioCtx.decodeAudioData(request.response, function(audioBuffer) {
+								// 加大音量。
+								increaseVolume(audioBuffer);
+
+								// 保存解码后的数据。
+								if (recordRawData[index]['audioBuffer'] != null) {
+									delete recordRawData[index]['audioBuffer'];
+									recordRawData[index]['audioBuffer'] = null;
+								}
+								recordRawData[index]['audioBuffer'] = audioBuffer;
+
+								// 配音缓冲的当前句子时间段填充伴奏。
+								if (accompanyBuffer == null) {
+									cleanAudioBuffer(dubbingBuffer, recordRawData[index]['startTime'], recordRawData[index]['endTime']);
+								}
+								else {
+									copyAudioBuffer(dubbingBuffer, accompanyBuffer, recordRawData[index]['startTime'], recordRawData[index]['endTime']);
+								}
+
+								// 再混合用户的录音
+								mixAudioBuffer(dubbingBuffer, recordRawData[index]['audioBuffer'], recordRawData[index]['startTime']);
+
+								// 记录上传文件的附件ID。
+								attachInfo['data']['record'][index] = attachid;
+
+								// 更新帖子正文中的标记。
+								jq('#needmessage').val('[dubbing]' + JSON.stringify(attachInfo) + '[/dubbing]');
+
+								// 附件提交的表单数据，表单中至少有一个attachnew['附件ID'][xxx]的表单项，
+								// 提交后附件ID对应的附件才会被视为已使用附件。
+								// 表单项的内容只是简单的填充一个字符串，暂时未使用。
+								jq('#attach_data_' + index).html('').
+									append('<input type="text" value="record' + index + '" name="attachnew['+ attachid +'][description]"/>');
+
+								// 显示句子播放按钮。
+								jq('#play_btn_' + index).css('display', 'inline-block');
+
+								console.log('draftRecordInit: done: index=' + index + ', aid=' + attachid + ', url=' + fileurl);
+
+								// 获取下一个录音文件。
+								i++;
+								ajaxStack(stack);
+							});
+						}
+					}
+				}
+				request.send(null);
+			}
+			else {
+				toggleDialog(initingAlert);
+				console.log('draftRecordInit: well done.');
+			}
+		}
+		// 获取第一个录音文件。
+		ajaxStack(srecord);
+
+		// 使能预览按钮。
+		jq('.zyh-dubbing-done-button').removeAttr('disabled');
+	}
+	else {
+		toggleDialog(initingAlert);
 	}
 }
 
@@ -1184,7 +1296,7 @@ player.on("canplay", function(){
 				dom +=				'</div>';
 				dom +=				'<div class="zyh-dubbing-control-panel uk-width-1-6 uk-vertical-align">';
 				dom +=					'<div class="uk-panel uk-vertical-align-middle">';
-				dom +=						'<button id="play_btn_' + i + '" class="uk-button uk-button-success sentence-play-button" type="button" style="display: none;">';
+				dom +=						'<button id="play_btn_' + i + '" class="uk-button uk-button-success sentence-play-button" type="button" style="display: none;" disabled>';
 				dom +=							'<i class="uk-icon-play"></i>';
 				dom +=						'</button>';
 				dom +=					'</div>';
@@ -1209,8 +1321,6 @@ player.on("canplay", function(){
 				// 设置句子的播放和录音回调。
 				jq('#play_btn_' + i).click(onPlayBtnClick);
 				jq('#record_btn_' + i).click(onRecordBtnClick);
-				
-
 			}
 		}
 		
@@ -1695,6 +1805,7 @@ function sentencePlay(index) {
 
 				// 禁用之前句子的录音按钮，并在播放器定位成功后，使能当前句子的录音按钮。
 				$('#record_btn_' + subtitleCurrent).attr('disabled', '1');
+				$('#play_btn_' + subtitleCurrent).attr('disabled', '1');
 				subtitleCurrent = index;
 				player.on("seeked", function() {
 					if (dubbingBuffer == null) {
@@ -1703,11 +1814,13 @@ function sentencePlay(index) {
 							if (dubbingBuffer != null) {
 								window.clearInterval(timer);
 								$('#record_btn_' + subtitleCurrent).removeAttr('disabled');
+								$('#play_btn_' + subtitleCurrent).removeAttr('disabled');
 							}
 						}, 200);
 					}
 					else {
 						$('#record_btn_' + subtitleCurrent).removeAttr('disabled');
+						$('#play_btn_' + subtitleCurrent).removeAttr('disabled');
 					}
 				});
 
