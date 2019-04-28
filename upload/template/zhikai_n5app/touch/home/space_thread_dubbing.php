@@ -130,7 +130,10 @@
 				.page {margin-top:20px;margin-bottom:10px;}
 				.page a {float: none;display:inline;padding: 10px 30px;}
 			</style>
-			<!--{if $multi}-->$multi<!--{/if}-->	
+			<!--{if $multi}-->
+				<!--{eval $multi = simplepage(count($list), $perpage, $page, $theurl . '&dubbing=' . $_GET['dubbing']);}-->
+				$multi
+			<!--{/if}-->
 
 			<!-- 底部的删除按钮 -->
 			<div class="zyh-bottom-area uk-container-center uk-text-center uk-vertical-align n5qj_wbys cl n5qj_wbysx">
