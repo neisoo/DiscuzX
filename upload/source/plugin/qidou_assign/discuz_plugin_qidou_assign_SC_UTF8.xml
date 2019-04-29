@@ -1,0 +1,265 @@
+﻿<?xml version="1.0" encoding="ISO-8859-1"?>
+<root>
+	<item id="Title"><![CDATA[Discuz! Plugin]]></item>
+	<item id="Version"><![CDATA[X3.2]]></item>
+	<item id="Time"><![CDATA[2016-10-09 17:35]]></item>
+	<item id="From"><![CDATA[Discuz! Board (http://www.svn.com/)]]></item>
+	<item id="Data">
+		<item id="plugin">
+			<item id="available"><![CDATA[1]]></item>
+			<item id="adminid"><![CDATA[1]]></item>
+			<item id="name"><![CDATA[【七豆】签到]]></item>
+			<item id="identifier"><![CDATA[qidou_assign]]></item>
+			<item id="description"><![CDATA[]]></item>
+			<item id="datatables"><![CDATA[]]></item>
+			<item id="directory"><![CDATA[qidou_assign/]]></item>
+			<item id="copyright"><![CDATA[七豆云7dcms.com]]></item>
+			<item id="version"><![CDATA[1.1.4]]></item>
+			<item id="__modules">
+				<item id="0">
+					<item id="name"><![CDATA[pc]]></item>
+					<item id="param"><![CDATA[]]></item>
+					<item id="menu"><![CDATA[]]></item>
+					<item id="url"><![CDATA[]]></item>
+					<item id="type"><![CDATA[11]]></item>
+					<item id="adminid"><![CDATA[0]]></item>
+					<item id="displayorder"><![CDATA[0]]></item>
+					<item id="navtitle"><![CDATA[]]></item>
+					<item id="navicon"><![CDATA[]]></item>
+					<item id="navsubname"><![CDATA[]]></item>
+					<item id="navsuburl"><![CDATA[]]></item>
+				</item>
+				<item id="1">
+					<item id="name"><![CDATA[record]]></item>
+					<item id="param"><![CDATA[]]></item>
+					<item id="menu"><![CDATA[签到记录]]></item>
+					<item id="url"><![CDATA[]]></item>
+					<item id="type"><![CDATA[3]]></item>
+					<item id="adminid"><![CDATA[0]]></item>
+					<item id="displayorder"><![CDATA[1]]></item>
+					<item id="navtitle"><![CDATA[]]></item>
+					<item id="navicon"><![CDATA[]]></item>
+					<item id="navsubname"><![CDATA[]]></item>
+					<item id="navsuburl"><![CDATA[]]></item>
+				</item>
+				<item id="2">
+					<item id="name"><![CDATA[link]]></item>
+					<item id="param"><![CDATA[]]></item>
+					<item id="menu"><![CDATA[入口连接]]></item>
+					<item id="url"><![CDATA[]]></item>
+					<item id="type"><![CDATA[3]]></item>
+					<item id="adminid"><![CDATA[0]]></item>
+					<item id="displayorder"><![CDATA[2]]></item>
+					<item id="navtitle"><![CDATA[]]></item>
+					<item id="navicon"><![CDATA[]]></item>
+					<item id="navsubname"><![CDATA[]]></item>
+					<item id="navsuburl"><![CDATA[]]></item>
+				</item>
+			</item>
+		</item>
+		<item id="version"><![CDATA[X3.2]]></item>
+		<item id="var">
+			<item id="0">
+				<item id="displayorder"><![CDATA[0]]></item>
+				<item id="title"><![CDATA[签到获得论坛货币]]></item>
+				<item id="description"><![CDATA[选择奖励货币类型。]]></item>
+				<item id="variable"><![CDATA[type]]></item>
+				<item id="type"><![CDATA[extcredit]]></item>
+				<item id="value"><![CDATA[2]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="1">
+				<item id="displayorder"><![CDATA[1]]></item>
+				<item id="title"><![CDATA[签到获得货币数量]]></item>
+				<item id="description"><![CDATA[每天签到获得货币数量。]]></item>
+				<item id="variable"><![CDATA[get_currencies]]></item>
+				<item id="type"><![CDATA[text]]></item>
+				<item id="value"><![CDATA[2]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="2">
+				<item id="displayorder"><![CDATA[2]]></item>
+				<item id="title"><![CDATA[是否开启连续签到奖励]]></item>
+				<item id="description"><![CDATA[开启后连续签到规则才会生效]]></item>
+				<item id="variable"><![CDATA[continue]]></item>
+				<item id="type"><![CDATA[radio]]></item>
+				<item id="value"><![CDATA[1]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="3">
+				<item id="displayorder"><![CDATA[3]]></item>
+				<item id="title"><![CDATA[连续签到奖励规则]]></item>
+				<item id="description"><![CDATA[连续签到奖励规则， 例如 5=10  签到5天奖励 10积分（金钱），一行一个规则 ，开启是否开启连续签到奖励有效。]]></item>
+				<item id="variable"><![CDATA[continue_currencies]]></item>
+				<item id="type"><![CDATA[textarea]]></item>
+				<item id="value"><![CDATA[5=10
+7=15
+13=25
+30=50]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="4">
+				<item id="displayorder"><![CDATA[4]]></item>
+				<item id="title"><![CDATA[补签卡消耗数量]]></item>
+				<item id="description"><![CDATA[设置购买补签卡消耗的货币数量。]]></item>
+				<item id="variable"><![CDATA[buqian]]></item>
+				<item id="type"><![CDATA[text]]></item>
+				<item id="value"><![CDATA[3]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="5">
+				<item id="displayorder"><![CDATA[5]]></item>
+				<item id="title"><![CDATA[轮播图]]></item>
+				<item id="description"><![CDATA[例如：网址|图片地址 ，  一行一个]]></item>
+				<item id="variable"><![CDATA[pics]]></item>
+				<item id="type"><![CDATA[textarea]]></item>
+				<item id="value"><![CDATA[http://www.baiud.com|http://pic.app.hualongxiang.com/_20160608173504_5757e6c81c5df.jpg?interlace/1
+http://www.baiud.com|pic11]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="6">
+				<item id="displayorder"><![CDATA[6]]></item>
+				<item id="title"><![CDATA[签到规则]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[rules]]></item>
+				<item id="type"><![CDATA[textarea]]></item>
+				<item id="value"><![CDATA[<p>1、每天签到可获得1花贝奖励。</p><p>2、连续签到7天可额外获得5花贝奖励，中途断签会重新计算的哦~</p>]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="7">
+				<item id="displayorder"><![CDATA[7]]></item>
+				<item id="title"><![CDATA[手机顶部背景颜色]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[top_color]]></item>
+				<item id="type"><![CDATA[color]]></item>
+				<item id="value"><![CDATA[#FF9933]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="8">
+				<item id="displayorder"><![CDATA[8]]></item>
+				<item id="title"><![CDATA[手机顶部文字颜色]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[text_color]]></item>
+				<item id="type"><![CDATA[color]]></item>
+				<item id="value"><![CDATA[#FFFFFF]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="9">
+				<item id="displayorder"><![CDATA[9]]></item>
+				<item id="title"><![CDATA[日历颜色]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[c_color]]></item>
+				<item id="type"><![CDATA[color]]></item>
+				<item id="value"><![CDATA[#FF9933]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="10">
+				<item id="displayorder"><![CDATA[10]]></item>
+				<item id="title"><![CDATA[推荐好物]]></item>
+				<item id="description"><![CDATA[例如：名称|图片地址|多少积分|链接地址，一行一个。]]></item>
+				<item id="variable"><![CDATA[goods]]></item>
+				<item id="type"><![CDATA[textarea]]></item>
+				<item id="value"><![CDATA[推荐好物1|http://bbs.7dcms.com/data/appbyme/upload/jifen/h7idkGpWiujo.jpg|20金币|http://bbs.7dcms.com/mobcent/app/web/index.php?r=jifen/index/show&id=4
+推荐好物2|http://bbs.7dcms.com/data/appbyme/upload/jifen/h7idkGpWiujo.jpg|20金币|http://bbs.7dcms.com/mobcent/app/web/index.php?r=jifen/index/show&id=4
+推荐好物3|http://bbs.7dcms.com/data/appbyme/upload/jifen/h7idkGpWiujo.jpg|20金币|http://bbs.7dcms.com/mobcent/app/web/index.php?r=jifen/index/show&id=4
+推荐好物4|http://bbs.7dcms.com/data/appbyme/upload/jifen/h7idkGpWiujo.jpg|20金币|http://bbs.7dcms.com/mobcent/app/web/index.php?r=jifen/index/show&id=4
+推荐好物5|http://bbs.7dcms.com/data/appbyme/upload/jifen/h7idkGpWiujo.jpg|20金币|http://bbs.7dcms.com/mobcent/app/web/index.php?r=jifen/index/show&id=4]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+			<item id="11">
+				<item id="displayorder"><![CDATA[10]]></item>
+				<item id="title"><![CDATA[是否开启电脑版]]></item>
+				<item id="description"><![CDATA[]]></item>
+				<item id="variable"><![CDATA[is_pc]]></item>
+				<item id="type"><![CDATA[radio]]></item>
+				<item id="value"><![CDATA[]]></item>
+				<item id="extra"><![CDATA[]]></item>
+			</item>
+		</item>
+		<item id="language">
+			<item id="scriptlang">
+				<item id="qcqd"><![CDATA[请从签到页面进入！]]></item>
+				<item id="yjqd"><![CDATA[您今天已经签过到了,明天再来吧!]]></item>
+				<item id="link"><![CDATA[调用连接]]></item>
+				<item id="sb"><![CDATA[请求失败!]]></item>
+				<item id="name"><![CDATA[用户名]]></item>
+				<item id="date"><![CDATA[最后签到日期]]></item>
+				<item id="time"><![CDATA[签到时间]]></item>
+				<item id="lxqd"><![CDATA[连续签到天数]]></item>
+				<item id="uid"><![CDATA[UID]]></item>
+				<item id="success_info"><![CDATA[操作成功]]></item>
+				<item id="buy_error"><![CDATA[购买失败！]]></item>
+				<item id="buy_success"><![CDATA[购买成功！]]></item>
+				<item id="buy_bz"><![CDATA[不足！]]></item>
+				<item id="bqcg"><![CDATA[补签成功！]]></item>
+				<item id="bqsb"><![CDATA[补签失败！]]></item>
+			</item>
+			<item id="templatelang">
+				<item id="qd"><![CDATA[签 到]]></item>
+				<item id="refresh"><![CDATA[刷新]]></item>
+				<item id="yq"><![CDATA[已 签]]></item>
+				<item id="dcqd"><![CDATA[点此签到]]></item>
+				<item id="hc"><![CDATA[还差]]></item>
+				<item id="qm"><![CDATA[天即可签满]]></item>
+				<item id="yqm"><![CDATA[已签满7天]]></item>
+				<item id="jrkd"><![CDATA[今日签到可获得]]></item>
+				<item id="ljqd"><![CDATA[累计签到]]></item>
+				<item id="t"><![CDATA[天]]></item>
+				<item id="phb"><![CDATA[签到排行榜]]></item>
+				<item id="lxqd"><![CDATA[连续签到]]></item>
+				<item id="dd"><![CDATA[多多，忘记签到会从第一天重新开始计算哦！]]></item>
+				<item id="1t"><![CDATA[1天]]></item>
+				<item id="2t"><![CDATA[2天]]></item>
+				<item id="3t"><![CDATA[3天]]></item>
+				<item id="4t"><![CDATA[4天]]></item>
+				<item id="5t"><![CDATA[5天]]></item>
+				<item id="6t"><![CDATA[6天]]></item>
+				<item id="7t"><![CDATA[7天]]></item>
+				<item id="rules"><![CDATA[签到规则]]></item>
+				<item id="tjhw"><![CDATA[推荐好物]]></item>
+				<item id="zgd"><![CDATA[赚更多]]></item>
+				<item id="qdh"><![CDATA[去兑换]]></item>
+				<item id="hdqd"><![CDATA[获得签到]]></item>
+				<item id="yqm1"><![CDATA[已签满]]></item>
+				<item id="wdl"><![CDATA[未登录]]></item>
+				<item id="sb"><![CDATA[请求失败!]]></item>
+				<item id="qdt"><![CDATA[签到]]></item>
+				<item id="sc"><![CDATA[商城]]></item>
+				<item id="dl"><![CDATA[登录]]></item>
+				<item id="qxdl"><![CDATA[请先登录app]]></item>
+				<item id="ljdl"><![CDATA[立即登录]]></item>
+				<item id="zhu"><![CDATA[注：该排行榜实时更新]]></item>
+				<item id="jrph"><![CDATA[今日排行]]></item>
+				<item id="zph"><![CDATA[总排行]]></item>
+				<item id="myqd"><![CDATA[还没有人签到哦！]]></item>
+				<item id="qdcg"><![CDATA[恭喜您签到成功！]]></item>
+				<item id="one"><![CDATA[一]]></item>
+				<item id="two"><![CDATA[二]]></item>
+				<item id="three"><![CDATA[三]]></item>
+				<item id="four"><![CDATA[四]]></item>
+				<item id="five"><![CDATA[五]]></item>
+				<item id="six"><![CDATA[六]]></item>
+				<item id="seven"><![CDATA[日]]></item>
+				<item id="gxhd"><![CDATA[恭喜您获得]]></item>
+				<item id="zdl"><![CDATA[知道了]]></item>
+				<item id="bqkgm"><![CDATA[确认购买一张补签卡（一张补签卡消耗]]></item>
+				<item id="qx"><![CDATA[取消]]></item>
+				<item id="ljgm"><![CDATA[立即购买]]></item>
+				<item id="sybqk"><![CDATA[您确认要使用一张补签卡？]]></item>
+				<item id="qrsy"><![CDATA[确定使用]]></item>
+				<item id="bu"><![CDATA[补]]></item>
+				<item id="year"><![CDATA[年]]></item>
+				<item id="month"><![CDATA[月]]></item>
+				<item id="bqkgm1"><![CDATA[）]]></item>
+				<item id="nhy"><![CDATA[您还有]]></item>
+				<item id="zbqk"><![CDATA[张补签卡！]]></item>
+				<item id="jrqd"><![CDATA[今日签到]]></item>
+				<item id="zrqd"><![CDATA[昨日签到]]></item>
+				<item id="gmbqk"><![CDATA[购买补签卡]]></item>
+				<item id="ren"><![CDATA[人]]></item>
+			</item>
+		</item>
+		<item id="installfile"><![CDATA[install.php]]></item>
+		<item id="uninstallfile"><![CDATA[uninstall.php]]></item>
+	</item>
+</root>
