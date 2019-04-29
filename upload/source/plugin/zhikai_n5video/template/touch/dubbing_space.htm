@@ -4,38 +4,9 @@
 	<div class="uk-width-1-1">
 		<div class="uk-panel uk-panel-box uk-margin-small-left uk-margin-small-right" style="padding:0.5rem;">
 			<div class="uk-grid uk-grid-small" style="height:6rem;">
-				<img class="" style="height:6rem; width:11rem;" src="{$attachInfo['cover']}">
-				<div class="" style="width:45%;">
-					<div class="" style="height:4rem;">
-						<div class="zyh-dubbing-subject"><strong>{$attachInfo['subject']}</strong></div>
-						<div class="uk-article-meta">{$thread['dateline']}</div>
-					</div>
-					<div class="uk-position-relative" style="height:2rem">
-						<div class="uk-grid uk-grid-small uk-position-bottom" style="width:9rem;">
-							<div class="uk-width-1-3"><i class="uk-icon-thumbs-o-up"></i> {$thread[replies]}</div>
-							<div class="uk-width-1-3"><i class="uk-icon-commenting-o"></i> {$thread[recommend_add]}</div>
-							<div class="uk-width-1-3"><i class="uk-icon-eye"></i> $thread[views]</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="zyh-edit-checkbox uk-position-bottom-right uk-vertical-align uk-height-1-1" style="padding:0.5rem;">
-		<label class="checkbox uk-vertical-align-middle uk-margin-bottom-remove">
-			<input type="checkbox" name="threadCheckbox" value="{$attachInfo['stid']}">
-			<i class="fa fa-2x icon-checkbox"></i>
-		</label>
-	</div>
-</div>
-<!--{elseif $_GET[searchkey] == 'private'}-->
-<div class="zyh-private-list-item uk-grid uk-grid-small uk-position-relative" tid="{$attachInfo['stid']}">
-	<div class="uk-width-1-1">
-		<div class="uk-panel uk-panel-box uk-margin-small-left uk-margin-small-right" style="padding:0.5rem;">
-			<div class="uk-grid uk-grid-small" style="height:6rem;">
 				<figure class="uk-overlay">
 					<img class="" style="height:6rem; width:11rem;" src="{$attachInfo['cover']}">
-					<figcaption class="zyh-private-list-image-overlay uk-overlay-panel uk-icon-arrow-circle-up" tid="{$attachInfo['stid']}"></figcaption>
+					<figcaption class="zyh-public-list-image-overlay uk-overlay-panel uk-icon-check-circle-o" tid="{$attachInfo['stid']}"></figcaption>
 				</figure>
 				<div class="" style="width:45%;">
 					<div class="" style="height:4rem;">
@@ -44,9 +15,11 @@
 					</div>
 					<div class="uk-position-relative" style="height:2rem">
 						<div class="uk-grid uk-grid-small uk-position-bottom" style="width:9rem;">
+							<!--
 							<div class="uk-width-1-3"><i class="uk-icon-thumbs-o-up"></i> {$thread[replies]}</div>
 							<div class="uk-width-1-3"><i class="uk-icon-commenting-o"></i> {$thread[recommend_add]}</div>
 							<div class="uk-width-1-3"><i class="uk-icon-eye"></i> $thread[views]</div>
+							-->
 						</div>
 					</div>
 				</div>
@@ -76,9 +49,11 @@
 					</div>
 					<div class="uk-position-relative" style="height:2rem">
 						<div class="uk-grid uk-grid-small uk-position-bottom" style="width:9rem;">
+							<!--
 							<div class="uk-width-1-3"><i class="uk-icon-thumbs-o-up"></i> {$thread[replies]}</div>
 							<div class="uk-width-1-3"><i class="uk-icon-commenting-o"></i> {$thread[recommend_add]}</div>
 							<div class="uk-width-1-3"><i class="uk-icon-eye"></i> $thread[views]</div>
+							-->
 						</div>
 					</div>
 				</div>

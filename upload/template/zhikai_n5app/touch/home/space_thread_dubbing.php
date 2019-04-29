@@ -36,8 +36,8 @@
 	display: block;
 }
 
-/* 未发布配音封面上的图标 */
-.zyh-private-list-image-overlay:before {
+/* 发布配音封面上的图标 */
+.zyh-public-list-image-overlay:before {
 	position: absolute;
 	top: 50%;
 	left: 50%;
@@ -79,7 +79,7 @@
 	</div>
 	<style type="text/css">
 		.ztfl_fllb {width: 100%;} 
-		.ztfl_fllb ul li {width: 33.33%;padding: 0;}
+		.ztfl_fllb ul li {width: 50%; padding: 0;}
 	</style>
 	<!--  列表切换区域 -->
 	<div class="zyh-switch-area n5sq_ztfl">
@@ -91,10 +91,7 @@
 					<!--{eval $privateCount = count(C::t('forum_thread')->fetch_all_by_authorid_displayorder($authorid, 0, '=', null, 'private', 0, 0, null, $fid_dubbing_private ))}-->
 					<!--{eval $draftCount = count(C::t('forum_thread')->fetch_all_by_authorid_displayorder($authorid, 0, '=', null, 'draft', 0, 0, null, $fid_dubbing_draft ))}-->
 					<li <!--{if $_GET[dubbing] == '1'}-->class="a"<!--{/if}-->>
-						<a href="home.php?mod=space&do=thread&view=me&type=thread&fid={$fid_dubbing}&filter=common&searchkey=public&dubbing=1">已发布({$publicCount})</a>
-					</li>
-					<li <!--{if $_GET[dubbing] == '2'}-->class="a"<!--{/if}-->>
-						<a href="home.php?mod=space&do=thread&view=me&type=thread&fid={$fid_dubbing}&filter=common&searchkey=private&dubbing=2">未发布({$privateCount})</a>
+						<a href="home.php?mod=space&do=thread&view=me&type=thread&fid={$fid_dubbing}&filter=common&searchkey=public&dubbing=1">已完成({$publicCount})</a>
 					</li>
 					<li <!--{if $_GET[dubbing] == '3'}-->class="a"<!--{/if}-->>
 						<a href="home.php?mod=space&do=thread&view=me&type=thread&fid={$fid_dubbing}&filter=common&searchkey=draft&dubbing=3">草稿箱({$draftCount})</a>
@@ -193,26 +190,18 @@ jq('.zyh-edit-switch').click(function(event){
 	enableEdit = !enableEdit;
 });
 
-// 点击未发布配音列表项时，查看用户配音。
+// 点击已发布配音列表项时，查看用户配音。
 jq('.zyh-public-list-item').click(function(event) {
-	jq(window).attr('location', 'forum.php?mod=viewthread&tid=' + jq(this).attr('tid') + '&mobile=2');
-});
-
-// 点击未发布配音列表项的非图片区域时，查看用户配音。
-jq('.zyh-private-list-item').click(function(event) {
-	jq(window).attr('location', 'forum.php?mod=viewthread&tid=' + jq(this).attr('tid') + '&mobile=2');
-});
-
-// 点击未发布配音列表项的图片区域时，转成已发布配音。
-jq('.zyh-private-list-image-overlay').click(function(event) {
-	var tid = jq(this).attr('tid');
-	event.stopPropagation(); //停止事件冒泡
-	// TODO.
+	if (!enableEdit) {
+		jq(window).attr('location', 'forum.php?mod=viewthread&tid=' + jq(this).attr('tid') + '&mobile=2');
+	}
 });
 
 // 点击草稿配音列表项时，编辑用户配音贴子。
 jq('.zyh-draft-list-item').click(function(event) {
-	jq(window).attr('location', 'forum.php?mod=post&action=edit&fid=' + jq(this).attr('fid') + '&tid=' + jq(this).attr('tid') + '&pid=' + jq(this).attr('pid') + '&mobile=2');
+	if (!enableEdit) {
+		jq(window).attr('location', 'forum.php?mod=post&action=edit&fid=' + jq(this).attr('fid') + '&tid=' + jq(this).attr('tid') + '&pid=' + jq(this).attr('pid') + '&mobile=2');
+	}
 });
 
 // 更新选择的数量。
